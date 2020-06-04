@@ -11,6 +11,14 @@ var (
 	testConnString = "root:password@tcp(localhost)/distro-blog-test?parseTime=true"
 )
 
+/*
+
+Many of these tests may seem/be duplicates, replicated for each function,
+however, they are there to cover cases in each method and make it easier
+to adapt method specific tests in future.
+
+*/
+
 // EXECUTE
 
 // Covers ensureConnected, where sql.Open errors.
@@ -335,7 +343,7 @@ func executeHelper(query string, args ...interface{}) {
 
 // TEST READERS
 
-func testReader(s Scanner) (interface{}, error) {
+func testReader(s ScannerFunc) (interface{}, error) {
 	var (
 		name string
 		age  int
@@ -349,7 +357,7 @@ func testReader(s Scanner) (interface{}, error) {
 	return fmt.Sprintf("%s, %d", name, age), err
 }
 
-func testInvalidReader(s Scanner) (interface{}, error) {
+func testInvalidReader(s ScannerFunc) (interface{}, error) {
 	var (
 		name int
 		age  string

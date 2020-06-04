@@ -8,15 +8,22 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-type Scanner func(dst ...interface{}) error
-type ReaderFunc func(s Scanner) (interface{}, error)
+// ScannerFunc is a function used by a ReaderFunc to read
+// the results of a sql row.
+type ScannerFunc func(dst ...interface{}) error
 
+// ReaderFunc is used to read results of a query to a specific type.
+type ReaderFunc func(s ScannerFunc) (interface{}, error)
+
+// MySQL is a wrapper around database/sql methods, providing
+// a higher-level abstaction of the database access code.
 type MySQL struct {
 	connStr string
 	ctx     context.Context
 	db      *sql.DB
 }
 
+// NewMySQL returns a new instance of MySQL, with the given connection string.
 func NewMySQL(connStr string) *MySQL {
 	return &MySQL{
 		connStr: connStr,
@@ -32,8 +39,8 @@ func (mysql *MySQL) Execute(ctx context.Context, query string, args ...interface
 		return err
 	}
 
-	// error if ignored due to the driver supporting the isolation
-	// level and a connection being made.
+	// Error ignored due to the driver supporting the isolation
+	// level and a successful connection already made.
 	tx, _ := mysql.db.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelReadUncommitted})
 	defer func() {
 		if err != nil {

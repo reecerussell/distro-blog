@@ -4,8 +4,7 @@ import (
 	"testing"
 
 	"github.com/reecerussell/distro-blog/domain/dto"
-	"github.com/reecerussell/distro-blog/normalization"
-
+	"github.com/reecerussell/distro-blog/libraries/normalization"
 	"github.com/reecerussell/distro-blog/password"
 )
 

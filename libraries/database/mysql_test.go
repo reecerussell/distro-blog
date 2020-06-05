@@ -4,11 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"os"
 	"testing"
 )
 
 var (
-	testConnString = "root:password@tcp(localhost)/distro-blog-test?parseTime=true"
+	testConnString = os.Getenv("CONN_STRING")
 )
 
 /*

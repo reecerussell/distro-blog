@@ -328,6 +328,109 @@ func TestMultipleWithInvalidReader(t *testing.T) {
 	executeHelper("delete from `table-one` where `name` = ?;", "John")
 }
 
+// COUNT
+
+// Covers ensureConnected, where sql.Open errors.
+func TestCountWithInvalidConnString(t *testing.T) {
+	db := NewMySQL("invalid connection")
+
+	ctx := context.Background()
+	_, err := db.Multiple(ctx, "query should be needed", testReader)
+	if err == nil {
+		t.Errorf("expected error but got nil")
+	}
+}
+
+// Covers ensureConnected, where db.Ping returns an error.
+func TestCountWithClosedConnection(t *testing.T) {
+	db := NewMySQL(testConnString)
+
+	err := db.ensureConnected()
+	if err != nil {
+		panic(err)
+	}
+
+	// Close connection
+	db.db.Close()
+
+	ctx := context.Background()
+	_, err = db.Count(ctx, "shouldn't be needed", testReader)
+	if err == nil {
+		t.Errorf("expected error but got nil")
+	}
+}
+
+func TestCount(t *testing.T) {
+	// seed db
+	executeHelper("insert into `table-one` (`name`,`age`) values (?,?);", "John", 2)
+	executeHelper("insert into `table-one` (`name`,`age`) values (?,?);", "Jane", 5)
+
+	db := NewMySQL(testConnString)
+	ctx := context.Background()
+	query := "SELECT COUNT(*) FROM `table-one`;"
+
+	c, err := db.Count(ctx, query)
+	if err != nil {
+		t.Errorf("expected nil, but got: %v", err)
+	}
+
+	if c != 2 {
+		t.Errorf("expected count to result in 2 but got: %d", c)
+	}
+
+	// clean up
+	executeHelper("delete from `table-one`;")
+}
+
+func TestCountWithNonIntValue(t *testing.T) {
+	// seed db
+	executeHelper("insert into `table-one` (`name`,`age`) values (?,?);", "John", 2)
+	executeHelper("insert into `table-one` (`name`,`age`) values (?,?);", "Jane", 5)
+
+	db := NewMySQL(testConnString)
+	ctx := context.Background()
+	query := "SELECT 'hello';"
+
+	_, err := db.Count(ctx, query)
+	if err == nil {
+		t.Errorf("expected error, but got nil")
+	}
+
+	// clean up
+	executeHelper("delete from `table-one`;")
+}
+
+func TestCountWithInvalidQuery(t *testing.T) {
+	db := NewMySQL(testConnString)
+
+	ctx := context.Background()
+	_, err := db.Count(ctx, "invalid query")
+	if err == nil {
+		t.Errorf("expected error but got nil")
+	}
+}
+
+func TestCountWithInvalidNumOfArgs(t *testing.T) {
+	db := NewMySQL(testConnString)
+
+	ctx := context.Background()
+	query := "select count(*) from `table-one` where id = ?;"
+
+	// too few args
+	args := []interface{}{}
+	_, err := db.Count(ctx, query, args...)
+	if err == nil {
+		t.Errorf("few: expected error but got none")
+	}
+
+	// too many args
+	args = []interface{}{1, 2}
+	_, err = db.Count(ctx, query, args...)
+	if err == nil {
+		t.Errorf("many: expected error but got none")
+	}
+}
+
 // HELPERS
 
 func executeHelper(query string, args ...interface{}) {

@@ -132,11 +132,20 @@ func (mysql *MySQL) Multiple(ctx context.Context, query string, rdr ReaderFunc, 
 	return items, nil
 }
 
-// readtx
+// Count is similar to Read, but can be used to read a single integer from a query. If
+// an error occurs the default int64 value(0) will be returned.
+func (mysql *MySQL) Count(ctx context.Context, query string, args ...interface{}) (int64, error) {
+	res, err := mysql.Read(ctx, query, func(s ScannerFunc) (interface{}, error) {
+		var c int64
+		err := s(&c)
+		return c, err
+	}, args...)
+	if err != nil {
+		return 0, err
+	}
 
-// multipletx
-
-// counttx
+	return res.(int64), nil
+}
 
 func (mysql *MySQL) ensureConnected() error {
 	if mysql.db == nil {

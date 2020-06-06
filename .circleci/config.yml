@@ -29,7 +29,7 @@ jobs:
             - run:
                   name: Install MySQL CLI
                   command: |
-                      #sudo apt-get install mysql-client
+                      sudo apt-get install mysql-client
                       mysql -u root -ppassword distro-blog-test < test/test-db-setup.sql
 
             # Install Go dependencies.

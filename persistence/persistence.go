@@ -6,8 +6,8 @@ import (
 	"github.com/reecerussell/distro-blog/persistence/mysql"
 )
 
-// New returns an instance of UserRepository for the given database type.
-func New(db interface{}) repository.UserRepository {
+// NewUserRepository returns an instance of UserRepository for the given database type.
+func NewUserRepository(db interface{}) repository.UserRepository {
 	switch db.(type) {
 	case *database.MySQL:
 		return mysql.NewUserRepository(db.(*database.MySQL))

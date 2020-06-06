@@ -6,7 +6,7 @@ import (
 	"github.com/reecerussell/distro-blog/libraries/database"
 )
 
-func TestMySQL(t *testing.T) {
+func TestMySQLUserRepo(t *testing.T) {
 	defer func() {
 		if r := recover(); r != nil {
 			t.Errorf("expected no panic, but got: %v", r)
@@ -17,7 +17,7 @@ func TestMySQL(t *testing.T) {
 	_ = New(db)
 }
 
-func TestUnsupported(t *testing.T) {
+func TestUnsupportedUserRepo(t *testing.T) {
 	defer func() {
 		if r := recover(); r == nil {
 			t.Errorf("expected a panic")

@@ -20,6 +20,8 @@ var (
 )
 
 func TestEnsureEmailIsUnique(t *testing.T) {
+	defer executeHelper("delete from `users`;")
+
 	db := database.NewMySQL(testConnString)
 	repo := mysql.NewUserRepository(db)
 	serv := NewUserService(repo)
@@ -33,6 +35,8 @@ func TestEnsureEmailIsUnique(t *testing.T) {
 }
 
 func TestEnsureEmailIsUniqueWithNonUnique(t *testing.T) {
+	defer executeHelper("delete from `users`;")
+
 	db := database.NewMySQL(testConnString)
 	repo := mysql.NewUserRepository(db)
 	serv := NewUserService(repo)
@@ -57,9 +61,6 @@ func TestEnsureEmailIsUniqueWithNonUnique(t *testing.T) {
 	if success {
 		t.Errorf("expected an error but got nil")
 	}
-
-	// clean up
-	executeHelper("delete from `users`;")
 }
 
 func buildUser() *model.User {

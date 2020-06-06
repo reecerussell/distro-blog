@@ -11,12 +11,8 @@ jobs:
 
         working_directory: /go/src/github.com/reecerussell/distro-blog
 
-        environment:
-            TEST_RESULTS: /tmp/test-results
-
         steps:
             - checkout
-            - run: mkdir -p $TEST_RESULTS
             
             - restore_cache:
                 keys:
@@ -43,7 +39,7 @@ jobs:
                   name: Run unit tests
                   environment:
                       CONN_STRING: root:password@tcp(127.0.0.1)/distro-blog-test?parseTime=true
-                  command: go test -v ./... -o $TEST_RESULTS/output.html
+                  command: go test -v ./...
                   
             - run: make
             - save_cache:
@@ -51,13 +47,6 @@ jobs:
                 paths:
                     - "/go/pkg"
                     
-            - store_artifacts:
-                path: /tmp/test-results
-                destination: raw-test-output
-
-            - store_test_results:
-                path: /tmp/test-results
-
 workflows:
     version: 2
     build-test:

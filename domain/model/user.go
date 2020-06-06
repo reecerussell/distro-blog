@@ -49,7 +49,7 @@ func NewUser(data *dto.CreateUser, serv password.Service, norm normalization.Nor
 		return nil, err
 	}
 
-	return nil, nil
+	return u, nil
 }
 
 // Email returns the User's email.

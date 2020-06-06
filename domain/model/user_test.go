@@ -176,9 +176,13 @@ func TestNewUser(t *testing.T) {
 		Password:  "MyPassword123",
 	}
 
-	_, err := NewUser(cu, testPasswordService, testNormalizer)
+	u, err := NewUser(cu, testPasswordService, testNormalizer)
 	if err != nil {
 		t.Errorf("valid user: expected no error, but got: %v", err)
+	}
+
+	if u == nil {
+		t.Errorf("expected an instance of a user but got nil")
 	}
 }
 

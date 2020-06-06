@@ -13,7 +13,6 @@ jobs:
             - run:
                   name: Waiting for MySQL to be ready
                   command: |
-                      apt-get -y -qq update
                       apt-get install netcat
                       for i in `seq 1 30`;
                       do

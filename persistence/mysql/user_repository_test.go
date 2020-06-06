@@ -33,6 +33,7 @@ func TestAdd(t *testing.T) {
 }
 
 func TestAddWithExistingEmail(t *testing.T) {
+	executeHelper("delete from `users`;")
 	defer executeHelper("delete from `users`;")
 
 	db := database.NewMySQL(testConnString)
@@ -54,6 +55,7 @@ func TestAddWithExistingEmail(t *testing.T) {
 }
 
 func TestCountByEmail(t *testing.T) {
+	executeHelper("delete from `users`;")
 	defer executeHelper("delete from `users`;")
 
 	db := database.NewMySQL(testConnString)

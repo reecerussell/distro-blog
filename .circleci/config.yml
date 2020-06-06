@@ -21,7 +21,7 @@ jobs:
             - run:
                   name: Waiting for MySQL to be ready
                   command: |
-                      sleep 30; echo Done.
+                      sleep 20; echo Done.
 
             - run:
                   name: Install MySQL CLI
@@ -35,12 +35,11 @@ jobs:
             - run: go get golang.org/x/crypto/pbkdf2
 
             # Tests
-            - run: mkdir -p /tmp/coverage
             - run:
                   name: Run unit tests
                   environment:
                       CONN_STRING: root:password@tcp(127.0.0.1)/distro-blog-test?parseTime=true
-                  command: go test -v ./... -race -coverprofile=/tmp/coverage/coverage.txt -covermode=atomic
+                  command: go test -v ./... -race -coverprofile=coverage.txt -covermode=atomic
             - run: bash <(curl -s https://codecov.io/bash)
 
             - save_cache:
@@ -49,7 +48,7 @@ jobs:
                       - "/go/pkg"
 
             - store_artifacts:
-                  path: /tmp/coverage
+                  path: coverage.txt
 
 workflows:
     version: 2

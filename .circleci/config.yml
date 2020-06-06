@@ -30,7 +30,7 @@ jobs:
                   name: Install MySQL CLI
                   command: |
                       sudo apt-get install default-mysql-client
-                      mysql -u root -ppassword distro-blog-test < test/test-db-setup.sql
+                      mysql -h 127.0.0.1 -u root -ppassword distro-blog-test < test/test-db-setup.sql
 
             # Install Go dependencies.
             - run: go get github.com/google/uuid

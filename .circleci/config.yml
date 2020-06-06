@@ -37,16 +37,14 @@ jobs:
             - run: go get github.com/google/uuid
             - run: go get github.com/go-sql-driver/mysql
             - run: go get golang.org/x/crypto/pbkdf2
-            - run: go get go-junit-report
 
             # Tests
             - run:
                   name: Run unit tests
                   environment:
                       CONN_STRING: root:password@tcp(127.0.0.1)/distro-blog-test?parseTime=true
-                  command: |
-                        trap "go-junit-report <${TEST_RESULTS}/go-test.out > ${TEST_RESULTS}/go-test-report.xml" EXIT
-                        make test | tee ${TEST_RESULTS}/go-test.out
+                  command: go test -v ./... -o $TEST_RESULTS/output.html
+                  
             - run: make
             - save_cache:
                 key: v1-pkg-cache

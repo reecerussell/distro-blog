@@ -237,3 +237,62 @@ func TestNewUserWithInvalidPassword(t *testing.T) {
 		t.Errorf("expected no error, but got: nil")
 	}
 }
+
+func TestGetEmail(t *testing.T) {
+	testEmail := "john@doe.com"
+	u := &User{
+		email: testEmail,
+	}
+
+	if v := u.Email(); v != testEmail {
+		t.Errorf("expected '%s' but got '%s'", testEmail, v)
+	}
+}
+
+func TestGetNormalizedEmail(t *testing.T) {
+	testEmail := "JOHN@DOE.COM"
+	u := &User{
+		normalizedEmail: testEmail,
+	}
+
+	if v := u.NormalizedEmail(); v != testEmail {
+		t.Errorf("expected '%s' but got '%s'", testEmail, v)
+	}
+}
+
+func TestDataModel(t *testing.T) {
+	u := &User{
+		id:              "id",
+		firstname:       "firstname",
+		lastname:        "lastname",
+		email:           "email",
+		normalizedEmail: "normalized email",
+		passwordHash:    "password hash",
+	}
+
+	dm := u.DataModel()
+
+	if dm.ID != u.id {
+		t.Errorf("expected id to be '%s' but got '%s'", u.id, dm.ID)
+	}
+
+	if dm.Firstname != u.firstname {
+		t.Errorf("expected firstname to be '%s' but got '%s'", u.firstname, dm.Firstname)
+	}
+
+	if dm.Lastname != u.lastname {
+		t.Errorf("expected lastname to be '%s' but got '%s'", u.lastname, dm.Lastname)
+	}
+
+	if dm.Email != u.email {
+		t.Errorf("expected email to be '%s' but got '%s'", u.email, dm.Email)
+	}
+
+	if dm.NormalizedEmail != u.normalizedEmail {
+		t.Errorf("expected normalized email to be '%s' but got '%s'", u.normalizedEmail, dm.NormalizedEmail)
+	}
+
+	if dm.PasswordHash != u.passwordHash {
+		t.Errorf("expected password hash to be '%s' but got '%s'", u.passwordHash, dm.PasswordHash)
+	}
+}

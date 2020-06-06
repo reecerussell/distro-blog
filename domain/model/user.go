@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/reecerussell/distro-blog/domain/datamodel"
 	"github.com/reecerussell/distro-blog/domain/dto"
 	"github.com/reecerussell/distro-blog/libraries/normalization"
 	"github.com/reecerussell/distro-blog/password"
@@ -49,6 +50,16 @@ func NewUser(data *dto.CreateUser, serv password.Service, norm normalization.Nor
 	}
 
 	return nil, nil
+}
+
+// Email returns the User's email.
+func (u *User) Email() string {
+	return u.email
+}
+
+// NormalizedEmail returns the User's normalized email.
+func (u *User) NormalizedEmail() string {
+	return u.normalizedEmail
 }
 
 // UpdateFirstname updates the User's firstname.
@@ -119,4 +130,16 @@ func (u *User) setPassword(password string, serv password.Service) error {
 	u.passwordHash = serv.Hash(password)
 
 	return nil
+}
+
+// DataModel returns a datamodel object for the User.
+func (u *User) DataModel() *datamodel.User {
+	return &datamodel.User{
+		ID:              u.id,
+		Firstname:       u.firstname,
+		Lastname:        u.lastname,
+		Email:           u.email,
+		NormalizedEmail: u.normalizedEmail,
+		PasswordHash:    u.passwordHash,
+	}
 }

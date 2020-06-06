@@ -24,7 +24,7 @@ jobs:
             - run:
                   name: Waiting for MySQL to be ready
                   command: |
-                      sleep 20; echo Done.
+                      sleep 30; echo Done.
 
             - run:
                   name: Install MySQL CLI

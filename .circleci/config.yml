@@ -2,14 +2,25 @@ version: 2
 jobs:
     build:
         docker:
+            - image: circleci/golang
             - image: circleci/mysql
               environment:
                   MYSQL_ROOT_PASSWORD: password
                   MYSQL_DATABASE: distro-blog-test
-            - image: circleci/golang
+
+        working_directory: /go/src/github.com/reecerussell/distro-blog
+
+        environment:
+            TEST_RESULTS: /tmp/test-results
 
         steps:
             - checkout
+            - run: mkdir -p $TEST_RESULTS
+            
+            - restore_cache:
+                keys:
+                    - v1-pkg-cache
+            
             - run:
                   name: Waiting for MySQL to be ready
                   command: |
@@ -32,10 +43,23 @@ jobs:
                   environment:
                       CONN_STRING: root:password@tcp(db)/distro-blog-test?parseTime=true
                   command: |
-                      go test -v ./...
+                        trap "go-junit-report <${TEST_RESULTS}/go-test.out > ${TEST_RESULTS}/go-test-report.xml" EXIT
+                        make test | tee ${TEST_RESULTS}/go-test.out
+            - run: make
+            - save_cache:
+                key: v1-pkg-cache
+                paths:
+                    - "/go/pkg"
+                    
+            - store_artifacts:
+                path: /tmp/test-results
+                destination: raw-test-output
+
+            - store_test_results:
+                path: /tmp/test-results
 
 workflows:
     version: 2
-    build-deploy:
+    build-test:
         jobs:
             - build

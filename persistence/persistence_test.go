@@ -14,7 +14,7 @@ func TestMySQLUserRepo(t *testing.T) {
 	}()
 
 	db := database.NewMySQL("")
-	_ = New(db)
+	_ = NewUserRepository(db)
 }
 
 func TestUnsupportedUserRepo(t *testing.T) {
@@ -24,5 +24,5 @@ func TestUnsupportedUserRepo(t *testing.T) {
 		}
 	}()
 
-	_ = New("")
+	_ = NewUserRepository("")
 }

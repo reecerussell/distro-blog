@@ -48,6 +48,9 @@ jobs:
                   paths:
                       - "/go/pkg"
 
+            - store_artifacts:
+                  path: /tmp/coverage
+
 workflows:
     version: 2
     build-test:

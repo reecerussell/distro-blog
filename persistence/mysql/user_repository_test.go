@@ -19,6 +19,8 @@ var (
 )
 
 func TestAdd(t *testing.T) {
+	defer executeHelper("delete from `users`;")
+
 	db := database.NewMySQL(testConnString)
 	repo := NewUserRepository(db)
 
@@ -28,12 +30,11 @@ func TestAdd(t *testing.T) {
 	if !success {
 		t.Errorf("expected no error but got: %v", err)
 	}
-
-	// clean up
-	executeHelper("delete from `users`;")
 }
 
 func TestAddWithExistingEmail(t *testing.T) {
+	defer executeHelper("delete from `users`;")
+
 	db := database.NewMySQL(testConnString)
 	repo := NewUserRepository(db)
 	ctx := context.Background()
@@ -50,12 +51,11 @@ func TestAddWithExistingEmail(t *testing.T) {
 	if success {
 		t.Errorf("expected an error but got nil")
 	}
-
-	// clean up
-	executeHelper("delete from `users`;")
 }
 
 func TestCountByEmail(t *testing.T) {
+	defer executeHelper("delete from `users`;")
+
 	db := database.NewMySQL(testConnString)
 	repo := NewUserRepository(db)
 	ctx := context.Background()
@@ -87,9 +87,6 @@ func TestCountByEmail(t *testing.T) {
 	if count.(int64) != 1 {
 		t.Errorf("expected 1 but got: %v", count)
 	}
-
-	// clean up
-	executeHelper("delete from `users`;")
 }
 
 func executeHelper(query string, args ...interface{}) {

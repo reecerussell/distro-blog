@@ -35,7 +35,8 @@ func TestEnsureEmailIsUnique(t *testing.T) {
 }
 
 func TestEnsureEmailIsUniqueWithNonUnique(t *testing.T) {
-	executeHelper("delete from `users`;")
+	executeHelper("DELETE FROM `users`;")
+	executeHelper("CALL `create_user`(UUID(),?,?,?,?,?);", "John", "Doe", "john@doe.com", "JOHN@DOE.COM", "e3ije")
 	defer executeHelper("delete from `users`;")
 
 	db := database.NewMySQL(testConnString)
@@ -43,22 +44,9 @@ func TestEnsureEmailIsUniqueWithNonUnique(t *testing.T) {
 	serv := NewUserService(repo)
 	ctx := context.Background()
 
-	// seed user
-	u := buildUser()
-	success, _, _, err := repo.Add(ctx, u).Deconstruct()
-	if !success {
-		t.Errorf("expected no error but got: %v", err)
-	}
-
-	// check with existing user
-	success, _, _, err = serv.EnsureEmailIsUnique(ctx, u).Deconstruct()
-	if !success {
-		t.Errorf("expected no error but got: %v", err)
-	}
-
 	// check new user
-	u = buildUser()
-	success, _, _, _ = serv.EnsureEmailIsUnique(ctx, u).Deconstruct()
+	u := buildUser()
+	success := serv.EnsureEmailIsUnique(ctx, u).IsOk()
 	if success {
 		t.Errorf("expected an error but got nil")
 	}

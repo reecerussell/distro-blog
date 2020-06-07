@@ -10,7 +10,6 @@ jobs:
                   MYSQL_DATABASE: distro-blog-test
 
         working_directory: /go/src/github.com/reecerussell/distro-blog
-        parallelism: 2
 
         steps:
             - checkout

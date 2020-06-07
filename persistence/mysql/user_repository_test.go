@@ -2,6 +2,8 @@ package mysql
 
 import (
 	"context"
+	"database/sql"
+	"fmt"
 	"os"
 	"testing"
 
@@ -36,18 +38,14 @@ func TestAddWithExistingEmail(t *testing.T) {
 	ctx := context.Background()
 	testEmail := "addWithExistingEmail@test.com"
 
-	t.Logf("Creating initial user: %s...", testEmail)
-	success, _, _, err := testRepo.Add(ctx, buildUser(testEmail)).Deconstruct()
-	if !success {
-		t.Logf("failed.\n\t%v", err)
-	} else {
-		t.Logf("done.")
-	}
+	t.Logf("Seeding the database with user: %s...", testEmail)
+	executeHelper("INSERT INTO `users` (`id`,`first_name`,`last_name`,`email`,`normalized_email`,`password`) VALUES (UUID(),?,?,?,?,?);",
+		"John", "Doe", testEmail, normalization.New().Normalize(testEmail), "random string")
 
 	// add duplicate user
 	t.Logf("Attempting to create a user with a non-unique email...")
 	u := buildUser(testEmail)
-	success = testRepo.Add(ctx, u).IsOk()
+	success := testRepo.Add(ctx, u).IsOk()
 	if success {
 		t.Logf("\tsucceeded - should've failed!")
 		t.Errorf("expected an error but got nil")
@@ -116,4 +114,16 @@ func buildUser(email string) *model.User {
 	}
 
 	return u
+}
+
+func executeHelper(query string, args ...interface{}) {
+	db, err := sql.Open("mysql", testConnString)
+	if err != nil {
+		panic(fmt.Errorf("open: %v", err))
+	}
+
+	_, err = db.Exec(query, args...)
+	if err != nil {
+		panic(fmt.Errorf("exec: %v", err))
+	}
 }

@@ -27,7 +27,16 @@ func init() {
 }
 
 func TestEnsureEmailIsUnique(t *testing.T) {
+	tdb, err := sql.Open("mysql", testConnString)
+	if err != nil {
+		panic(fmt.Errorf("open: %v", err))
+	}
+	var c int64
+	_ = tdb.QueryRow("select count(*) from `users`;").Scan(&c)
+	fmt.Printf("Users: %d\n", c)
 	executeHelper("DELETE FROM `users`;")
+	_ = tdb.QueryRow("select count(*) from `users`;").Scan(&c)
+	fmt.Printf("Users: %d\n", c)
 	ctx := context.Background()
 
 	u := buildUser()
@@ -38,8 +47,19 @@ func TestEnsureEmailIsUnique(t *testing.T) {
 }
 
 func TestEnsureEmailIsUniqueWithNonUnique(t *testing.T) {
+	tdb, err := sql.Open("mysql", testConnString)
+	if err != nil {
+		panic(fmt.Errorf("open: %v", err))
+	}
+	var c int64
+	_ = tdb.QueryRow("select count(*) from `users`;").Scan(&c)
+	fmt.Printf("Users: %d\n", c)
 	executeHelper("DELETE FROM `users`;")
+	_ = tdb.QueryRow("select count(*) from `users`;").Scan(&c)
+	fmt.Printf("Users: %d\n", c)
 	createUser()
+	_ = tdb.QueryRow("select count(*) from `users`;").Scan(&c)
+	fmt.Printf("Users: %d\n", c)
 	defer executeHelper("delete from `users`;")
 
 	ctx := context.Background()

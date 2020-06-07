@@ -2,8 +2,8 @@ version: 2
 jobs:
     build:
         docker:
-            - image: circleci/golang
-            - image: circleci/mysql
+            - image: golang
+            - image: mysql
               command: --default-authentication-plugin=mysql_native_password
               environment:
                   MYSQL_ROOT_PASSWORD: password

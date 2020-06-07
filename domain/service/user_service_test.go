@@ -17,18 +17,21 @@ import (
 
 var (
 	testConnString = os.Getenv("CONN_STRING")
+	testServ       *UserService
 )
+
+func init() {
+	db := database.NewMySQL(testConnString)
+	repo := mysql.NewUserRepository(db)
+	testServ = NewUserService(repo)
+}
 
 func TestEnsureEmailIsUnique(t *testing.T) {
 	executeHelper("DELETE FROM `users`;")
-
-	db := database.NewMySQL(testConnString)
-	repo := mysql.NewUserRepository(db)
-	serv := NewUserService(repo)
 	ctx := context.Background()
 
 	u := buildUser()
-	success, _, _, err := serv.EnsureEmailIsUnique(ctx, u).Deconstruct()
+	success, _, _, err := testServ.EnsureEmailIsUnique(ctx, u).Deconstruct()
 	if !success {
 		t.Errorf("expected no error but got: %v", err)
 	}
@@ -36,17 +39,14 @@ func TestEnsureEmailIsUnique(t *testing.T) {
 
 func TestEnsureEmailIsUniqueWithNonUnique(t *testing.T) {
 	executeHelper("DELETE FROM `users`;")
-	executeHelper("CALL `create_user`(UUID(),?,?,?,?,?);", "John", "Doe", "john@doe.com", "JOHN@DOE.COM", "e3ije")
+	createUser()
 	defer executeHelper("delete from `users`;")
 
-	db := database.NewMySQL(testConnString)
-	repo := mysql.NewUserRepository(db)
-	serv := NewUserService(repo)
 	ctx := context.Background()
 
 	// check new user
 	u := buildUser()
-	success := serv.EnsureEmailIsUnique(ctx, u).IsOk()
+	success := testServ.EnsureEmailIsUnique(ctx, u).IsOk()
 	if success {
 		t.Errorf("expected an error but got nil")
 	}
@@ -67,6 +67,10 @@ func buildUser() *model.User {
 	}
 
 	return u
+}
+
+func createUser() {
+	executeHelper("CALL `create_user`(UUID(),?,?,?,?,?);", "John", "Doe", "john@doe.com", "JOHN@DOE.COM", "e3ije")
 }
 
 func executeHelper(query string, args ...interface{}) {

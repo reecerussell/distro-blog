@@ -39,7 +39,7 @@ func TestAddWithExistingEmail(t *testing.T) {
 	testEmail := "addWithExistingEmail@test.com"
 
 	t.Logf("Seeding the database with user: %s...", testEmail)
-	executeHelper("INSERT INTO `users` (`id`,`first_name`,`last_name`,`email`,`normalized_email`,`password`) VALUES (UUID(),?,?,?,?,?);",
+	executeHelper("INSERT INTO `users` (`id`,`first_name`,`last_name`,`email`,`normalized_email`,`password_hash`) VALUES (UUID(),?,?,?,?,?);",
 		"John", "Doe", testEmail, normalization.New().Normalize(testEmail), "random string")
 
 	// add duplicate user

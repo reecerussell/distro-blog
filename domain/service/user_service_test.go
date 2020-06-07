@@ -20,7 +20,7 @@ var (
 )
 
 func TestEnsureEmailIsUnique(t *testing.T) {
-	defer executeHelper("delete from `users`;")
+	executeHelper("DELETE FROM `users`;")
 
 	db := database.NewMySQL(testConnString)
 	repo := mysql.NewUserRepository(db)
@@ -70,6 +70,7 @@ func buildUser() *model.User {
 }
 
 func executeHelper(query string, args ...interface{}) {
+	fmt.Printf("Executing: %s", query)
 	db, err := sql.Open("mysql", testConnString)
 	if err != nil {
 		panic(fmt.Errorf("open: %v", err))
@@ -79,4 +80,6 @@ func executeHelper(query string, args ...interface{}) {
 	if err != nil {
 		panic(fmt.Errorf("exec: %v", err))
 	}
+
+	fmt.Printf("\t done.\n")
 }

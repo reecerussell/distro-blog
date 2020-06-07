@@ -27,19 +27,9 @@ func init() {
 }
 
 func TestEnsureEmailIsUnique(t *testing.T) {
-	tdb, err := sql.Open("mysql", testConnString)
-	if err != nil {
-		panic(fmt.Errorf("open: %v", err))
-	}
-	var c int64
-	_ = tdb.QueryRow("select count(*) from `users`;").Scan(&c)
-	fmt.Printf("Users: %d\n", c)
-	executeHelper("DELETE FROM `users`;")
-	_ = tdb.QueryRow("select count(*) from `users`;").Scan(&c)
-	fmt.Printf("Users: %d\n", c)
 	ctx := context.Background()
 
-	u := buildUser()
+	u := buildUser("ensureEmailIsUnique@test.com")
 	success, _, _, err := testServ.EnsureEmailIsUnique(ctx, u).Deconstruct()
 	if !success {
 		t.Errorf("expected no error but got: %v", err)
@@ -47,36 +37,23 @@ func TestEnsureEmailIsUnique(t *testing.T) {
 }
 
 func TestEnsureEmailIsUniqueWithNonUnique(t *testing.T) {
-	tdb, err := sql.Open("mysql", testConnString)
-	if err != nil {
-		panic(fmt.Errorf("open: %v", err))
-	}
-	var c int64
-	_ = tdb.QueryRow("select count(*) from `users`;").Scan(&c)
-	fmt.Printf("Users: %d\n", c)
-	executeHelper("DELETE FROM `users`;")
-	_ = tdb.QueryRow("select count(*) from `users`;").Scan(&c)
-	fmt.Printf("Users: %d\n", c)
-	createUser()
-	_ = tdb.QueryRow("select count(*) from `users`;").Scan(&c)
-	fmt.Printf("Users: %d\n", c)
-	defer executeHelper("delete from `users`;")
-
 	ctx := context.Background()
+	testEmail := "ensureEmailIsUniqueWithNonUnique@test.com"
 
-	// check new user
-	u := buildUser()
+	createUser(testEmail)
+
+	u := buildUser(testEmail)
 	success := testServ.EnsureEmailIsUnique(ctx, u).IsOk()
 	if success {
 		t.Errorf("expected an error but got nil")
 	}
 }
 
-func buildUser() *model.User {
+func buildUser(email string) *model.User {
 	cu := &dto.CreateUser{
 		Firstname: "John",
 		Lastname:  "Doe",
-		Email:     "john@doe.com",
+		Email:     email,
 		Password:  "MyTestPassword123",
 	}
 	norm := normalization.New()
@@ -89,8 +66,9 @@ func buildUser() *model.User {
 	return u
 }
 
-func createUser() {
-	executeHelper("CALL `create_user`(UUID(),?,?,?,?,?);", "John", "Doe", "john@doe.com", "JOHN@DOE.COM", "e3ije")
+func createUser(email string) {
+	norm := normalization.New()
+	executeHelper("CALL `create_user`(UUID(),?,?,?,?,?);", "John", "Doe", email, norm.Normalize(email), "e3ije")
 }
 
 func executeHelper(query string, args ...interface{}) {

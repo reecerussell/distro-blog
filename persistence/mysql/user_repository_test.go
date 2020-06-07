@@ -24,7 +24,7 @@ func TestAdd(t *testing.T) {
 	db := database.NewMySQL(testConnString)
 	repo := NewUserRepository(db)
 
-	u := buildUser()
+	u := buildUser("testAdd@test.com")
 	ctx := context.Background()
 	success, _, _, err := repo.Add(ctx, u).Deconstruct()
 	if !success {
@@ -33,27 +33,15 @@ func TestAdd(t *testing.T) {
 }
 
 func TestAddWithExistingEmail(t *testing.T) {
-	tdb, err := sql.Open("mysql", testConnString)
-	if err != nil {
-		panic(fmt.Errorf("open: %v", err))
-	}
-	var c int64
-	_ = tdb.QueryRow("select count(*) from `users`;").Scan(&c)
-	fmt.Printf("Users: %d\n", c)
-	executeHelper("DELETE FROM `users`;")
-	_ = tdb.QueryRow("select count(*) from `users`;").Scan(&c)
-	fmt.Printf("Users: %d\n", c)
-	executeHelper("CALL `create_user`(UUID(),?,?,?,?,?);", "John", "Doe", "john@doe.com", "JOHN@DOE.COM", "e3ije")
-	_ = tdb.QueryRow("select count(*) from `users`;").Scan(&c)
-	fmt.Printf("Users: %d\n", c)
-	defer executeHelper("delete from `users`;")
-
 	db := database.NewMySQL(testConnString)
 	repo := NewUserRepository(db)
 	ctx := context.Background()
+	testEmail := "addWithExistingEmail@test.com"
+
+	createUser(testEmail)
 
 	// add duplicate user
-	u := buildUser()
+	u := buildUser(testEmail)
 	success := repo.Add(ctx, u).IsOk()
 	if success {
 		t.Errorf("expected an error but got nil")
@@ -61,15 +49,13 @@ func TestAddWithExistingEmail(t *testing.T) {
 }
 
 func TestCountByEmail(t *testing.T) {
-	executeHelper("delete from `users`;")
-	defer executeHelper("delete from `users`;")
-
 	db := database.NewMySQL(testConnString)
 	repo := NewUserRepository(db)
 	ctx := context.Background()
+	testEmail := "countByEmail@test.com"
 
 	// count - assert 0
-	u := buildUser()
+	u := buildUser(testEmail)
 	success, _, count, err := repo.CountByEmail(ctx, u).Deconstruct()
 	if !success {
 		t.Errorf("expected no error but got: %v", err)
@@ -80,10 +66,10 @@ func TestCountByEmail(t *testing.T) {
 	}
 
 	// add user
-	executeHelper("CALL `create_user`(UUID(),?,?,?,?,?);", "John", "Doe", "john@doe.com", "JOHN@DOE.COM", "e3ije")
+	createUser(testEmail)
 
 	// count - assert 1
-	u = buildUser()
+	u = buildUser(testEmail)
 	success, _, count, err = repo.CountByEmail(ctx, u).Deconstruct()
 	if !success {
 		t.Errorf("expected no error but got: %v", err)
@@ -109,11 +95,16 @@ func executeHelper(query string, args ...interface{}) {
 	fmt.Printf("\t done.\n")
 }
 
-func buildUser() *model.User {
+func createUser(email string) {
+	norm := normalization.New()
+	executeHelper("CALL `create_user`(UUID(),?,?,?,?,?);", "John", "Doe", email, norm.Normalize(email), "e3ije")
+}
+
+func buildUser(email string) *model.User {
 	cu := &dto.CreateUser{
 		Firstname: "John",
 		Lastname:  "Doe",
-		Email:     "john@doe.com",
+		Email:     email,
 		Password:  "MyTestPassword123",
 	}
 	norm := normalization.New()

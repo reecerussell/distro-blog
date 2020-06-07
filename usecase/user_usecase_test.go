@@ -35,6 +35,7 @@ func TestCreate(t *testing.T) {
 }
 
 func TestCreateWithInvalidData(t *testing.T) {
+	executeHelper("DELETE FROM `users`;")
 	defer executeHelper("delete from `users`;")
 
 	db := database.NewMySQL(testConnString)
@@ -55,6 +56,7 @@ func TestCreateWithInvalidData(t *testing.T) {
 }
 
 func TestCreateWithExistingEmail(t *testing.T) {
+	executeHelper("DELETE FROM `users`;")
 	executeHelper("call create_user(?,?,?,?,?,?)", "0023823", "John", "Doe", "john@doe.com", "JOHN@DOE.COM", "password")
 	defer executeHelper("delete from `users`;")
 

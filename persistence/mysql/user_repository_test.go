@@ -33,22 +33,17 @@ func TestAdd(t *testing.T) {
 }
 
 func TestAddWithExistingEmail(t *testing.T) {
-	executeHelper("delete from `users`;")
+	executeHelper("DELETE FROM `users`;")
+	executeHelper("CALL `create_user`(UUID(),?,?,?,?,?);", "John", "Doe", "john@doe.com", "JOHN@DOE.COM", "e3ije")
 	defer executeHelper("delete from `users`;")
 
 	db := database.NewMySQL(testConnString)
 	repo := NewUserRepository(db)
 	ctx := context.Background()
-	u := buildUser()
-
-	// seed user
-	success, _, _, err := repo.Add(ctx, u).Deconstruct()
-	if !success {
-		t.Errorf("expected no error but got: %v", err)
-	}
 
 	// add duplicate user
-	success, _, _, err = repo.Add(ctx, u).Deconstruct()
+	u := buildUser()
+	success := repo.Add(ctx, u).IsOk()
 	if success {
 		t.Errorf("expected an error but got nil")
 	}
@@ -74,10 +69,7 @@ func TestCountByEmail(t *testing.T) {
 	}
 
 	// add user
-	success, _, _, err = repo.Add(ctx, u).Deconstruct()
-	if !success {
-		t.Errorf("expected no error but got: %v", err)
-	}
+	executeHelper("CALL `create_user`(UUID(),?,?,?,?,?);", "John", "Doe", "john@doe.com", "JOHN@DOE.COM", "e3ije")
 
 	// count - assert 1
 	u = buildUser()

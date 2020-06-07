@@ -43,17 +43,12 @@ func TestEnsureEmailIsUniqueWithNonUnique(t *testing.T) {
 	ctx := context.Background()
 	testEmail := "ensureEmailIsUniqueWithNonUnique@test.com"
 
-	t.Logf("Creating initial user with email: %s...", testEmail)
-	success, _, _, err := testRepo.Add(ctx, buildUser(testEmail)).Deconstruct()
-	if !success {
-		t.Errorf("Failed - should've worked: %v", err)
-		return
-	}
-	t.Logf("Success.")
+	t.Logf("Seeding the database with user: %s...", testEmail)
+	executeHelper("INSERT INTO `users` (`id`,`first_name`,`last_name`,`email`,`normalized_email`,`password`) VALUES (UUID(),?,?,?,?,?);",
+		"John", "Doe", testEmail, normalization.New().Normalize(testEmail), "random string")
 
 	t.Logf("Checking if the email is now unique...")
-	u := buildUser(testEmail)
-	success = testServ.EnsureEmailIsUnique(ctx, u).IsOk()
+	success := testServ.EnsureEmailIsUnique(ctx, buildUser(testEmail)).IsOk()
 	if success {
 		t.Errorf("Unique - unexpected!")
 	} else {

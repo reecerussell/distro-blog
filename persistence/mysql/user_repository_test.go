@@ -61,24 +61,39 @@ func TestCountByEmail(t *testing.T) {
 	testEmail := "countByEmail@test.com"
 
 	// count - assert 0
+	t.Logf("Counting the number of users with email: %s...", testEmail)
 	u := buildUser(testEmail)
 	success, _, count, err := testRepo.CountByEmail(ctx, u).Deconstruct()
 	if !success {
+		t.Logf("\tfailed.\n\t%v", err)
 		t.Errorf("expected no error but got: %v", err)
+		return
 	}
+	t.Logf("\t%v - expected 0\n", count)
 
 	if count.(int64) != 0 {
 		t.Errorf("expected 0 but got: %v", count)
 	}
 
 	// add user
-	testRepo.Add(ctx, u)
+	t.Logf("Creating initial user with email: %s...", testEmail)
+	success, _, _, err = testRepo.Add(ctx, buildUser(testEmail)).Deconstruct()
+	if !success {
+		t.Logf("\tfailed - should've worked\n\t%v", err)
+		t.Errorf("expected to be able to insert user.")
+		return
+	}
 
 	// count - assert 1
+	t.Logf("Recounting users with email: %s...", testEmail)
 	u = buildUser(testEmail)
 	success, _, count, err = testRepo.CountByEmail(ctx, u).Deconstruct()
 	if !success {
+		t.Logf("\tfailed - should've worked\n\t%v", err)
 		t.Errorf("expected no error but got: %v", err)
+		return
+	} else {
+		t.Logf("\t%v - expected 1\n", count)
 	}
 
 	if count.(int64) != 1 {

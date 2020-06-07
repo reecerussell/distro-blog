@@ -48,8 +48,8 @@ func TestEnsureEmailIsUniqueWithNonUnique(t *testing.T) {
 		"John", "Doe", testEmail, normalization.New().Normalize(testEmail), "random string")
 
 	t.Logf("Checking if the email is now unique...")
-	success := testServ.EnsureEmailIsUnique(ctx, buildUser(testEmail)).IsOk()
-	if success {
+	success, _, _, err := testServ.EnsureEmailIsUnique(ctx, buildUser(testEmail)).Deconstruct()
+	if success && err != nil {
 		t.Errorf("Unique - unexpected!")
 	} else {
 		t.Logf("Email is not unique, expected!")

@@ -33,8 +33,19 @@ func TestAdd(t *testing.T) {
 }
 
 func TestAddWithExistingEmail(t *testing.T) {
+	tdb, err := sql.Open("mysql", testConnString)
+	if err != nil {
+		panic(fmt.Errorf("open: %v", err))
+	}
+	var c int64
+	_ = tdb.QueryRow("select count(*) from `users`;").Scan(&c)
+	fmt.Printf("Users: %d\n", c)
 	executeHelper("DELETE FROM `users`;")
+	_ = tdb.QueryRow("select count(*) from `users`;").Scan(&c)
+	fmt.Printf("Users: %d\n", c)
 	executeHelper("CALL `create_user`(UUID(),?,?,?,?,?);", "John", "Doe", "john@doe.com", "JOHN@DOE.COM", "e3ije")
+	_ = tdb.QueryRow("select count(*) from `users`;").Scan(&c)
+	fmt.Printf("Users: %d\n", c)
 	defer executeHelper("delete from `users`;")
 
 	db := database.NewMySQL(testConnString)

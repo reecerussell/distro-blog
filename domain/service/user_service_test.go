@@ -35,6 +35,7 @@ func TestEnsureEmailIsUnique(t *testing.T) {
 }
 
 func TestEnsureEmailIsUniqueWithNonUnique(t *testing.T) {
+	executeHelper("delete from `users`;")
 	defer executeHelper("delete from `users`;")
 
 	db := database.NewMySQL(testConnString)

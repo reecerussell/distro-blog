@@ -9,6 +9,7 @@ import (
 
 	"github.com/reecerussell/distro-blog/domain/dto"
 	"github.com/reecerussell/distro-blog/domain/model"
+	"github.com/reecerussell/distro-blog/domain/repository"
 	"github.com/reecerussell/distro-blog/libraries/database"
 	"github.com/reecerussell/distro-blog/libraries/normalization"
 	"github.com/reecerussell/distro-blog/password"
@@ -16,80 +17,103 @@ import (
 
 var (
 	testConnString = os.Getenv("CONN_STRING")
+	testRepo       repository.UserRepository
 )
 
-func TestAdd(t *testing.T) {
+func init() {
 	db := database.NewMySQL(testConnString)
-	repo := NewUserRepository(db)
+	testRepo = NewUserRepository(db)
+}
 
-	u := buildUser()
+func TestAdd(t *testing.T) {
+	u := buildUser("testAdd@test.com")
 	ctx := context.Background()
-	success, _, _, err := repo.Add(ctx, u).Deconstruct()
+	success, _, _, err := testRepo.Add(ctx, u).Deconstruct()
 	if !success {
 		t.Errorf("expected no error but got: %v", err)
 	}
-
-	// clean up
-	executeHelper("delete from `users`;")
 }
 
 func TestAddWithExistingEmail(t *testing.T) {
-	db := database.NewMySQL(testConnString)
-	repo := NewUserRepository(db)
 	ctx := context.Background()
-	u := buildUser()
+	testEmail := "addWithExistingEmail@test.com"
 
-	// seed user
-	success, _, _, err := repo.Add(ctx, u).Deconstruct()
-	if !success {
-		t.Errorf("expected no error but got: %v", err)
-	}
+	t.Logf("Seeding the database with user: %s...", testEmail)
+	executeHelper("INSERT INTO `users` (`id`,`first_name`,`last_name`,`email`,`normalized_email`,`password_hash`) VALUES (UUID(),?,?,?,?,?);",
+		"John", "Doe", testEmail, normalization.New().Normalize(testEmail), "random string")
 
 	// add duplicate user
-	success, _, _, err = repo.Add(ctx, u).Deconstruct()
+	t.Logf("Attempting to create a user with a non-unique email...")
+	u := buildUser(testEmail)
+	success := testRepo.Add(ctx, u).IsOk()
 	if success {
+		t.Logf("\tsucceeded - should've failed!")
 		t.Errorf("expected an error but got nil")
+	} else {
+		t.Logf("\t failed - expected!")
 	}
-
-	// clean up
-	executeHelper("delete from `users`;")
 }
 
 func TestCountByEmail(t *testing.T) {
-	db := database.NewMySQL(testConnString)
-	repo := NewUserRepository(db)
 	ctx := context.Background()
+	testEmail := "countByEmail@test.com"
 
 	// count - assert 0
-	u := buildUser()
-	success, _, count, err := repo.CountByEmail(ctx, u).Deconstruct()
+	t.Logf("Counting the number of users with email: %s...", testEmail)
+	u := buildUser(testEmail)
+	success, _, count, err := testRepo.CountByEmail(ctx, u).Deconstruct()
 	if !success {
+		t.Logf("\tfailed.\n\t%v", err)
 		t.Errorf("expected no error but got: %v", err)
+		return
 	}
+	t.Logf("\t%v - expected 0\n", count)
 
 	if count.(int64) != 0 {
 		t.Errorf("expected 0 but got: %v", count)
 	}
 
 	// add user
-	success, _, _, err = repo.Add(ctx, u).Deconstruct()
+	t.Logf("Creating initial user with email: %s...", testEmail)
+	success, _, _, err = testRepo.Add(ctx, buildUser(testEmail)).Deconstruct()
 	if !success {
-		t.Errorf("expected no error but got: %v", err)
+		t.Logf("\tfailed - should've worked\n\t%v", err)
+		t.Errorf("expected to be able to insert user.")
+		return
 	}
 
 	// count - assert 1
-	u = buildUser()
-	success, _, count, err = repo.CountByEmail(ctx, u).Deconstruct()
+	t.Logf("Recounting users with email: %s...", testEmail)
+	u = buildUser(testEmail)
+	success, _, count, err = testRepo.CountByEmail(ctx, u).Deconstruct()
 	if !success {
+		t.Logf("\tfailed - should've worked\n\t%v", err)
 		t.Errorf("expected no error but got: %v", err)
+		return
+	} else {
+		t.Logf("\t%v - expected 1\n", count)
 	}
 
 	if count.(int64) != 1 {
 		t.Errorf("expected 1 but got: %v", count)
 	}
+}
 
-	// clean up
-	executeHelper("delete from `users`;")
+func buildUser(email string) *model.User {
+	cu := &dto.CreateUser{
+		Firstname: "John",
+		Lastname:  "Doe",
+		Email:     email,
+		Password:  "MyTestPassword123",
+	}
+	norm := normalization.New()
+	pwdServ := password.New()
+	u, err := model.NewUser(cu, pwdServ, norm)
+	if err != nil {
+		panic(err)
+	}
+
+	return u
 }
 
 func executeHelper(query string, args ...interface{}) {
@@ -102,21 +126,4 @@ func executeHelper(query string, args ...interface{}) {
 	if err != nil {
 		panic(fmt.Errorf("exec: %v", err))
 	}
-}
-
-func buildUser() *model.User {
-	cu := &dto.CreateUser{
-		Firstname: "John",
-		Lastname:  "Doe",
-		Email:     "john@doe.com",
-		Password:  "MyTestPassword123",
-	}
-	norm := normalization.New()
-	pwdServ := password.New()
-	u, err := model.NewUser(cu, pwdServ, norm)
-	if err != nil {
-		panic(err)
-	}
-
-	return u
 }

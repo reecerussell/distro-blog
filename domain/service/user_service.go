@@ -31,6 +31,8 @@ func (s *UserService) EnsureEmailIsUnique(ctx context.Context, u *model.User) re
 		return result.Failure(err)
 	}
 
+	fmt.Printf("EnsureEmailIsUnique: %d\n", count)
+
 	if count.(int64) > 0 {
 		msg := fmt.Sprintf("The email address '%s' has already been taken.", u.Email())
 		return result.Failure(msg).WithStatusCode(http.StatusBadRequest)

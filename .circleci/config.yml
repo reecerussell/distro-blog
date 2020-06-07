@@ -14,14 +14,9 @@ jobs:
         steps:
             - checkout
 
-            - restore_cache:
-                  keys:
-                      - v1-pkg-cache
-
             - run:
                   name: Waiting for MySQL to be ready
-                  command: |
-                      sleep 15; echo Done.
+                  command: sleep 15; echo done.
 
             - run:
                   name: Install MySQL CLI
@@ -33,6 +28,8 @@ jobs:
             - run: go get github.com/google/uuid
             - run: go get github.com/go-sql-driver/mysql
             - run: go get golang.org/x/crypto/pbkdf2
+            - run: go get github.com/aws/aws-lambda-go/events
+            - run: go get github.com/aws/aws-lambda-go/lambda
 
             # Tests
             - run:
@@ -41,11 +38,6 @@ jobs:
                       CONN_STRING: root:password@tcp(127.0.0.1)/distro-blog-test?parseTime=true
                   command: go test -v ./... -race -coverprofile=coverage.txt -covermode=atomic
             - run: bash <(curl -s https://codecov.io/bash)
-
-            - save_cache:
-                  key: v1-pkg-cache
-                  paths:
-                      - "/go/pkg"
 
             - store_artifacts:
                   path: coverage.txt

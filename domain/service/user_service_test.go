@@ -9,6 +9,7 @@ import (
 
 	"github.com/reecerussell/distro-blog/domain/dto"
 	"github.com/reecerussell/distro-blog/domain/model"
+	"github.com/reecerussell/distro-blog/domain/repository"
 	"github.com/reecerussell/distro-blog/libraries/database"
 	"github.com/reecerussell/distro-blog/libraries/normalization"
 	"github.com/reecerussell/distro-blog/password"
@@ -18,11 +19,13 @@ import (
 var (
 	testConnString = os.Getenv("CONN_STRING")
 	testServ       *UserService
+	testRepo       repository.UserRepository
 )
 
 func init() {
 	db := database.NewMySQL(testConnString)
 	repo := mysql.NewUserRepository(db)
+	testRepo = repo
 	testServ = NewUserService(repo)
 }
 
@@ -40,12 +43,21 @@ func TestEnsureEmailIsUniqueWithNonUnique(t *testing.T) {
 	ctx := context.Background()
 	testEmail := "ensureEmailIsUniqueWithNonUnique@test.com"
 
-	createUser(testEmail)
+	t.Logf("Creating initial user with email: %s...", testEmail)
+	success, _, _, err := testRepo.Add(ctx, buildUser(testEmail)).Deconstruct()
+	if !success {
+		t.Errorf("Failed - should've worked: %v", err)
+		return
+	}
+	t.Logf("Success.")
 
+	t.Logf("Checking if the email is now unique...")
 	u := buildUser(testEmail)
-	success := testServ.EnsureEmailIsUnique(ctx, u).IsOk()
+	success = testServ.EnsureEmailIsUnique(ctx, u).IsOk()
 	if success {
-		t.Errorf("expected an error but got nil")
+		t.Errorf("Unique - unexpected!")
+	} else {
+		t.Logf("Email is not unique, expected!")
 	}
 }
 

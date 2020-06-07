@@ -1,0 +1,462 @@
+{
+	"Resources": {
+		"IAMLambdaServiceRole": {
+			"Type": "AWS::IAM::Role",
+			"Properties": {
+				"RoleName": "LambdaServiceRole",
+				"AssumeRolePolicyDocument": {
+					"Version": "2012-10-17",
+					"Statement": [
+						{
+							"Sid": "",
+							"Effect": "Allow",
+							"Principal": {
+								"Service": "lambda.amazonaws.com"
+							},
+							"Action": "sts:AssumeRole"
+						}
+					]
+				},
+				"ManagedPolicyArns": [
+					"arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
+				],
+				"Policies": [
+					{
+						"PolicyName": "LambdaServiceRolePolicy",
+						"PolicyDocument": {
+							"Version": "2012-10-17",
+							"Statement": [
+								{
+									"Action": ["s3:Get*", "s3:List*"],
+									"Resource": "*",
+									"Effect": "Allow"
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		"IAMAPIServiceRole": {
+			"Type": "AWS::IAM::Role",
+			"Properties": {
+				"RoleName": "LambdaAPIServiceRole",
+				"AssumeRolePolicyDocument": {
+					"Version": "2012-10-17",
+					"Statement": [
+						{
+							"Sid": "",
+							"Effect": "Allow",
+							"Principal": {
+								"Service": "apigateway.amazonaws.com"
+							},
+							"Action": "sts:AssumeRole"
+						}
+					]
+				},
+				"ManagedPolicyArns": [
+					"arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
+				],
+				"Policies": [
+					{
+						"PolicyName": "API_Service_Role_Policy",
+						"PolicyDocument": {
+							"Version": "2012-10-17",
+							"Statement": [
+								{
+									"Action": "lambda:InvokeFunction",
+									"Resource": {
+										"Fn::GetAtt": ["APIFunction", "Arn"]
+									},
+									"Effect": "Allow"
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		"CreateUser": {
+			"Type": "AWS::Lambda::Function",
+			"Properties": {
+				"FunctionName": "create-user",
+				"Description": "A function used to create a user.",
+				"Code": {
+					"ZipFile": "build/create-user.zip"
+				},
+				"Handler": "main",
+				"Runtime": "go1.x",
+				"MemorySize": 1024,
+				"Role": { "Fn::GetAtt": ["IAMLambdaServiceRole", "Arn"] },
+				"Timeout": 60,
+				"Tags": {
+					"Key": "distro-blog",
+					"Value": "lambda"
+				}
+			}
+		},
+		"RestAPI": {
+			"Type": "AWS::ApiGateway::RestApi",
+			"DependsOn": ["CreateUser"],
+			"Properties": {
+				"Description": "API to manage and provider for Distro Blog.",
+				"Name": "Distro Blog API",
+				"EndpointConfiguration": { "Types": ["REGIONAL"] },
+				"BinaryMediaTypes": ["application/json"],
+				"Body": {
+					"swagger": "2.0",
+					"info": {
+						"description": "API to manage and provider for Distro Blog.",
+						"version": "1.0.0",
+						"title": "Distro Blog API"
+					},
+					"schemes": ["https"],
+					"paths": {
+						"/": {},
+						"/users": {
+							"post": {
+								"produces": ["application/json"],
+								"parameters": [
+									{
+										"in": "body",
+										"name": "Body",
+										"schema": {
+											"type": "object",
+											"title": "Create User Response",
+											"properties": {
+												"data": {
+													"$ref": "#/definitions/CreateUser"
+												}
+											}
+										}
+									}
+								],
+								"responses": {
+									"200": {
+										"description": "Ok",
+										"schema": {
+											"$ref": "#/definitions/Empty"
+										}
+									},
+									"400": {
+										"description": "Bad Request",
+										"schema": {
+											"$ref": "#/definitions/Error"
+										}
+									},
+									"500": {
+										"description": "Internal Server Error",
+										"schema": {
+											"$ref": "#/definitions/Error"
+										}
+									}
+								},
+								"security": [
+									{
+										"sigv4": []
+									}
+								],
+								"x-amazon-apigateway-integration": {
+									"responses": {
+										"default": {
+											"statusCode": "200"
+										}
+									},
+									"uri": {
+										"Fn::Join": [
+											":",
+											[
+												"arn:aws:apigateway",
+												{ "Ref": "AWS::Region" },
+												"lambda:path/2015-03-31/functions/arn:aws:lambda",
+												{ "Ref": "AWS::Region" },
+												{ "Ref": "AWS::AccountId" },
+												"function",
+												{
+													"Fn::Join": [
+														"",
+														[
+															{
+																"Ref": "APIFunction"
+															},
+															"/invocations"
+														]
+													]
+												}
+											]
+										]
+									},
+									"passthroughBehavior": "when_no_match",
+									"httpMethod": "POST",
+									"contentHandling": "CONVERT_TO_TEXT",
+									"credentials": {
+										"Fn::GetAtt": [
+											"IAMAPIServiceRole",
+											"Arn"
+										]
+									},
+									"type": "aws"
+								}
+							}
+						}
+					},
+					"securityDefinitions": {
+						"sigv4": {
+							"type": "apiKey",
+							"name": "Authorization",
+							"in": "header",
+							"x-amazon-apigateway-authtype": "awsSigv4"
+						}
+					},
+					"definitions": {
+						"Empty": {
+							"type": "object",
+							"title": "Empty Schema"
+						},
+						"Error": {
+							"type": "string",
+							"title": "Error",
+							"additionalProperties": false,
+							"properties": {
+								"error": {
+									"type": "string",
+									"title": "Error Message"
+								}
+							}
+						},
+						"CreateUser": {
+							"type": "object",
+							"title": "CreateUser",
+							"description": "A data-transfer object, used to create a user.",
+							"additionalProperties": false,
+							"properties": {
+								"firstname": {
+									"type": "string",
+									"title": "The user's firstname.",
+									"maxLength": 45,
+									"minLength": 0
+								},
+								"lastname": {
+									"type": "string",
+									"title": "The user's lastname.",
+									"maxLength": 45,
+									"minLength": 0
+								},
+								"email": {
+									"type": "string",
+									"title": "The user's email address.",
+									"maxLength": 45,
+									"minLength": 0
+								},
+								"password": {
+									"type": "string",
+									"title": "The user's password.",
+									"minLength": 0
+								}
+							}
+						}
+					},
+					"Tags": {
+						"Key": "distro-blog",
+						"Value": "api"
+					}
+				}
+			}
+		},
+		"RestAPICaller": {
+			"Type": "AWS::IAM::User",
+			"Properties": {
+				"UserName": "DistroBlogCaller"
+			}
+		},
+		"RestAPICallerManagedPolicy": {
+			"Type": "AWS::IAM::ManagedPolicy",
+			"DependsOn": ["RestAPI", "RestAPICaller"],
+			"Properties": {
+				"Description": "Distro Blog Caller",
+				"PolicyDocument": {
+					"Version": "2012-10-17",
+					"Statement": [
+						{
+							"Sid": "RestAPICaller001",
+							"Effect": "Allow",
+							"Action": "execute-api:Invoke",
+							"Resource": {
+								"Fn::Join": [
+									"",
+									[
+										"arn:aws:execute-api:",
+										{ "Ref": "AWS::Region" },
+										":",
+										{ "Ref": "AWS::AccountId" },
+										":",
+										{ "Ref": "RestAPI" },
+										"/*/POST/*"
+									]
+								]
+							}
+						},
+						{
+							"Sid": "RestAPICaller-CreateUser",
+							"Effect": "Allow",
+							"Action": "lambda:InvokeFunction",
+							"Resource": {
+								"Fn::Join": [
+									"",
+									[
+										"arn:aws:lambda:",
+										{ "Ref": "AWS::Region" },
+										":",
+										{ "Ref": "AWS::AccountId" },
+										":function:",
+										{ "Ref": "CreateUser" }
+									]
+								]
+							}
+						}
+					]
+				},
+				"Users": ["DistroBlogCaller"],
+				"ManagedPolicyName": "API_Caller_Policy"
+			}
+		},
+		"LambdaPermissions": {
+			"Type": "AWS::Lambda::Permission",
+			"DependsOn": ["CreateUser"],
+			"Properties": {
+				"Action": "lambda:Invoke",
+				"FunctionName": { "Ref": "APIFunction" },
+				"Principal": "apigateway.amazonaws.com",
+				"SourceArn": {
+					"Fn::Join": [
+						"",
+						[
+							"arn:aws:execute-api:",
+							{ "Ref": "AWS::Region" },
+							":",
+							{ "Ref": "AWS::AccountId" },
+							":",
+							{ "Ref": "RestAPI" },
+							"/*/POST/users"
+						]
+					]
+				}
+			}
+		},
+		"CreateUserLogGroup": {
+			"Type": "AWS::Logs::LogGroup",
+			"DependsOn": "CreateUser",
+			"Properties": {
+				"LogGroupName": {
+					"Fn::Join": ["", ["/aws/lambda/", { "Ref": "CreateUser" }]]
+				}
+			}
+		},
+		"ApiGatewayCloudWatchLogsRole": {
+			"Type": "AWS::IAM::Role",
+			"Properties": {
+				"AssumeRolePolicyDocument": {
+					"Version": "2012-10-17",
+					"Statement": [
+						{
+							"Effect": "Allow",
+							"Principal": {
+								"Service": ["apigateway.amazonaws.com"]
+							},
+							"Action": ["sts:AssumeRole"]
+						}
+					]
+				},
+				"Policies": [
+					{
+						"PolicyName": "API_GW_Logs_Policy",
+						"PolicyDocument": {
+							"Version": "2012-10-17",
+							"Statement": [
+								{
+									"Effect": "Allow",
+									"Action": [
+										"logs:CreateLogGroup",
+										"logs:CreateLogStream",
+										"logs:DescribeLogGroups",
+										"logs:DescribeLogStreams",
+										"logs:PutLogEvents",
+										"logs:GetLogEvents",
+										"logs:FilterLogEvents"
+									],
+									"Resource": "*"
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		"BucketPolicy": {
+			"Type": "AWS::S3::BucketPolicy",
+			"Properties": {
+				"Bucket": "car-images-hd",
+				"PolicyDocument": {
+					"Version": "2012-10-17",
+					"Statement": [
+						{
+							"Effect": "Allow",
+							"Action": ["s3:GetObject"],
+							"Resource": "arn:aws:s3:::car-images-hd/*",
+							"Condition": {},
+							"Principal": {
+								"AWS": [
+									{
+										"Fn::Join": [
+											":",
+											[
+												"arn:aws:iam:",
+												{
+													"Ref": "AWS::AccountId"
+												},
+												"user/Get_Car_Caller"
+											]
+										]
+									}
+								]
+							}
+						}
+					]
+				}
+			}
+		},
+		"ApiGatewayAccount": {
+			"Type": "AWS::ApiGateway::Account",
+			"Properties": {
+				"CloudWatchRoleArn": {
+					"Fn::GetAtt": ["ApiGatewayCloudWatchLogsRole", "Arn"]
+				}
+			}
+		},
+		"RestAPIStage": {
+			"Type": "AWS::ApiGateway::Stage",
+			"DependsOn": ["ApiGatewayAccount"],
+			"Properties": {
+				"DeploymentId": { "Ref": "RestAPIDeployment" },
+				"MethodSettings": [
+					{
+						"DataTraceEnabled": true,
+						"HttpMethod": "*",
+						"LoggingLevel": "INFO",
+						"ResourcePath": "/*"
+					}
+				],
+				"RestApiId": { "Ref": "RestAPI" },
+				"StageName": "dev"
+			}
+		},
+		"RestAPIDeployment": {
+			"Type": "AWS::ApiGateway::Deployment",
+			"DependsOn": ["RestAPI"],
+			"Properties": {
+				"RestApiId": { "Ref": "RestAPI" },
+				"StageName": "dummy"
+			}
+		}
+	}
+}

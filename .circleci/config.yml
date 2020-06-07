@@ -2,7 +2,7 @@ version: 2
 jobs:
     build:
         docker:
-            - image: circleci/golang:1.12.9-node-browsers-legacy
+            - image: circleci/golang
             - image: circleci/mysql
               command: --default-authentication-plugin=mysql_native_password
               environment:
@@ -17,7 +17,7 @@ jobs:
 
             - run:
                   name: Waiting for MySQL to be ready
-                  command: dockerize -wait tcp://localhost:3600 -timeout 1m
+                  command: sleep 15; echo done.
 
             - run:
                   name: Install MySQL CLI

@@ -26,12 +26,13 @@ func NewUserService(repo repository.UserRepository) *UserService {
 // EnsureEmailIsUnique ensures the given user's email address is unique by
 // ensuring it has not be previously used in the database.
 func (s *UserService) EnsureEmailIsUnique(ctx context.Context, u *model.User) result.Result {
-	success, _, count, err := s.repo.CountByEmail(ctx, u).Deconstruct()
+	success, _, value, err := s.repo.CountByEmail(ctx, u).Deconstruct()
 	if !success {
 		return result.Failure(err)
 	}
 
-	if count.(int64) > 0 {
+	count := value.(int64)
+	if count > 0 {
 		msg := fmt.Sprintf("The email address '%s' has already been taken.", u.Email())
 		return result.Failure(msg).WithStatusCode(http.StatusBadRequest)
 	}

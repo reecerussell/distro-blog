@@ -84,6 +84,7 @@ func TestCountByEmail(t *testing.T) {
 }
 
 func executeHelper(query string, args ...interface{}) {
+	fmt.Printf("Executing: %s", query)
 	db, err := sql.Open("mysql", testConnString)
 	if err != nil {
 		panic(fmt.Errorf("open: %v", err))
@@ -93,6 +94,8 @@ func executeHelper(query string, args ...interface{}) {
 	if err != nil {
 		panic(fmt.Errorf("exec: %v", err))
 	}
+
+	fmt.Printf("\t done.\n")
 }
 
 func buildUser() *model.User {

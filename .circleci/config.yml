@@ -10,14 +10,14 @@ jobs:
                   MYSQL_DATABASE: distro-blog-test
 
         working_directory: /go/src/github.com/reecerussell/distro-blog
+        parallelism: 2
 
         steps:
             - checkout
 
             - run:
                   name: Waiting for MySQL to be ready
-                  command: |
-                      sleep 15; echo Done.
+                  command: dockerize -wait tcp://localhost:3600 -timeout 1m
 
             - run:
                   name: Install MySQL CLI

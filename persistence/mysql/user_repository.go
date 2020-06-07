@@ -31,9 +31,13 @@ func (r *userRepository) Add(ctx context.Context, u *model.User) result.Result {
 		dm.PasswordHash,
 	}
 
-	err := r.db.Execute(ctx, query, args...)
+	rowsAffected, err := r.db.Execute(ctx, query, args...)
 	if err != nil {
 		return result.Failure(err)
+	}
+
+	if rowsAffected < 1 {
+		return result.Failure("Failed to insert user into the database, for an unknown reason.")
 	}
 
 	return result.Ok()

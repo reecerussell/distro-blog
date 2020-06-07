@@ -39,9 +39,9 @@ func TestAddWithExistingEmail(t *testing.T) {
 	t.Logf("Creating initial user: %s...", testEmail)
 	success, _, _, err := testRepo.Add(ctx, buildUser(testEmail)).Deconstruct()
 	if !success {
-		t.Logf("\t failed.\n\t%v", err)
+		t.Logf("failed.\n\t%v", err)
 	} else {
-		t.Logf("\t done.")
+		t.Logf("done.")
 	}
 
 	// add duplicate user

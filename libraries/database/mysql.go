@@ -33,10 +33,10 @@ func NewMySQL(connStr string) *MySQL {
 
 // Execute runs a SQL command on the database, using the given query and arguments.
 // The query is run in a SQL transaction, and will be rolled back if any error occurs.
-func (mysql *MySQL) Execute(ctx context.Context, query string, args ...interface{}) error {
+func (mysql *MySQL) Execute(ctx context.Context, query string, args ...interface{}) (int64, error) {
 	err := mysql.ensureConnected()
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	// Error ignored due to the driver supporting the isolation
@@ -52,16 +52,17 @@ func (mysql *MySQL) Execute(ctx context.Context, query string, args ...interface
 
 	stmt, err := tx.PrepareContext(ctx, query)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	defer stmt.Close()
 
-	_, err = stmt.ExecContext(ctx, args...)
+	res, err := stmt.ExecContext(ctx, args...)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
-	return nil
+	ra, _ := res.RowsAffected()
+	return ra, nil
 }
 
 // Read queries the database, with the given query and argments. If the query results in

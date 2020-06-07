@@ -27,7 +27,7 @@ func TestExecuteWithInvalidConnString(t *testing.T) {
 	db := NewMySQL("invalid connection")
 
 	ctx := context.Background()
-	err := db.Execute(ctx, "query should be needed")
+	_, err := db.Execute(ctx, "query should be needed")
 	if err == nil {
 		t.Errorf("expected error but got nil")
 	}
@@ -46,7 +46,7 @@ func TestExecuteWithClosedConnection(t *testing.T) {
 	db.db.Close()
 
 	ctx := context.Background()
-	err = db.Execute(ctx, "shouldn't be needed")
+	_, err = db.Execute(ctx, "shouldn't be needed")
 	if err == nil {
 		t.Errorf("expected error but got nil")
 	}
@@ -59,9 +59,13 @@ func TestExecuteInsert(t *testing.T) {
 	query := "INSERT INTO `table-one` (`name`, `age`) VALUES (?,?);"
 	args := []interface{}{"John", 20}
 
-	err := db.Execute(ctx, query, args...)
+	ra, err := db.Execute(ctx, query, args...)
 	if err != nil {
 		t.Errorf("expected nil but got: %v", err)
+	}
+
+	if ra != 1 {
+		t.Errorf("expected to affect 1 row, but affected: %d", ra)
 	}
 
 	// clean up
@@ -74,7 +78,7 @@ func TestExecuteInvalidQuery(t *testing.T) {
 	ctx := context.Background()
 	query := "invalid query"
 
-	err := db.Execute(ctx, query)
+	_, err := db.Execute(ctx, query)
 	if err == nil {
 		t.Errorf("expected error but got nil")
 	}
@@ -88,14 +92,14 @@ func TestExecuteWithInvalidNumOfArgs(t *testing.T) {
 
 	// too few args
 	args := []interface{}{1}
-	err := db.Execute(ctx, query, args...)
+	_, err := db.Execute(ctx, query, args...)
 	if err == nil {
 		t.Errorf("few: expected error but got none")
 	}
 
 	// too many args
 	args = []interface{}{1, 2, 3}
-	err = db.Execute(ctx, query, args...)
+	_, err = db.Execute(ctx, query, args...)
 	if err == nil {
 		t.Errorf("many: expected error but got none")
 	}

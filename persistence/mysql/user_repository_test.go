@@ -133,4 +133,6 @@ func countUsers() (c int64) {
 	if err != nil {
 		panic(fmt.Errorf("query, scan: %v", err))
 	}
+
+	return
 }

@@ -60,42 +60,32 @@ func TestCountByEmail(t *testing.T) {
 
 	// count - assert 0
 	t.Logf("Counting the number of users with email: %s...", testEmail)
-	u := buildUser(testEmail)
-	success, _, count, err := testRepo.CountByEmail(ctx, u).Deconstruct()
+	success, _, count, err := testRepo.CountByEmail(ctx, buildUser(testEmail)).Deconstruct()
 	if !success {
-		t.Logf("\tfailed.\n\t%v", err)
-		t.Errorf("expected no error but got: %v", err)
+		t.Logf("Failed, expected no error but got: %v", err)
 		return
 	}
-	t.Logf("\t%v - expected 0\n", count)
+	t.Logf("Expected 0, Actual: %d", count)
 
 	if count.(int64) != 0 {
-		t.Errorf("expected 0 but got: %v", count)
+		t.Errorf("Expected 0, Actual: %v", count)
 	}
 
-	// add user
-	t.Logf("Creating initial user with email: %s...", testEmail)
-	success, _, _, err = testRepo.Add(ctx, buildUser(testEmail)).Deconstruct()
-	if !success {
-		t.Logf("\tfailed - should've worked\n\t%v", err)
-		t.Errorf("expected to be able to insert user.")
-		return
-	}
+	t.Logf("Seeding the database with user: %s...", testEmail)
+	executeHelper("INSERT INTO `users` (`id`,`first_name`,`last_name`,`email`,`normalized_email`,`password_hash`) VALUES (UUID(),?,?,?,?,?);",
+		"John", "Doe", testEmail, normalization.New().Normalize(testEmail), "random string")
 
 	// count - assert 1
 	t.Logf("Recounting users with email: %s...", testEmail)
-	u = buildUser(testEmail)
-	success, _, count, err = testRepo.CountByEmail(ctx, u).Deconstruct()
+	success, _, count, err = testRepo.CountByEmail(ctx, buildUser(testEmail)).Deconstruct()
 	if !success {
-		t.Logf("\tfailed - should've worked\n\t%v", err)
-		t.Errorf("expected no error but got: %v", err)
+		t.Logf("Failed, unexpected error: %v", err)
 		return
-	} else {
-		t.Logf("\t%v - expected 1\n", count)
 	}
+	t.Logf("Expected 1, Actual: %d", count)
 
 	if count.(int64) != 1 {
-		t.Errorf("expected 1 but got: %v", count)
+		t.Fail()
 	}
 }
 

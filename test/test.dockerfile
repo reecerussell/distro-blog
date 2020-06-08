@@ -10,4 +10,4 @@ RUN go get github.com/aws/aws-lambda-go/lambda
 
 WORKDIR /go/src/github.com/reecerussell/distro-blog
 
-CMD sleep 20; go test -v ./...
+CMD sleep 15; go test -v ./... -race -coverprofile=coverage.txt -covermode=atomic

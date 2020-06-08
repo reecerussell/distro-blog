@@ -38,9 +38,11 @@ func TestAddWithExistingEmail(t *testing.T) {
 	ctx := context.Background()
 	testEmail := "addWithExistingEmail@test.com"
 
+	t.Logf("Users in db: %d", countUsers())
 	t.Logf("Seeding the database with user: %s...", testEmail)
 	executeHelper("INSERT INTO `users` (`id`,`first_name`,`last_name`,`email`,`normalized_email`,`password_hash`) VALUES (UUID(),?,?,?,?,?);",
 		"John", "Doe", testEmail, normalization.New().Normalize(testEmail), "random string")
+	t.Logf("Users in db: %d", countUsers())
 
 	// add duplicate user
 	t.Logf("Attempting to create a user with a non-unique email...")
@@ -50,6 +52,8 @@ func TestAddWithExistingEmail(t *testing.T) {
 	} else {
 		t.Logf("Failed to insert user; this was expected :)")
 	}
+
+	t.Logf("Users in db: %d", countUsers())
 }
 
 func TestCountByEmail(t *testing.T) {
@@ -63,10 +67,10 @@ func TestCountByEmail(t *testing.T) {
 		t.Logf("Failed, expected no error but got: %v", err)
 		return
 	}
-	t.Logf("Expected 0, Actual: %d", count)
+	t.Logf("Expected 0, Actual: %d, Users: %d", count, countUsers())
 
 	if count.(int64) != 0 {
-		t.Errorf("Expected 0, Actual: %v", count)
+		t.Fail()
 	}
 
 	t.Logf("Seeding the database with user: %s...", testEmail)
@@ -80,7 +84,7 @@ func TestCountByEmail(t *testing.T) {
 		t.Logf("Failed, unexpected error: %v", err)
 		return
 	}
-	t.Logf("Expected 1, Actual: %d", count)
+	t.Logf("Expected 1, Actual: %d, Users: %d", count, countUsers())
 
 	if count.(int64) != 1 {
 		t.Fail()
@@ -117,4 +121,16 @@ func executeHelper(query string, args ...interface{}) {
 
 	ra, _ := res.RowsAffected()
 	fmt.Printf("--- EXECUTE ---\nQuery: %s\nRows Affected: %d\n--- END EXECUTE ---\n", query, ra)
+}
+
+func countUsers() (c int64) {
+	db, err := sql.Open("mysql", testConnString)
+	if err != nil {
+		panic(fmt.Errorf("open: %v", err))
+	}
+
+	err = db.QueryRow("select count(*) from users;").Scan(&c)
+	if err != nil {
+		panic(fmt.Errorf("query, scan: %v", err))
+	}
 }

@@ -44,13 +44,11 @@ func TestAddWithExistingEmail(t *testing.T) {
 
 	// add duplicate user
 	t.Logf("Attempting to create a user with a non-unique email...")
-	u := buildUser(testEmail)
-	success := testRepo.Add(ctx, u).IsOk()
+	success := testRepo.Add(ctx, buildUser(testEmail)).IsOk()
 	if success {
-		t.Logf("\tsucceeded - should've failed!")
-		t.Errorf("expected an error but got nil")
+		t.Errorf("Inserted user successfully; this shouldn't work :/")
 	} else {
-		t.Logf("\t failed - expected!")
+		t.Logf("Failed to insert user; this was expected :)")
 	}
 }
 

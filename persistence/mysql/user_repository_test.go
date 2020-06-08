@@ -112,8 +112,11 @@ func executeHelper(query string, args ...interface{}) {
 		panic(fmt.Errorf("open: %v", err))
 	}
 
-	_, err = db.Exec(query, args...)
+	res, err := db.Exec(query, args...)
 	if err != nil {
 		panic(fmt.Errorf("exec: %v", err))
 	}
+
+	ra, _ := res.RowsAffected()
+	fmt.Printf("--- EXECUTE ---\nQuery: %s\nRows Affected: %d\n--- END EXECUTE ---\n", query, ra)
 }

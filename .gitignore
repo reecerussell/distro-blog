@@ -16,3 +16,6 @@
 
 # Function build/zip directory
 build/*
+
+# Angular/Node
+*/node_modules/*

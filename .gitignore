@@ -19,3 +19,7 @@ build/*
 
 # Angular/Node
 */node_modules/*
+
+# Temp ignore dev deploys
+.dockerignore
+deploy.dockerfile

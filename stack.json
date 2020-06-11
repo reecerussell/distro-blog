@@ -66,7 +66,7 @@
 								{
 									"Action": "lambda:InvokeFunction",
 									"Resource": {
-										"Fn::GetAtt": ["APIFunction", "Arn"]
+										"Fn::GetAtt": ["CreateUser", "Arn"]
 									},
 									"Effect": "Allow"
 								}
@@ -89,10 +89,12 @@
 				"MemorySize": 1024,
 				"Role": { "Fn::GetAtt": ["IAMLambdaServiceRole", "Arn"] },
 				"Timeout": 60,
-				"Tags": {
-					"Key": "distro-blog",
-					"Value": "lambda"
-				}
+				"Tags": [
+					{
+						"Key": "distro-blog",
+						"Value": "lambda"
+					}
+				]
 			}
 		},
 		"RestAPI": {
@@ -177,7 +179,7 @@
 														"",
 														[
 															{
-																"Ref": "APIFunction"
+																"Ref": "CreateUser"
 															},
 															"/invocations"
 														]
@@ -325,7 +327,7 @@
 			"DependsOn": ["CreateUser"],
 			"Properties": {
 				"Action": "lambda:Invoke",
-				"FunctionName": { "Ref": "APIFunction" },
+				"FunctionName": { "Ref": "CreateUser" },
 				"Principal": "apigateway.amazonaws.com",
 				"SourceArn": {
 					"Fn::Join": [
@@ -390,39 +392,6 @@
 						}
 					}
 				]
-			}
-		},
-		"BucketPolicy": {
-			"Type": "AWS::S3::BucketPolicy",
-			"Properties": {
-				"Bucket": "car-images-hd",
-				"PolicyDocument": {
-					"Version": "2012-10-17",
-					"Statement": [
-						{
-							"Effect": "Allow",
-							"Action": ["s3:GetObject"],
-							"Resource": "arn:aws:s3:::car-images-hd/*",
-							"Condition": {},
-							"Principal": {
-								"AWS": [
-									{
-										"Fn::Join": [
-											":",
-											[
-												"arn:aws:iam:",
-												{
-													"Ref": "AWS::AccountId"
-												},
-												"user/Get_Car_Caller"
-											]
-										]
-									}
-								]
-							}
-						}
-					]
-				}
 			}
 		},
 		"ApiGatewayAccount": {

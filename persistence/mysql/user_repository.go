@@ -80,8 +80,10 @@ func (r *userRepository) Get(ctx context.Context, id string) result.Result {
 		return result.Failure(msg).WithStatusCode(http.StatusNotFound)
 	}
 
+	u := model.UserFromDataModel(dm.(*datamodel.User))
+
 	return result.Ok().
-		WithValue(dm.(*datamodel.User))
+		WithValue(u)
 }
 
 func (r *userRepository) Add(ctx context.Context, u *model.User) result.Result {

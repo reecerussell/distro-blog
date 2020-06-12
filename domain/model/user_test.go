@@ -1,6 +1,7 @@
 package model
 
 import (
+	"github.com/reecerussell/distro-blog/domain/datamodel"
 	"testing"
 
 	"github.com/reecerussell/distro-blog/domain/dto"
@@ -298,5 +299,42 @@ func TestDataModel(t *testing.T) {
 
 	if dm.PasswordHash != u.passwordHash {
 		t.Errorf("expected password hash to be '%s' but got '%s'", u.passwordHash, dm.PasswordHash)
+	}
+}
+
+func TestUserFromDataModel(t *testing.T) {
+	dm := &datamodel.User{
+		ID:              "347434",
+		Firstname:       "John",
+		Lastname:        "Doe",
+		Email:           "john@doe.com",
+		NormalizedEmail: "JOHN@DOE.COM",
+		PasswordHash:    "h384nfkjdf=",
+	}
+
+	u := UserFromDataModel(dm)
+
+	if u.id != dm.ID {
+		t.Errorf("expected '%s' but got '%s'", dm.ID, u.id)
+	}
+
+	if u.firstname != dm.Firstname {
+		t.Errorf("expected '%s' but got '%s'", dm.Firstname, u.firstname)
+	}
+
+	if u.lastname != dm.Lastname {
+		t.Errorf("expected '%s' but got '%s'", dm.Lastname, u.lastname)
+	}
+
+	if u.email != dm.Email {
+		t.Errorf("expected '%s' but got '%s'", dm.Email, u.email)
+	}
+
+	if u.normalizedEmail != dm.NormalizedEmail {
+		t.Errorf("expected '%s' but got '%s'", dm.NormalizedEmail, u.normalizedEmail)
+	}
+
+	if u.passwordHash != dm.PasswordHash {
+		t.Errorf("expected '%s' but got '%s'", dm.PasswordHash, u.passwordHash)
 	}
 }

@@ -143,3 +143,16 @@ func (u *User) DataModel() *datamodel.User {
 		PasswordHash:    u.passwordHash,
 	}
 }
+
+// UserFromDataModel returns a new instance of User populated with
+// data from the given data-model object.
+func UserFromDataModel(dm *datamodel.User) *User {
+	return &User{
+		id: dm.ID,
+		firstname: dm.Firstname,
+		lastname: dm.Lastname,
+		email: dm.Email,
+		normalizedEmail: dm.NormalizedEmail,
+		passwordHash: dm.PasswordHash,
+	}
+}

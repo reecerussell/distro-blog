@@ -12,28 +12,28 @@ var testUserListItem = &UserListItem{
 }
 
 func TestMarshalUserListItem(t *testing.T) {
-	bytes, err := json.Marshal(testCreateUser)
+	bytes, err := json.Marshal(&testUserListItem)
 	if err != nil {
 		t.Errorf("failed to marshal UserListItem: %v", err)
 		return
 	}
 
-	var data map[string]string
-	err = json.Unmarshal(bytes, &data)
+	var item UserListItem
+	err = json.Unmarshal(bytes, &item)
 	if err != nil {
 		t.Errorf("failed to unmarshal UserListItem: %v", err)
 		return
 	}
 
-	if v := data["id"]; v != testUserListItem.ID {
-		t.Errorf("expected '%s' but got '%s'", testUserListItem.ID, v)
+	if item.ID != testUserListItem.ID {
+		t.Errorf("expected '%s' but got '%s'", testUserListItem.ID, item.ID)
 	}
 
-	if v := data["name"]; v != testUserListItem.Name {
-		t.Errorf("expected '%s' but got '%s'", testUserListItem.Name, v)
+	if item.Name != testUserListItem.Name {
+		t.Errorf("expected '%s' but got '%s'", testUserListItem.Name, item.Name)
 	}
 
-	if v := data["email"]; v != testUserListItem.Email {
-		t.Errorf("expected '%s' but got '%s'", testUserListItem.Email, v)
+	if item.Email != testUserListItem.Email {
+		t.Errorf("expected '%s' but got '%s'", testUserListItem.Email, item.Email)
 	}
 }

@@ -12,7 +12,24 @@ import (
 	"github.com/reecerussell/distro-blog/persistence"
 )
 
-var testConnString = os.Getenv("CONN_STRING")
+var (
+	testConnString = os.Getenv("CONN_STRING")
+	users UserUsecase
+)
+
+func init() {
+	db := database.NewMySQL(testConnString)
+	repo := persistence.NewUserRepository(db)
+	users = NewUserUsecase(repo)
+}
+
+func TestList(t *testing.T) {
+	ctx := context.Background()
+	res := users.List(ctx)
+	if !res.IsOk() {
+		t.Errorf("expected result to be successful")
+	}
+}
 
 func TestCreate(t *testing.T) {
 	defer executeHelper("delete from `users`;")
@@ -24,7 +41,7 @@ func TestCreate(t *testing.T) {
 	cu := &dto.CreateUser{
 		Firstname: "John",
 		Lastname:  "Doe",
-		Email:     "john@doe.com",
+		Email:     "testCreate@test.com",
 		Password:  "myTestPass-123",
 	}
 
@@ -45,7 +62,7 @@ func TestCreateWithInvalidData(t *testing.T) {
 	cu := &dto.CreateUser{
 		Firstname: "",
 		Lastname:  "",
-		Email:     "d.7oe.com",
+		Email:     "invalid email",
 		Password:  "123",
 	}
 
@@ -57,7 +74,7 @@ func TestCreateWithInvalidData(t *testing.T) {
 
 func TestCreateWithExistingEmail(t *testing.T) {
 	executeHelper("DELETE FROM `users`;")
-	executeHelper("call create_user(?,?,?,?,?,?)", "0023823", "John", "Doe", "john@doe.com", "JOHN@DOE.COM", "password")
+	executeHelper("call create_user(?,?,?,?,?,?)", "0023823", "John", "Doe", "createWithExistingEmail@test.com", "CREATEWITHEXISTINGEMAIL@TEXT.CM", "password")
 	defer executeHelper("delete from `users`;")
 
 	db := database.NewMySQL(testConnString)
@@ -67,7 +84,7 @@ func TestCreateWithExistingEmail(t *testing.T) {
 	cu := &dto.CreateUser{
 		Firstname: "John",
 		Lastname:  "Doe",
-		Email:     "john@doe.com",
+		Email:     "createWithExistingEmail@test.com",
 		Password:  "myTestPass-123",
 	}
 

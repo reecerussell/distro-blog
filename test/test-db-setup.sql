@@ -34,15 +34,6 @@ CREATE TABLE `table-one` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `table-one`
---
-
-LOCK TABLES `table-one` WRITE;
-/*!40000 ALTER TABLE `table-one` DISABLE KEYS */;
-/*!40000 ALTER TABLE `table-one` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `user_audit`
 --
 
@@ -64,15 +55,6 @@ CREATE TABLE `user_audit` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `user_audit`
---
-
-LOCK TABLES `user_audit` WRITE;
-/*!40000 ALTER TABLE `user_audit` DISABLE KEYS */;
-/*!40000 ALTER TABLE `user_audit` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `users`
 --
 
@@ -91,16 +73,6 @@ CREATE TABLE `users` (
   UNIQUE KEY `normalized_email_UNIQUE` (`normalized_email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `users`
---
-
-LOCK TABLES `users` WRITE;
-/*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES ('31e4d42e-cf42-4f1a-be6d-7d7993cf4f8d','John','Doe','john123@doe.com','JOHN123@DOE.COM','AQAAAAEAADqYAAAAEIb3gOpOAxHmNhoErsIVN8TY1nhFfvtbEXhCzbWGCwSuZuMTxcKIYgbb8YqbObT9rg=='),('9b24240d-a8d0-11ea-a6c7-00fffe94463a','a','b','a@b.c','A@B.C','ph'),('abc','John','Doe','john@doe.com','JOHN@DOE.COM','pwd33434');
-/*!40000 ALTER TABLE `users` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
@@ -179,6 +151,28 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `get_user` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_user`(IN userId VARCHAR(128))
+BEGIN
+	SELECT
+		id, first_name, last_name, email, normalized_email, password_hash
+	FROM users
+	WHERE id = userId;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Final view structure for view `view_user_list`
@@ -207,4 +201,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-06-11 22:40:09
+-- Dump completed on 2020-06-12 17:43:37

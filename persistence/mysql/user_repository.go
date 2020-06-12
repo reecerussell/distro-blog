@@ -2,12 +2,15 @@ package mysql
 
 import (
 	"context"
-
+	"database/sql"
+	"fmt"
+	"github.com/reecerussell/distro-blog/domain/datamodel"
 	"github.com/reecerussell/distro-blog/domain/dto"
 	"github.com/reecerussell/distro-blog/domain/model"
 	"github.com/reecerussell/distro-blog/domain/repository"
 	"github.com/reecerussell/distro-blog/libraries/database"
 	"github.com/reecerussell/distro-blog/libraries/result"
+	"net/http"
 )
 
 type userRepository struct {
@@ -47,6 +50,38 @@ func (r *userRepository) List(ctx context.Context) result.Result {
 	}
 
 	return result.Ok().WithValue(dtos)
+}
+
+func (r *userRepository) Get(ctx context.Context, id string) result.Result {
+	const query string = "CALL `get_user`(?);"
+
+	dm, err := r.db.Read(ctx, query, func(s database.ScannerFunc) (interface{}, error) {
+		var dm datamodel.User
+		err := s(
+			&dm.ID,
+			&dm.Firstname,
+			&dm.Lastname,
+			&dm.Email,
+			&dm.NormalizedEmail,
+			&dm.PasswordHash,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		return &dm, nil
+	}, id)
+	if err != nil && err != sql.ErrNoRows{
+		return result.Failure(err)
+	}
+
+	if dm == nil || err == sql.ErrNoRows {
+		msg := fmt.Sprintf("No user was found with id '%s'", id)
+		return result.Failure(msg).WithStatusCode(http.StatusNotFound)
+	}
+
+	return result.Ok().
+		WithValue(dm.(*datamodel.User))
 }
 
 func (r *userRepository) Add(ctx context.Context, u *model.User) result.Result {

@@ -25,6 +25,13 @@ func init() {
 	testRepo = NewUserRepository(db)
 }
 
+func TestList(t *testing.T) {
+	_, _, _, err := testRepo.List(context.Background()).Deconstruct()
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+}
+
 func TestAdd(t *testing.T) {
 	u := buildUser("testAdd@test.com")
 	ctx := context.Background()

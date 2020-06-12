@@ -3,6 +3,7 @@ package mysql
 import (
 	"context"
 
+	"github.com/reecerussell/distro-blog/domain/dto"
 	"github.com/reecerussell/distro-blog/domain/model"
 	"github.com/reecerussell/distro-blog/domain/repository"
 	"github.com/reecerussell/distro-blog/libraries/database"
@@ -17,6 +18,35 @@ func NewUserRepository(db *database.MySQL) repository.UserRepository {
 	return &userRepository{
 		db: db,
 	}
+}
+
+func (r *userRepository) List(ctx context.Context) result.Result {
+	query := "SELECT * FROM `view_user_list`;"
+	items, err := r.db.Multiple(ctx, query, func(s database.ScannerFunc) (interface{}, error) {
+		var dto dto.UserListItem
+		err := s(
+			&dto.ID,
+			&dto.Name,
+			&dto.Email,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		return dto, nil
+	})
+	if err != nil {
+		return result.Failure(err)
+	}
+
+	dtos := make([]*dto.UserListItem, len(items))
+
+	for i, item := range items {
+		dto := item.(dto.UserListItem)
+		dtos[i] = &dto
+	}
+
+	return result.Ok().WithValue(dtos)
 }
 
 func (r *userRepository) Add(ctx context.Context, u *model.User) result.Result {

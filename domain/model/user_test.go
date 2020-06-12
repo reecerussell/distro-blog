@@ -338,3 +338,36 @@ func TestUserFromDataModel(t *testing.T) {
 		t.Errorf("expected '%s' but got '%s'", dm.PasswordHash, u.passwordHash)
 	}
 }
+
+func TestUser_DTO(t *testing.T) {
+	u := &User{
+		id:              "id",
+		firstname:       "firstname",
+		lastname:        "lastname",
+		email:           "email",
+		normalizedEmail: "normalized email",
+		passwordHash:    "password hash",
+	}
+
+	dto := u.DTO()
+
+	if dto.ID != u.id {
+		t.Errorf("expected id to be '%s' but got '%s'", u.id, dto.ID)
+	}
+
+	if dto.Firstname != u.firstname {
+		t.Errorf("expected firstname to be '%s' but got '%s'", u.firstname, dto.Firstname)
+	}
+
+	if dto.Lastname != u.lastname {
+		t.Errorf("expected lastname to be '%s' but got '%s'", u.lastname, dto.Lastname)
+	}
+
+	if dto.Email != u.email {
+		t.Errorf("expected email to be '%s' but got '%s'", u.email, dto.Email)
+	}
+
+	if dto.NormalizedEmail != u.normalizedEmail {
+		t.Errorf("expected normalized email to be '%s' but got '%s'", u.normalizedEmail, dto.NormalizedEmail)
+	}
+}

@@ -156,3 +156,14 @@ func UserFromDataModel(dm *datamodel.User) *User {
 		passwordHash: dm.PasswordHash,
 	}
 }
+
+// DTO returns a dto.User populated with the user' data.
+func (u *User) DTO() *dto.User {
+	return &dto.User{
+		ID:              u.id,
+		Firstname:       u.firstname,
+		Lastname:        u.lastname,
+		Email:           u.email,
+		NormalizedEmail: u.normalizedEmail,
+	}
+}

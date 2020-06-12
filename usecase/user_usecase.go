@@ -15,6 +15,7 @@ import (
 
 // UserUsecase is a high-level interface used to manage the user domain.
 type UserUsecase interface {
+	List(ctx context.Context) result.Result
 	Create(ctx context.Context, cu *dto.CreateUser) result.Result
 }
 
@@ -39,6 +40,11 @@ func NewUserUsecase(repo repository.UserRepository) UserUsecase {
 		norm:    norm,
 		pwdServ: pwdServ,
 	}
+}
+
+// List returns a result containing a list of users, from the repository.
+func (u *userUsecase) List(ctx context.Context) result.Result {
+	return u.repo.List(ctx)
 }
 
 // Create creates a new user domain record, ensuring the data is valid.

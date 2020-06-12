@@ -34,6 +34,15 @@ CREATE TABLE `table-one` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Dumping data for table `table-one`
+--
+
+LOCK TABLES `table-one` WRITE;
+/*!40000 ALTER TABLE `table-one` DISABLE KEYS */;
+/*!40000 ALTER TABLE `table-one` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `user_audit`
 --
 
@@ -55,6 +64,15 @@ CREATE TABLE `user_audit` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Dumping data for table `user_audit`
+--
+
+LOCK TABLES `user_audit` WRITE;
+/*!40000 ALTER TABLE `user_audit` DISABLE KEYS */;
+/*!40000 ALTER TABLE `user_audit` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `users`
 --
 
@@ -73,6 +91,16 @@ CREATE TABLE `users` (
   UNIQUE KEY `normalized_email_UNIQUE` (`normalized_email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `users`
+--
+
+LOCK TABLES `users` WRITE;
+/*!40000 ALTER TABLE `users` DISABLE KEYS */;
+INSERT INTO `users` VALUES ('31e4d42e-cf42-4f1a-be6d-7d7993cf4f8d','John','Doe','john123@doe.com','JOHN123@DOE.COM','AQAAAAEAADqYAAAAEIb3gOpOAxHmNhoErsIVN8TY1nhFfvtbEXhCzbWGCwSuZuMTxcKIYgbb8YqbObT9rg=='),('9b24240d-a8d0-11ea-a6c7-00fffe94463a','a','b','a@b.c','A@B.C','ph'),('abc','John','Doe','john@doe.com','JOHN@DOE.COM','pwd33434');
+/*!40000 ALTER TABLE `users` ENABLE KEYS */;
+UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
@@ -90,6 +118,20 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+
+--
+-- Temporary view structure for view `view_user_list`
+--
+
+DROP TABLE IF EXISTS `view_user_list`;
+/*!50001 DROP VIEW IF EXISTS `view_user_list`*/;
+SET @saved_cs_client     = @@character_set_client;
+/*!50503 SET character_set_client = utf8mb4 */;
+/*!50001 CREATE VIEW `view_user_list` AS SELECT 
+ 1 AS `Id`,
+ 1 AS `Name`,
+ 1 AS `Email`*/;
+SET character_set_client = @saved_cs_client;
 
 --
 -- Dumping events for database 'distro-blog-test'
@@ -137,6 +179,24 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+
+--
+-- Final view structure for view `view_user_list`
+--
+
+/*!50001 DROP VIEW IF EXISTS `view_user_list`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `view_user_list` AS select `users`.`id` AS `Id`,concat(`users`.`first_name`,' ',`users`.`last_name`) AS `Name`,`users`.`email` AS `Email` from `users` order by concat(`users`.`first_name`,' ',`users`.`last_name`) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -147,4 +207,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-06-07 16:24:19
+-- Dump completed on 2020-06-11 22:40:09

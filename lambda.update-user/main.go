@@ -2,9 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/base64"
-	"encoding/json"
-	"fmt"
 	"net/http"
 	"os"
 
@@ -31,11 +28,9 @@ func handleUpdateUser(ctx context.Context, req events.APIGatewayProxyRequest) (e
 	ctx = helper.PopulateContext(ctx, req)
 
 	var uu dto.UpdateUser
-	data, _ := base64.StdEncoding.DecodeString(req.Body)
-	err := json.Unmarshal(data, &uu)
+	err := helper.ReadBody(req, &uu)
 	if err != nil {
-		msg := fmt.Sprintf("Failed to read request body, as it was in an unsupported format: %v", err)
-		br := result.Failure(msg).WithStatusCode(http.StatusBadRequest)
+		br := result.Failure(err).WithStatusCode(http.StatusBadRequest)
 		return helper.Response(ctx, br, req), nil
 	}
 

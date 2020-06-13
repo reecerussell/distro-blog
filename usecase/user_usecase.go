@@ -18,6 +18,7 @@ type UserUsecase interface {
 	List(ctx context.Context) result.Result
 	Get(ctx context.Context, id string) result.Result
 	Create(ctx context.Context, cu *dto.CreateUser) result.Result
+	Update(ctx context.Context, uu *dto.UpdateUser) result.Result
 }
 
 // userUsecase is an implementation of the UserUsecase interface.
@@ -76,6 +77,28 @@ func (u *userUsecase) Create(ctx context.Context, cu *dto.CreateUser) result.Res
 	success, _, _, err := u.repo.Add(ctx, usr).Deconstruct()
 	if !success {
 		return result.Failure(err).WithStatusCode(http.StatusInternalServerError)
+	}
+
+	return result.Ok()
+}
+
+// Update updates a specific user record, by retrieving the record from the
+// database, then updating the domain model and database record.
+func (u *userUsecase) Update(ctx context.Context, uu *dto.UpdateUser) result.Result {
+	success, status, value, err := u.repo.Get(ctx, uu.ID).Deconstruct()
+	if !success{
+		return result.Failure(err).WithStatusCode(status)
+	}
+
+	user := value.(*model.User)
+	err = user.Update(uu, u.norm)
+	if err != nil {
+		return result.Failure(err).WithStatusCode(http.StatusBadRequest)
+	}
+
+	success, status, _, err = u.repo.Update(ctx, user).Deconstruct()
+	if !success {
+		return result.Failure(err).WithStatusCode(status)
 	}
 
 	return result.Ok()

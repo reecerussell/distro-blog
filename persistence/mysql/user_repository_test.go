@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"net/http"
+	"os"
 	"testing"
 
 	"github.com/reecerussell/distro-blog/domain/dto"
@@ -17,10 +18,9 @@ import (
 )
 
 var (
-	//testConnString = os.Getenv("CONN_STRING")
-	testConnString = "root:password@tcp(127.0.0.1)/distro-blog-test?parseTime=true"
-	testConnStringEmptySchema = "root:password@tcp(127.0.0.1)/distro-blog-test-empty-schema?parseTime=true"
-	testConnStringDeformed = "root:password@tcp(127.0.0.1)/distro-blog-test-deformed?parseTime=true"
+	testConnString = os.Getenv("CONN_STRING")
+	testConnStringEmptySchema = os.Getenv("CONN_STRING_EMPTY_SCHEMA")
+	testConnStringDeformed = os.Getenv("CONN_STRING_DEFORMED")
 	testRepo       repository.UserRepository
 	testRepoEmptySchema repository.UserRepository
 	testRepoDeformed repository.UserRepository

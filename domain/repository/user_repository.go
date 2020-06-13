@@ -11,6 +11,7 @@ import (
 // user persistence and handle interaction with a data source.
 type UserRepository interface {
 	List(ctx context.Context) result.Result
+	Get(ctx context.Context, id string) result.Result
 	Add(ctx context.Context, u *model.User) result.Result
 	CountByEmail(ctx context.Context, u *model.User) result.Result
 }

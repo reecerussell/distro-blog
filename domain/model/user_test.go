@@ -1,6 +1,7 @@
 package model
 
 import (
+	"github.com/google/uuid"
 	"github.com/reecerussell/distro-blog/domain/datamodel"
 	"testing"
 
@@ -370,4 +371,78 @@ func TestUser_DTO(t *testing.T) {
 	if dto.NormalizedEmail != u.normalizedEmail {
 		t.Errorf("expected normalized email to be '%s' but got '%s'", u.normalizedEmail, dto.NormalizedEmail)
 	}
+}
+
+func TestUser_Update(t *testing.T) {
+	u := &User {
+		id: uuid.New().String(),
+		firstname: "John",
+		lastname: "Doe",
+		email: "john@doe.com",
+		normalizedEmail: "JOHN@DOE.COM",
+	}
+
+	d := &dto.UpdateUser{
+		ID: u.id,
+		Firstname: "Jane",
+		Lastname: "Doe",
+		Email: "jane@doe.com",
+	}
+
+	err := u.Update(d, testNormalizer)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+		return
+	}
+
+	if u.firstname != d.Firstname {
+		t.Errorf("expected firstname to be '%s', but got '%s'", d.Firstname, u.firstname)
+	}
+
+	if u.lastname != d.Lastname {
+		t.Errorf("expected lastname to be '%s', but got '%s'", d.Lastname, u.lastname)
+	}
+
+	if u.email != d.Email {
+		t.Errorf("expected email to be '%s', but got '%s'", d.Email, u.email)
+	}
+
+	t.Run("Invalid Firstname", func(t *testing.T) {
+		d.Firstname = ""
+		defer func() {
+			d.Firstname = u.firstname
+		}()
+
+		err := u.Update(d, testNormalizer)
+		if err == nil {
+			t.Errorf("expected an error")
+			return
+		}
+	})
+
+	t.Run("Invalid Lastname", func(t *testing.T) {
+		d.Lastname = ""
+		defer func() {
+			d.Lastname = u.lastname
+		}()
+
+		err := u.Update(d, testNormalizer)
+		if err == nil {
+			t.Errorf("expected an error")
+			return
+		}
+	})
+
+	t.Run("Invalid Email", func(t *testing.T) {
+		d.Email = ""
+		defer func() {
+			d.Email = u.email
+		}()
+
+		err := u.Update(d, testNormalizer)
+		if err == nil {
+			t.Errorf("expected an error")
+			return
+		}
+	})
 }

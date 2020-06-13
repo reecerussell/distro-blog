@@ -25,19 +25,7 @@ func NewUserRepository(db *database.MySQL) repository.UserRepository {
 
 func (r *userRepository) List(ctx context.Context) result.Result {
 	query := "SELECT * FROM `view_user_list`;"
-	items, err := r.db.Multiple(ctx, query, func(s database.ScannerFunc) (interface{}, error) {
-		var dto dto.UserListItem
-		err := s(
-			&dto.ID,
-			&dto.Name,
-			&dto.Email,
-		)
-		if err != nil {
-			return nil, err
-		}
-
-		return dto, nil
-	})
+	items, err := r.db.Multiple(ctx, query, userReader)
 	if err != nil {
 		return result.Failure(err)
 	}
@@ -50,6 +38,20 @@ func (r *userRepository) List(ctx context.Context) result.Result {
 	}
 
 	return result.Ok().WithValue(dtos)
+}
+
+func userReader(s database.ScannerFunc) (interface{}, error) {
+	var dto dto.UserListItem
+	err := s(
+		&dto.ID,
+		&dto.Name,
+		&dto.Email,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return dto, nil
 }
 
 func (r *userRepository) Get(ctx context.Context, id string) result.Result {
@@ -98,13 +100,9 @@ func (r *userRepository) Add(ctx context.Context, u *model.User) result.Result {
 		dm.PasswordHash,
 	}
 
-	rowsAffected, err := r.db.Execute(ctx, query, args...)
+	_, err := r.db.Execute(ctx, query, args...)
 	if err != nil {
 		return result.Failure(err)
-	}
-
-	if rowsAffected < 1 {
-		return result.Failure("Failed to insert user into the database, for an unknown reason.")
 	}
 
 	return result.Ok()
@@ -122,4 +120,29 @@ func (r *userRepository) CountByEmail(ctx context.Context, u *model.User) result
 	}
 
 	return result.Ok().WithValue(c)
+}
+
+// Update modifies an existing user record in the database, with the updated domain model.
+func (r *userRepository) Update(ctx context.Context, u *model.User) result.Result {
+	const query string = "CALL `update_user`(?,?,?,?,?);"
+	dm := u.DataModel()
+	args := []interface{}{
+		dm.ID,
+		dm.Firstname,
+		dm.Lastname,
+		dm.Email,
+		dm.NormalizedEmail,
+	}
+
+	ra, err := r.db.Execute(ctx, query, args...)
+	if err != nil {
+		return result.Failure(err)
+	}
+
+	if ra < 1 {
+		msg := fmt.Sprintf("No user with id '%s' was updated.", dm.ID)
+		return result.Failure(msg).WithStatusCode(http.StatusNotFound)
+	}
+
+	return result.Ok()
 }

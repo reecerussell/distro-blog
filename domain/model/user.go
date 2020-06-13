@@ -62,6 +62,27 @@ func (u *User) NormalizedEmail() string {
 	return u.normalizedEmail
 }
 
+// Update is used to update the user's core values, in a single function,
+// by calling each other function. Update does not update the user's password.
+func (u *User) Update(d *dto.UpdateUser, norm normalization.Normalizer) error {
+	err := u.UpdateFirstname(d.Firstname)
+	if err != nil {
+		return err
+	}
+
+	err = u.UpdateLastname(d.Lastname)
+	if err != nil {
+		return err
+	}
+
+	err = u.UpdateEmail(d.Email, norm)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // UpdateFirstname updates the User's firstname.
 func (u *User) UpdateFirstname(firstname string) error {
 	l := len(firstname)

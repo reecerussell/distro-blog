@@ -14,4 +14,5 @@ type UserRepository interface {
 	Get(ctx context.Context, id string) result.Result
 	Add(ctx context.Context, u *model.User) result.Result
 	CountByEmail(ctx context.Context, u *model.User) result.Result
+	Update(ctx context.Context, u *model.User) result.Result
 }

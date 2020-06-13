@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/google/uuid"
+	"net/http"
 	"os"
 	"testing"
 
@@ -18,12 +19,20 @@ import (
 
 var (
 	testConnString = os.Getenv("CONN_STRING")
+	testConnStringEmptySchema = os.Getenv("CONN_STRING_EMPTY_SCHEMA")
+	testConnStringDeformed = os.Getenv("CONN_STRING_DEFORMED")
 	testRepo       repository.UserRepository
+	testRepoEmptySchema repository.UserRepository
+	testRepoDeformed repository.UserRepository
 )
 
 func init() {
 	db := database.NewMySQL(testConnString)
 	testRepo = NewUserRepository(db)
+	db = database.NewMySQL(testConnStringEmptySchema)
+	testRepoEmptySchema = NewUserRepository(db)
+	db = database.NewMySQL(testConnStringDeformed)
+	testRepoDeformed = NewUserRepository(db)
 }
 
 func TestList(t *testing.T) {
@@ -31,6 +40,29 @@ func TestList(t *testing.T) {
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
+}
+
+func TestUserRepository_UserReader(t *testing.T) {
+	seedUser("userRepository@userReader.test")
+
+	success, _, _, err := testRepo.List(context.Background()).Deconstruct()
+	if !success {
+		t.Errorf("unexpected error: %v", err)
+	}
+
+	t.Run("Missing Schema", func(t *testing.T) {
+		res := testRepoEmptySchema.List(context.Background())
+		if res.IsOk(){
+			t.Errorf("expected to fail")
+		}
+	})
+
+	t.Run("Deformed View", func(t *testing.T) {
+		res := testRepoDeformed.List(context.Background())
+		if res.IsOk(){
+			t.Errorf("expected to fail")
+		}
+	})
 }
 
 func TestGetUser(t *testing.T) {
@@ -47,6 +79,13 @@ func TestGetUser(t *testing.T) {
 		success := testRepo.Get(ctx, uuid.New().String()).IsOk()
 		if success{
 			t.Errorf("expected to fail")
+		}
+	})
+
+	t.Run("Missing Table", func(t *testing.T) {
+		res := testRepoEmptySchema.Get(ctx, "some id")
+		if res.IsOk(){
+			t.Errorf("expecte to fail")
 		}
 	})
 }
@@ -74,7 +113,7 @@ func TestAddWithExistingEmail(t *testing.T) {
 	}
 }
 
-func TestCountByEmail(t *testing.T) {
+func TestUserRepository_CountByEmail(t *testing.T) {
 	ctx := context.Background()
 	testEmail := "countByEmail@test.com"
 
@@ -101,6 +140,13 @@ func TestCountByEmail(t *testing.T) {
 	if count.(int64) != 1 {
 		t.Fail()
 	}
+
+	t.Run("Missing Schema", func(t *testing.T) {
+		res := testRepoEmptySchema.CountByEmail(ctx, buildUser(testEmail))
+		if res.IsOk() {
+			t.Errorf("expected to fail")
+		}
+	})
 }
 
 func buildUser(email string) *model.User {
@@ -118,6 +164,49 @@ func buildUser(email string) *model.User {
 	}
 
 	return u
+}
+
+func TestUserRepository_Update(t *testing.T) {
+	u, _ := seedUser("userRepository@update.test")
+	ud := &dto.UpdateUser{
+		Firstname: "UpdateRepository",
+		Lastname: "Test",
+		Email: u.Email(),
+	}
+	_ = u.Update(ud, normalization.New())
+	ctx := context.Background()
+
+	success, _, _, err := testRepo.Update(ctx, u).Deconstruct()
+	if !success {
+		t.Errorf("unexpected error: %v", err)
+		return
+	}
+
+	// check user
+
+
+
+	t.Run("Non Existent User", func(t *testing.T) {
+		u := buildUser("nonExistentUser@update.test")
+		success, status, _, _ := testRepo.Update(ctx, u).Deconstruct()
+		if success {
+			t.Errorf("unexpected success")
+		}
+
+		if status != http.StatusNotFound {
+			t.Errorf("expected status code %d, but got %d", http.StatusNotFound, status)
+		}
+	})
+
+	t.Run("Missing Stored Procedure", func(t *testing.T) {
+		u := buildUser("missingSproc@update.test")
+		ctx := context.Background()
+
+		res := testRepoEmptySchema.Update(ctx, u)
+		if res.IsOk() {
+			t.Errorf("expected an error")
+		}
+	})
 }
 
 func seedUser(email string) (*model.User, string) {

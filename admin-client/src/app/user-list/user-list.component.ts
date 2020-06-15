@@ -12,9 +12,9 @@ export class UserListComponent implements OnInit {
     constructor(private api: ApiService) {}
 
     async ngOnInit() {
-        const res = await this.api.Users();
-        if (res.status === 200) {
-            this.users = (await res.json()).data;
+        const res = await this.api.Users.List();
+        if (res.ok) {
+            this.users = res.data;
         }
     }
 }

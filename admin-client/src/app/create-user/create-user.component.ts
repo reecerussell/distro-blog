@@ -128,12 +128,11 @@ export class CreateUserComponent implements OnInit {
 
         this.loading = true;
 
-        const res = await this.api.CreateUser(this.model);
-        if (res.status !== 200) {
-            const { error } = await res.json();
-            this.error = error;
-        } else {
+        const res = await this.api.Users.Create(this.model);
+        if (res.ok) {
             this.router.navigateByUrl("users");
+        } else {
+            this.error = res.error;
         }
 
         this.loading = false;

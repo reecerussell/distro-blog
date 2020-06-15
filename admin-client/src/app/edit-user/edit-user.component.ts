@@ -35,10 +35,12 @@ export class EditUserComponent implements OnInit {
     }
 
     async fetchUser(id: string) {
-        const res = await this.api.GetUser(id);
-        if (res.status === 200) {
-            const { data } = await res.json();
-            this.model = data as UpdateUser;
+        const res = await this.api.Users.Get(id);
+        if (res.ok) {
+            this.error = null;
+            this.model = res.data as UpdateUser;
+        } else {
+            this.error = res.error;
         }
     }
 
@@ -118,13 +120,8 @@ export class EditUserComponent implements OnInit {
 
         this.loading = true;
 
-        const res = await this.api.UpdateUser(this.model);
-        if (res.status !== 200) {
-            const { error } = await res.json();
-            this.error = error;
-        } else {
-            this.error = null;
-        }
+        const res = await this.api.Users.Update(this.model);
+        this.error = res.ok ? null : res.error;
 
         this.loading = false;
     }

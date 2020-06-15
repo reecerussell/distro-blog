@@ -20,6 +20,7 @@ export class EditUserComponent implements OnInit {
     emailError: string = null;
 
     isDeleteOpen: boolean = false;
+    isDirty: boolean = false;
 
     constructor(
         private api: ApiService,
@@ -47,6 +48,8 @@ export class EditUserComponent implements OnInit {
     }
 
     validateFirstname(): any {
+        this.isDirty = true;
+
         const firstname = this.model.firstname;
         if (firstname.length < 1) {
             this.firstnameError = "Please enter the user's firtname.";
@@ -63,6 +66,8 @@ export class EditUserComponent implements OnInit {
     }
 
     validateLastname(): any {
+        this.isDirty = true;
+
         const lastname = this.model.lastname;
         if (lastname.length < 1) {
             this.lastnameError = "Please enter the user's lastname.";
@@ -78,6 +83,8 @@ export class EditUserComponent implements OnInit {
     }
 
     validateEmail(): any {
+        this.isDirty = true;
+
         const email = this.model.email;
         if (email.length < 1) {
             this.emailError = "This field is required.";

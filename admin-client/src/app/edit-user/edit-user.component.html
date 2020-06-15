@@ -7,104 +7,113 @@
                 {{ error }}
             </div>
         </ng-template>
-        <ng-template [ngIf]="model && !isDeleteOpen" [ngIfElse]="delete">
-            <form (submit)="onSubmit()" novalidate>
-                <div class="form-group">
-                    <label for="firstname">Firstname</label>
-                    <input
-                        type="text"
-                        name="firstname"
-                        id="firstname"
-                        class="form-control"
-                        [class.is-invalid]="firstnameError"
-                        [(ngModel)]="model.firstname"
-                        (keyup)="validateFirstname()"
-                        placeholder="Enter the user's firstname..."
-                        required
-                    />
-                    <ng-template [ngIf]="firstnameError">
-                        <div class="invalid-feedback">
-                            {{ firstnameError }}
+        <ng-template [ngIf]="model">
+            <ng-template [ngIf]="!isDeleteOpen" [ngIfElse]="delete">
+                <form (submit)="onSubmit()" novalidate>
+                    <div class="form-group">
+                        <label for="firstname">Firstname</label>
+                        <input
+                            type="text"
+                            name="firstname"
+                            id="firstname"
+                            class="form-control"
+                            [class.is-invalid]="firstnameError"
+                            [(ngModel)]="model.firstname"
+                            (keyup)="validateFirstname()"
+                            placeholder="Enter the user's firstname..."
+                            required
+                        />
+                        <ng-template [ngIf]="firstnameError">
+                            <div class="invalid-feedback">
+                                {{ firstnameError }}
+                            </div>
+                        </ng-template>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastname">Lastname</label>
+                        <input
+                            type="text"
+                            name="lastname"
+                            id="lastname"
+                            class="form-control"
+                            [class.is-invalid]="lastnameError"
+                            [(ngModel)]="model.lastname"
+                            (keyup)="validateLastname()"
+                            placeholder="Enter the user's lastname..."
+                            required
+                        />
+                        <ng-template [ngIf]="lastnameError">
+                            <div class="invalid-feedback">
+                                {{ lastnameError }}
+                            </div>
+                        </ng-template>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input
+                            type="text"
+                            name="email"
+                            id="email"
+                            class="form-control"
+                            [class.is-invalid]="emailError"
+                            [(ngModel)]="model.email"
+                            (keyup)="validateEmail()"
+                            placeholder="Enter an email..."
+                            required
+                        />
+                        <ng-template [ngIf]="emailError">
+                            <div class="invalid-feedback">
+                                {{ emailError }}
+                            </div>
+                        </ng-template>
+                    </div>
+                    <div class="form-group">
+                        <a routerLink="/users" class="btn btn-link pl-0">
+                            Users
+                        </a>
+                        <div class="float-right btn-group">
+                            <button
+                                type="submit"
+                                class="btn btn-success"
+                                [disabled]="!isDirty"
+                            >
+                                Save
+                            </button>
+                            <button
+                                type="button"
+                                class="btn btn-danger"
+                                (click)="toggleDelete()"
+                            >
+                                Delete
+                            </button>
                         </div>
-                    </ng-template>
-                </div>
-                <div class="form-group">
-                    <label for="lastname">Lastname</label>
-                    <input
-                        type="text"
-                        name="lastname"
-                        id="lastname"
-                        class="form-control"
-                        [class.is-invalid]="lastnameError"
-                        [(ngModel)]="model.lastname"
-                        (keyup)="validateLastname()"
-                        placeholder="Enter the user's lastname..."
-                        required
-                    />
-                    <ng-template [ngIf]="lastnameError">
-                        <div class="invalid-feedback">
-                            {{ lastnameError }}
-                        </div>
-                    </ng-template>
-                </div>
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input
-                        type="text"
-                        name="email"
-                        id="email"
-                        class="form-control"
-                        [class.is-invalid]="emailError"
-                        [(ngModel)]="model.email"
-                        (keyup)="validateEmail()"
-                        placeholder="Enter an email..."
-                        required
-                    />
-                    <ng-template [ngIf]="emailError">
-                        <div class="invalid-feedback">
-                            {{ emailError }}
-                        </div>
-                    </ng-template>
-                </div>
-                <div class="form-group">
-                    <button type="submit" class="btn btn-success">
-                        Save
-                    </button>
-                    <button
-                        type="button"
-                        class="btn btn-danger"
-                        (click)="toggleDelete()"
-                    >
-                        Delete
-                    </button>
-                    <a routerLink="/users" class="btn btn-link">
-                        Users
-                    </a>
-                </div>
-            </form>
-        </ng-template>
-        <ng-template #delete>
-            <form (submit)="onDelete()">
-                <h4>Delete</h4>
-                <p>
-                    <b>Are you sure?</b>
-                </p>
-                <p>
-                    This action is permanent, therefore cannot be reversed. Any
-                    data associated with this user will be deleted!
-                </p>
-                <hr />
-                <p class="btn-group float-right">
-                    <button
-                        type="button"
-                        class="btn btn-secondary"
-                        (click)="toggleDelete()"
-                    >
-                        Cancel
-                    </button>
-                    <button type="submit" class="btn btn-danger">Delete</button>
-                </p>
-            </form>
+                    </div>
+                </form>
+            </ng-template>
         </ng-template>
     </div>
 </div>
+
+<ng-template #delete>
+    <form (submit)="onDelete()">
+        <h4>Delete</h4>
+        <p>
+            <b>Are you sure?</b>
+        </p>
+        <p>
+            This action is permanent, therefore cannot be reversed. Any data
+            associated with this user will be deleted!
+        </p>
+        <hr />
+        <p class="btn-group float-right">
+            <button
+                type="button"
+                class="btn btn-secondary"
+                (click)="toggleDelete()"
+            >
+                Cancel
+            </button>
+            <button type="submit" class="btn btn-danger">Delete</button>
+        </p>
+    </form>
+</ng-template>

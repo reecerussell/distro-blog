@@ -8,9 +8,10 @@ import { AppComponent } from './app.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { CreateUserComponent } from './create-user/create-user.component';
 import { UserListComponent } from './user-list/user-list.component';
+import { EditUserComponent } from './edit-user/edit-user.component';
 
 @NgModule({
-  declarations: [AppComponent, DashboardComponent, CreateUserComponent, UserListComponent],
+  declarations: [AppComponent, DashboardComponent, CreateUserComponent, UserListComponent, EditUserComponent],
   imports: [BrowserModule, AppRoutingModule, HttpClientModule, FormsModule],
   providers: [],
   bootstrap: [AppComponent],

@@ -2,9 +2,7 @@ import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { ApiService } from "../api.service";
 import { CreateUser } from "../models/user";
-import Validate from "../models/validation/user";
 import { Title } from "@angular/platform-browser";
-import { stringify } from "querystring";
 
 @Component({
     selector: "app-create-user",

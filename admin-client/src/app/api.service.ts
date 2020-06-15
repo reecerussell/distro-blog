@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { CreateUser } from "./models/user";
+import { CreateUser, UpdateUser } from "./models/user";
 
 @Injectable({
     providedIn: "root",
@@ -21,5 +21,19 @@ export class ApiService {
 
     Users(): Promise<Response> {
         return fetch(this.baseUrl + "users");
+    }
+
+    GetUser(id: string): Promise<Response> {
+        return fetch(this.baseUrl + "users/" + id);
+    }
+
+    UpdateUser(data: UpdateUser): Promise<Response> {
+        return fetch(this.baseUrl + "users", {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        });
     }
 }

@@ -1,1 +1,80 @@
-<p>edit-user works!</p>
+<div class="row">
+    <div class="col-sm-8 col-md-6 col-lg-4">
+        <h1 class="h2 pt-3">User</h1>
+        <p class="pb-2 mb-3 border-bottom text-muted">Id: {{ model?.id }}</p>
+        <ng-template [ngIf]="model">
+            <form (submit)="onSubmit()" novalidate>
+                <ng-template [ngIf]="error">
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                </ng-template>
+                <div class="form-group">
+                    <label for="firstname">Firstname</label>
+                    <input
+                        type="text"
+                        name="firstname"
+                        id="firstname"
+                        class="form-control"
+                        [class.is-invalid]="firstnameError"
+                        [(ngModel)]="model.firstname"
+                        (keyup)="validateFirstname()"
+                        placeholder="Enter the user's firstname..."
+                        required
+                    />
+                    <ng-template [ngIf]="firstnameError">
+                        <div class="invalid-feedback">
+                            {{ firstnameError }}
+                        </div>
+                    </ng-template>
+                </div>
+                <div class="form-group">
+                    <label for="lastname">Lastname</label>
+                    <input
+                        type="text"
+                        name="lastname"
+                        id="lastname"
+                        class="form-control"
+                        [class.is-invalid]="lastnameError"
+                        [(ngModel)]="model.lastname"
+                        (keyup)="validateLastname()"
+                        placeholder="Enter the user's lastname..."
+                        required
+                    />
+                    <ng-template [ngIf]="lastnameError">
+                        <div class="invalid-feedback">
+                            {{ lastnameError }}
+                        </div>
+                    </ng-template>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input
+                        type="text"
+                        name="email"
+                        id="email"
+                        class="form-control"
+                        [class.is-invalid]="emailError"
+                        [(ngModel)]="model.email"
+                        (keyup)="validateEmail()"
+                        placeholder="Enter an email..."
+                        required
+                    />
+                    <ng-template [ngIf]="emailError">
+                        <div class="invalid-feedback">
+                            {{ emailError }}
+                        </div>
+                    </ng-template>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success">
+                        Save
+                    </button>
+                    <a routerLink="/users" class="btn btn-link">
+                        Users
+                    </a>
+                </div>
+            </form>
+        </ng-template>
+    </div>
+</div>

@@ -28,7 +28,7 @@
             <tr *ngFor="let user of users">
                 <td>{{ user.name }}</td>
                 <td>{{ user.email }}</td>
-                <td><a href="#">View</a></td>
+                <td><a routerLink="/users/{{ user.id }}">View</a></td>
             </tr>
         </tbody>
     </table>

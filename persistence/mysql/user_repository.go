@@ -146,3 +146,14 @@ func (r *userRepository) Update(ctx context.Context, u *model.User) result.Resul
 
 	return result.Ok()
 }
+
+// Delete deletes a specific user from the database.
+func (r *userRepository) Delete(ctx context.Context, id string) result.Result {
+	const query string = "CALL `delete_user`(?);"
+	_, err := r.db.Execute(ctx, query, id)
+	if err != nil {
+		return result.Failure(err)
+	}
+
+	return result.Ok()
+}

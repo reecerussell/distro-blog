@@ -46,6 +46,13 @@ class UserService {
         return await this.parseResponse(res);
     }
 
+    async Delete(id: string): Promise<ApiResponse> {
+        const res = await fetch(this.baseUrl + `/${id}`, {
+            method: "DELETE",
+        });
+        return await this.parseResponse(res);
+    }
+
     async parseResponse(res: Response): Promise<ApiResponse> {
         if (res.status === 200) {
             const { data } = await res.json();

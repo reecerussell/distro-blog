@@ -3,7 +3,7 @@ import { Router, ActivatedRoute } from "@angular/router";
 import { ApiService } from "../api.service";
 import { UpdateUser } from "../models/user";
 import { Title } from "@angular/platform-browser";
-import { switchMap } from "rxjs/operators";
+import { THIS_EXPR } from "@angular/compiler/src/output/output_ast";
 
 @Component({
     selector: "app-edit-user",
@@ -18,6 +18,8 @@ export class EditUserComponent implements OnInit {
     firstnameError: string = null;
     lastnameError: string = null;
     emailError: string = null;
+
+    isDeleteOpen: boolean = false;
 
     constructor(
         private api: ApiService,
@@ -124,5 +126,26 @@ export class EditUserComponent implements OnInit {
         this.error = res.ok ? null : res.error;
 
         this.loading = false;
+    }
+
+    async onDelete() {
+        if (this.loading) {
+            return;
+        }
+
+        this.loading = true;
+
+        const res = await this.api.Users.Delete(this.model.id);
+        if (!res.ok) {
+            this.error = res.error;
+        } else {
+            this.router.navigateByUrl("/users");
+        }
+
+        this.loading = false;
+    }
+
+    toggleDelete() {
+        this.isDeleteOpen = !this.isDeleteOpen;
     }
 }

@@ -2,13 +2,13 @@
     <div class="col-sm-8 col-md-6 col-lg-4">
         <h1 class="h2 pt-3">User</h1>
         <p class="pb-2 mb-3 border-bottom text-muted">Id: {{ model?.id }}</p>
-        <ng-template [ngIf]="model">
+        <ng-template [ngIf]="error">
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
+        </ng-template>
+        <ng-template [ngIf]="model && !isDeleteOpen" [ngIfElse]="delete">
             <form (submit)="onSubmit()" novalidate>
-                <ng-template [ngIf]="error">
-                    <div class="alert alert-danger" role="alert">
-                        {{ error }}
-                    </div>
-                </ng-template>
                 <div class="form-group">
                     <label for="firstname">Firstname</label>
                     <input
@@ -70,10 +70,40 @@
                     <button type="submit" class="btn btn-success">
                         Save
                     </button>
+                    <button
+                        type="button"
+                        class="btn btn-danger"
+                        (click)="toggleDelete()"
+                    >
+                        Delete
+                    </button>
                     <a routerLink="/users" class="btn btn-link">
                         Users
                     </a>
                 </div>
+            </form>
+        </ng-template>
+        <ng-template #delete>
+            <form (submit)="onDelete()">
+                <h4>Delete</h4>
+                <p>
+                    <b>Are you sure?</b>
+                </p>
+                <p>
+                    This action is permanent, therefore cannot be reversed. Any
+                    data associated with this user will be deleted!
+                </p>
+                <hr />
+                <p class="btn-group float-right">
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        (click)="toggleDelete()"
+                    >
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </p>
             </form>
         </ng-template>
     </div>

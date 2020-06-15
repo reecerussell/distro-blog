@@ -19,6 +19,7 @@ type UserUsecase interface {
 	Get(ctx context.Context, id string) result.Result
 	Create(ctx context.Context, cu *dto.CreateUser) result.Result
 	Update(ctx context.Context, uu *dto.UpdateUser) result.Result
+	Delete(ctx context.Context, id string) result.Result
 }
 
 // userUsecase is an implementation of the UserUsecase interface.
@@ -102,4 +103,15 @@ func (u *userUsecase) Update(ctx context.Context, uu *dto.UpdateUser) result.Res
 	}
 
 	return result.Ok()
+}
+
+// Delete deletes the user from the current database.
+func (u *userUsecase) Delete(ctx context.Context, id string) result.Result {
+	// ensure exists
+	success, status, _, err := u.repo.Get(ctx, id).Deconstruct()
+	if !success {
+		return result.Failure(err).WithStatusCode(status)
+	}
+
+	return u.repo.Delete(ctx, id)
 }

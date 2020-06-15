@@ -1,6 +1,8 @@
 package model
 
 import (
+	"github.com/google/uuid"
+	"github.com/reecerussell/distro-blog/domain/datamodel"
 	"testing"
 
 	"github.com/reecerussell/distro-blog/domain/dto"
@@ -299,4 +301,148 @@ func TestDataModel(t *testing.T) {
 	if dm.PasswordHash != u.passwordHash {
 		t.Errorf("expected password hash to be '%s' but got '%s'", u.passwordHash, dm.PasswordHash)
 	}
+}
+
+func TestUserFromDataModel(t *testing.T) {
+	dm := &datamodel.User{
+		ID:              "347434",
+		Firstname:       "John",
+		Lastname:        "Doe",
+		Email:           "john@doe.com",
+		NormalizedEmail: "JOHN@DOE.COM",
+		PasswordHash:    "h384nfkjdf=",
+	}
+
+	u := UserFromDataModel(dm)
+
+	if u.id != dm.ID {
+		t.Errorf("expected '%s' but got '%s'", dm.ID, u.id)
+	}
+
+	if u.firstname != dm.Firstname {
+		t.Errorf("expected '%s' but got '%s'", dm.Firstname, u.firstname)
+	}
+
+	if u.lastname != dm.Lastname {
+		t.Errorf("expected '%s' but got '%s'", dm.Lastname, u.lastname)
+	}
+
+	if u.email != dm.Email {
+		t.Errorf("expected '%s' but got '%s'", dm.Email, u.email)
+	}
+
+	if u.normalizedEmail != dm.NormalizedEmail {
+		t.Errorf("expected '%s' but got '%s'", dm.NormalizedEmail, u.normalizedEmail)
+	}
+
+	if u.passwordHash != dm.PasswordHash {
+		t.Errorf("expected '%s' but got '%s'", dm.PasswordHash, u.passwordHash)
+	}
+}
+
+func TestUser_DTO(t *testing.T) {
+	u := &User{
+		id:              "id",
+		firstname:       "firstname",
+		lastname:        "lastname",
+		email:           "email",
+		normalizedEmail: "normalized email",
+		passwordHash:    "password hash",
+	}
+
+	dto := u.DTO()
+
+	if dto.ID != u.id {
+		t.Errorf("expected id to be '%s' but got '%s'", u.id, dto.ID)
+	}
+
+	if dto.Firstname != u.firstname {
+		t.Errorf("expected firstname to be '%s' but got '%s'", u.firstname, dto.Firstname)
+	}
+
+	if dto.Lastname != u.lastname {
+		t.Errorf("expected lastname to be '%s' but got '%s'", u.lastname, dto.Lastname)
+	}
+
+	if dto.Email != u.email {
+		t.Errorf("expected email to be '%s' but got '%s'", u.email, dto.Email)
+	}
+
+	if dto.NormalizedEmail != u.normalizedEmail {
+		t.Errorf("expected normalized email to be '%s' but got '%s'", u.normalizedEmail, dto.NormalizedEmail)
+	}
+}
+
+func TestUser_Update(t *testing.T) {
+	u := &User {
+		id: uuid.New().String(),
+		firstname: "John",
+		lastname: "Doe",
+		email: "john@doe.com",
+		normalizedEmail: "JOHN@DOE.COM",
+	}
+
+	d := &dto.UpdateUser{
+		ID: u.id,
+		Firstname: "Jane",
+		Lastname: "Doe",
+		Email: "jane@doe.com",
+	}
+
+	err := u.Update(d, testNormalizer)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+		return
+	}
+
+	if u.firstname != d.Firstname {
+		t.Errorf("expected firstname to be '%s', but got '%s'", d.Firstname, u.firstname)
+	}
+
+	if u.lastname != d.Lastname {
+		t.Errorf("expected lastname to be '%s', but got '%s'", d.Lastname, u.lastname)
+	}
+
+	if u.email != d.Email {
+		t.Errorf("expected email to be '%s', but got '%s'", d.Email, u.email)
+	}
+
+	t.Run("Invalid Firstname", func(t *testing.T) {
+		d.Firstname = ""
+		defer func() {
+			d.Firstname = u.firstname
+		}()
+
+		err := u.Update(d, testNormalizer)
+		if err == nil {
+			t.Errorf("expected an error")
+			return
+		}
+	})
+
+	t.Run("Invalid Lastname", func(t *testing.T) {
+		d.Lastname = ""
+		defer func() {
+			d.Lastname = u.lastname
+		}()
+
+		err := u.Update(d, testNormalizer)
+		if err == nil {
+			t.Errorf("expected an error")
+			return
+		}
+	})
+
+	t.Run("Invalid Email", func(t *testing.T) {
+		d.Email = ""
+		defer func() {
+			d.Email = u.email
+		}()
+
+		err := u.Update(d, testNormalizer)
+		if err == nil {
+			t.Errorf("expected an error")
+			return
+		}
+	})
 }

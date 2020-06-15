@@ -1,8 +1,6 @@
-CREATE DATABASE  IF NOT EXISTS `distro-blog-test` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
-USE `distro-blog-test`;
 -- MySQL dump 10.13  Distrib 8.0.18, for Win64 (x86_64)
 --
--- Host: localhost    Database: distro-blog-test
+-- Host: localhost    Database: distro-blog-test-empty-schema
 -- ------------------------------------------------------
 -- Server version	8.0.18
 
@@ -16,6 +14,59 @@ USE `distro-blog-test`;
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Current Database: `distro-blog-test-empty-schema`
+--
+
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `distro-blog-test-empty-schema` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+
+USE `distro-blog-test-empty-schema`;
+
+--
+-- Dumping events for database 'distro-blog-test-empty-schema'
+--
+
+--
+-- Dumping routines for database 'distro-blog-test-empty-schema'
+--
+
+--
+-- Current Database: `distro-blog-test-deformed`
+--
+
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `distro-blog-test-deformed` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+
+USE `distro-blog-test-deformed`;
+
+--
+-- Temporary view structure for view `view_user_list`
+--
+
+DROP TABLE IF EXISTS `view_user_list`;
+/*!50001 DROP VIEW IF EXISTS `view_user_list`*/;
+SET @saved_cs_client     = @@character_set_client;
+/*!50503 SET character_set_client = utf8mb4 */;
+/*!50001 CREATE VIEW `view_user_list` AS SELECT 
+ 1 AS `1`,
+ 1 AS `2`*/;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Dumping events for database 'distro-blog-test-deformed'
+--
+
+--
+-- Dumping routines for database 'distro-blog-test-deformed'
+--
+
+--
+-- Current Database: `distro-blog-test`
+--
+
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `distro-blog-test` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+
+USE `distro-blog-test`;
 
 --
 -- Table structure for table `table-one`
@@ -92,6 +143,20 @@ DELIMITER ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
+-- Temporary view structure for view `view_user_list`
+--
+
+DROP TABLE IF EXISTS `view_user_list`;
+/*!50001 DROP VIEW IF EXISTS `view_user_list`*/;
+SET @saved_cs_client     = @@character_set_client;
+/*!50503 SET character_set_client = utf8mb4 */;
+/*!50001 CREATE VIEW `view_user_list` AS SELECT 
+ 1 AS `Id`,
+ 1 AS `Name`,
+ 1 AS `Email`*/;
+SET character_set_client = @saved_cs_client;
+
+--
 -- Dumping events for database 'distro-blog-test'
 --
 
@@ -137,6 +202,107 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `get_user` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_user`(IN userId VARCHAR(128))
+BEGIN
+	SELECT
+		id, first_name, last_name, email, normalized_email, password_hash
+	FROM users
+	WHERE id = userId;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `update_user` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `update_user`(IN userId VARCHAR(128), IN firstName VARCHAR(255), IN lastName VARCHAR(255), IN emailAddress VARCHAR(255), IN normalizedEmail VARCHAR(255))
+BEGIN
+	UPDATE `users` 
+    SET
+		`first_name` = firstName,
+        `last_name` = lastName,
+        `email` = emailAddress,
+        `normalized_email` = normalizedEmail
+	WHERE `id` = userId;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+
+--
+-- Current Database: `distro-blog-test-empty-schema`
+--
+
+USE `distro-blog-test-empty-schema`;
+
+--
+-- Current Database: `distro-blog-test-deformed`
+--
+
+USE `distro-blog-test-deformed`;
+
+--
+-- Final view structure for view `view_user_list`
+--
+
+/*!50001 DROP VIEW IF EXISTS `view_user_list`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `view_user_list` AS select 1 AS `1`,'2' AS `2` */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Current Database: `distro-blog-test`
+--
+
+USE `distro-blog-test`;
+
+--
+-- Final view structure for view `view_user_list`
+--
+
+/*!50001 DROP VIEW IF EXISTS `view_user_list`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `view_user_list` AS select `users`.`id` AS `Id`,concat(`users`.`first_name`,' ',`users`.`last_name`) AS `Name`,`users`.`email` AS `Email` from `users` order by concat(`users`.`first_name`,' ',`users`.`last_name`) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -147,4 +313,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-06-07 16:24:19
+-- Dump completed on 2020-06-13 15:41:47

@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/google/uuid"
+	"net/http"
 	"os"
 	"testing"
 
@@ -17,12 +19,75 @@ import (
 
 var (
 	testConnString = os.Getenv("CONN_STRING")
+	testConnStringEmptySchema = os.Getenv("CONN_STRING_EMPTY_SCHEMA")
+	testConnStringDeformed = os.Getenv("CONN_STRING_DEFORMED")
 	testRepo       repository.UserRepository
+	testRepoEmptySchema repository.UserRepository
+	testRepoDeformed repository.UserRepository
 )
 
 func init() {
 	db := database.NewMySQL(testConnString)
 	testRepo = NewUserRepository(db)
+	db = database.NewMySQL(testConnStringEmptySchema)
+	testRepoEmptySchema = NewUserRepository(db)
+	db = database.NewMySQL(testConnStringDeformed)
+	testRepoDeformed = NewUserRepository(db)
+}
+
+func TestList(t *testing.T) {
+	_, _, _, err := testRepo.List(context.Background()).Deconstruct()
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+}
+
+func TestUserRepository_UserReader(t *testing.T) {
+	seedUser("userRepository@userReader.test")
+
+	success, _, _, err := testRepo.List(context.Background()).Deconstruct()
+	if !success {
+		t.Errorf("unexpected error: %v", err)
+	}
+
+	t.Run("Missing Schema", func(t *testing.T) {
+		res := testRepoEmptySchema.List(context.Background())
+		if res.IsOk(){
+			t.Errorf("expected to fail")
+		}
+	})
+
+	t.Run("Deformed View", func(t *testing.T) {
+		res := testRepoDeformed.List(context.Background())
+		if res.IsOk(){
+			t.Errorf("expected to fail")
+		}
+	})
+}
+
+func TestGetUser(t *testing.T) {
+	_, id := seedUser("getUser@test.com")
+	ctx := context.Background()
+	// TODO: compare user values.
+	success, _, _, err := testRepo.Get(ctx, id).Deconstruct()
+	if !success {
+		t.Errorf("unexpected failure: %v", err)
+		return
+	}
+
+	t.Run("Not Found", func(t *testing.T) {
+		success := testRepo.Get(ctx, uuid.New().String()).IsOk()
+		if success{
+			t.Errorf("expected to fail")
+		}
+	})
+
+	t.Run("Missing Table", func(t *testing.T) {
+		res := testRepoEmptySchema.Get(ctx, "some id")
+		if res.IsOk(){
+			t.Errorf("expecte to fail")
+		}
+	})
 }
 
 func TestAdd(t *testing.T) {
@@ -38,57 +103,50 @@ func TestAddWithExistingEmail(t *testing.T) {
 	ctx := context.Background()
 	testEmail := "addWithExistingEmail@test.com"
 
-	t.Logf("Users in db: %d", countUsers())
-	t.Logf("Seeding the database with user: %s...", testEmail)
 	executeHelper("INSERT INTO `users` (`id`,`first_name`,`last_name`,`email`,`normalized_email`,`password_hash`) VALUES (UUID(),?,?,?,?,?);",
 		"John", "Doe", testEmail, normalization.New().Normalize(testEmail), "random string")
-	t.Logf("Users in db: %d", countUsers())
 
 	// add duplicate user
-	t.Logf("Attempting to create a user with a non-unique email...")
 	success := testRepo.Add(ctx, buildUser(testEmail)).IsOk()
 	if success {
 		t.Errorf("Inserted user successfully; this shouldn't work :/")
-	} else {
-		t.Logf("Failed to insert user; this was expected :)")
 	}
-
-	t.Logf("Users in db: %d", countUsers())
 }
 
-func TestCountByEmail(t *testing.T) {
+func TestUserRepository_CountByEmail(t *testing.T) {
 	ctx := context.Background()
 	testEmail := "countByEmail@test.com"
 
 	// count - assert 0
-	t.Logf("Counting the number of users with email: %s...", testEmail)
 	success, _, count, err := testRepo.CountByEmail(ctx, buildUser(testEmail)).Deconstruct()
 	if !success {
 		t.Logf("Failed, expected no error but got: %v", err)
 		return
 	}
-	t.Logf("Expected 0, Actual: %d, Users: %d", count, countUsers())
 
 	if count.(int64) != 0 {
 		t.Fail()
 	}
 
-	t.Logf("Seeding the database with user: %s...", testEmail)
 	executeHelper("INSERT INTO `users` (`id`,`first_name`,`last_name`,`email`,`normalized_email`,`password_hash`) VALUES (UUID(),?,?,?,?,?);",
 		"John", "Doe", testEmail, normalization.New().Normalize(testEmail), "random string")
 
 	// count - assert 1
-	t.Logf("Recounting users with email: %s...", testEmail)
 	success, _, count, err = testRepo.CountByEmail(ctx, buildUser(testEmail)).Deconstruct()
 	if !success {
-		t.Logf("Failed, unexpected error: %v", err)
 		return
 	}
-	t.Logf("Expected 1, Actual: %d, Users: %d", count, countUsers())
 
 	if count.(int64) != 1 {
 		t.Fail()
 	}
+
+	t.Run("Missing Schema", func(t *testing.T) {
+		res := testRepoEmptySchema.CountByEmail(ctx, buildUser(testEmail))
+		if res.IsOk() {
+			t.Errorf("expected to fail")
+		}
+	})
 }
 
 func buildUser(email string) *model.User {
@@ -108,19 +166,68 @@ func buildUser(email string) *model.User {
 	return u
 }
 
+func TestUserRepository_Update(t *testing.T) {
+	u, _ := seedUser("userRepository@update.test")
+	ud := &dto.UpdateUser{
+		Firstname: "UpdateRepository",
+		Lastname: "Test",
+		Email: u.Email(),
+	}
+	_ = u.Update(ud, normalization.New())
+	ctx := context.Background()
+
+	success, _, _, err := testRepo.Update(ctx, u).Deconstruct()
+	if !success {
+		t.Errorf("unexpected error: %v", err)
+		return
+	}
+
+	// check user
+
+
+
+	t.Run("Non Existent User", func(t *testing.T) {
+		u := buildUser("nonExistentUser@update.test")
+		success, status, _, _ := testRepo.Update(ctx, u).Deconstruct()
+		if success {
+			t.Errorf("unexpected success")
+		}
+
+		if status != http.StatusNotFound {
+			t.Errorf("expected status code %d, but got %d", http.StatusNotFound, status)
+		}
+	})
+
+	t.Run("Missing Stored Procedure", func(t *testing.T) {
+		u := buildUser("missingSproc@update.test")
+		ctx := context.Background()
+
+		res := testRepoEmptySchema.Update(ctx, u)
+		if res.IsOk() {
+			t.Errorf("expected an error")
+		}
+	})
+}
+
+func seedUser(email string) (*model.User, string) {
+	u := buildUser(email)
+	dm := u.DataModel()
+	executeHelper("CALL create_user(?,?,?,?,?,?);",
+		dm.ID, dm.Lastname, dm.Lastname, dm.Email, dm.NormalizedEmail, dm.PasswordHash)
+
+	return u, dm.ID
+}
+
 func executeHelper(query string, args ...interface{}) {
 	db, err := sql.Open("mysql", testConnString)
 	if err != nil {
 		panic(fmt.Errorf("open: %v", err))
 	}
 
-	res, err := db.Exec(query, args...)
+	_, err = db.Exec(query, args...)
 	if err != nil {
 		panic(fmt.Errorf("exec: %v", err))
 	}
-
-	ra, _ := res.RowsAffected()
-	fmt.Printf("--- EXECUTE ---\nQuery: %s\nRows Affected: %d\n--- END EXECUTE ---\n", query, ra)
 }
 
 func countUsers() (c int64) {

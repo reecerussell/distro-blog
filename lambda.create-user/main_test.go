@@ -16,7 +16,7 @@ func TestHandleCreateUser(t *testing.T) {
 	data := &dto.CreateUser{
 		Firstname: "John",
 		Lastname:  "Doe",
-		Email:     "john123@doe.com",
+		Email:     "handleCreateUser@test.com",
 		Password:  "MyTestPassword123",
 	}
 	bytes, _ := json.Marshal(&data)

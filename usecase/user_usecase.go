@@ -15,7 +15,10 @@ import (
 
 // UserUsecase is a high-level interface used to manage the user domain.
 type UserUsecase interface {
+	List(ctx context.Context) result.Result
+	Get(ctx context.Context, id string) result.Result
 	Create(ctx context.Context, cu *dto.CreateUser) result.Result
+	Update(ctx context.Context, uu *dto.UpdateUser) result.Result
 }
 
 // userUsecase is an implementation of the UserUsecase interface.
@@ -41,6 +44,24 @@ func NewUserUsecase(repo repository.UserRepository) UserUsecase {
 	}
 }
 
+// List returns a result containing a list of users, from the repository.
+func (u *userUsecase) List(ctx context.Context) result.Result {
+	return u.repo.List(ctx)
+}
+
+// Get retrieves a specific user from the database and returns a result with a dto value.
+func (u *userUsecase) Get(ctx context.Context, id string) result.Result {
+	res := u.repo.Get(ctx, id)
+	if !res.IsOk(){
+		return res
+	}
+
+	_, _, value, _ := res.Deconstruct()
+	user := value.(*model.User)
+
+	return result.Ok().WithValue(user.DTO())
+}
+
 // Create creates a new user domain record, ensuring the data is valid.
 func (u *userUsecase) Create(ctx context.Context, cu *dto.CreateUser) result.Result {
 	usr, err := model.NewUser(cu, u.pwdServ, u.norm)
@@ -56,6 +77,28 @@ func (u *userUsecase) Create(ctx context.Context, cu *dto.CreateUser) result.Res
 	success, _, _, err := u.repo.Add(ctx, usr).Deconstruct()
 	if !success {
 		return result.Failure(err).WithStatusCode(http.StatusInternalServerError)
+	}
+
+	return result.Ok()
+}
+
+// Update updates a specific user record, by retrieving the record from the
+// database, then updating the domain model and database record.
+func (u *userUsecase) Update(ctx context.Context, uu *dto.UpdateUser) result.Result {
+	success, status, value, err := u.repo.Get(ctx, uu.ID).Deconstruct()
+	if !success{
+		return result.Failure(err).WithStatusCode(status)
+	}
+
+	user := value.(*model.User)
+	err = user.Update(uu, u.norm)
+	if err != nil {
+		return result.Failure(err).WithStatusCode(http.StatusBadRequest)
+	}
+
+	success, status, _, err = u.repo.Update(ctx, user).Deconstruct()
+	if !success {
+		return result.Failure(err).WithStatusCode(status)
 	}
 
 	return result.Ok()

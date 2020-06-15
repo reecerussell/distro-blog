@@ -24,22 +24,20 @@ func init() {
 	users = usecase.NewUserUsecase(repo)
 }
 
-// handleCreateUser is a Lambda handler function used to handle incoming APIGateway
-// proxy requests, to create users.
-func handleCreateUser(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+func handleUpdateUser(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	ctx = helper.PopulateContext(ctx, req)
 
-	var cu dto.CreateUser
-	err := helper.ReadBody(req, &cu)
+	var uu dto.UpdateUser
+	err := helper.ReadBody(req, &uu)
 	if err != nil {
 		br := result.Failure(err).WithStatusCode(http.StatusBadRequest)
 		return helper.Response(ctx, br, req), nil
 	}
 
-	res := users.Create(ctx, &cu)
+	res := users.Update(ctx, &uu)
 	return helper.Response(ctx, res, req), nil
 }
 
 func main() {
-	lambda.Start(handleCreateUser)
+	lambda.Start(handleUpdateUser)
 }

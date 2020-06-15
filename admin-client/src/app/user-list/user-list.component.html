@@ -1,7 +1,7 @@
 <h1 class="h2 pt-3 pb-2 mb-3 border-bottom">Users</h1>
 
 <div class="table-responsive">
-    <table class="table table-bordered table-striped table-small">
+    <table class="table table-bordered table-striped table-sm">
         <thead>
             <tr>
                 <th>Name</th>
@@ -10,20 +10,11 @@
             </tr>
         </thead>
         <tbody>
-            <ng-template *ngIf="users" [ngElse]="none">
-                <tr *ngFor="let user; in: users">
-                    <td>{{ user.name }}</td>
-                    <td>{{ user.email }}</td>
-                    <td><a href="#">View</a></td>
-                </tr>
-            </ng-template>
-            <ng-template #none>
-                <tr>
-                    <td colSpan="3">
-                        Loading...
-                    </td>
-                </tr>
-            </ng-template>
+            <tr *ngFor="let user of users">
+                <td>{{ user.name }}</td>
+                <td>{{ user.email }}</td>
+                <td><a href="#">View</a></td>
+            </tr>
         </tbody>
     </table>
 </div>

@@ -11,7 +11,10 @@ export class UserListComponent implements OnInit {
 
     constructor(private api: ApiService) {}
 
-    ngOnInit(): void {
-        this.api.Users().subscribe((data) => (this.users = data));
+    async ngOnInit() {
+        const res = await this.api.Users();
+        if (res.status === 200) {
+            this.users = (await res.json()).data;
+        }
     }
 }

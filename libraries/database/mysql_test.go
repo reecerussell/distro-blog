@@ -6,6 +6,11 @@ import (
 	"fmt"
 	"os"
 	"testing"
+
+	"github.com/google/uuid"
+	
+	"github.com/reecerussell/distro-blog/domain/datamodel"
+	"github.com/reecerussell/distro-blog/libraries/normalization"
 )
 
 var (
@@ -435,6 +440,76 @@ func TestCountWithInvalidNumOfArgs(t *testing.T) {
 	}
 }
 
+// MultipleSets
+func TestMySQL_MultipleSets(t *testing.T) {
+	id := uuid.New().String()
+	scopeID := uuid.New().String()
+	executeHelper("CALL `create_user`(?,?,?,?,?,?);", id, "John", "Doe", "multipleSets@mysql.test", normalization.New().Normalize("multipleSets@mysql.test"), "h3oh3o")
+	executeHelper("INSERT INTO `scopes` (`id`,`name`,`description`) VALUES (?,'MySQL','MySQL Test');", scopeID)
+	executeHelper("INSERT INTO `user_scopes` (`user_id`, `scope_id`) VALUES (?,?);", id, scopeID)
+
+	db := NewMySQL(testConnString)
+	_, err := db.MultipleSets(context.Background(), "CALL get_user(?)", []interface{}{id}, testUserReader, testScopeReader)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+		return
+	}
+
+	t.Run("Invalid Number of Readers", func(t *testing.T) {
+		_, err := db.MultipleSets(context.Background(), "CALL get_user(?);", []interface{}{id}, testUserReader)
+		if err == nil {
+			t.Errorf("expected an error")
+		}
+	})
+
+	t.Run("Invalid Number of Arguments", func(t *testing.T) {
+		_, err := db.MultipleSets(context.Background(), "CALL get_user(?);", []interface{}{}, testUserReader, testScopeReader)
+		if err == nil {
+			t.Errorf("expected an error")
+		}
+	})
+
+	t.Run("Invalid Query", func(t *testing.T) {
+		_, err := db.MultipleSets(context.Background(), "invalid query", []interface{}{}, testUserReader)
+		if err == nil {
+			t.Errorf("expected an error")
+		}
+	})
+
+	t.Run("Invalid Connection", func(t *testing.T) {
+		db := NewMySQL("invalid conn string")
+		_, err := db.MultipleSets(context.Background(), "CALL get_user(?)", []interface{}{id}, testUserReader, testScopeReader)
+		if err == nil {
+			t.Errorf("expected an error")
+		}
+	})
+
+	t.Run("Closed Connection", func(t *testing.T) {
+		db := NewMySQL(testConnString)
+		db.ensureConnected()
+		db.db.Close()
+
+		_, err := db.MultipleSets(context.Background(), "CALL get_user(?)", []interface{}{id}, testUserReader, testScopeReader)
+		if err == nil {
+			t.Errorf("expected an error")
+		}
+	})
+
+	t.Run("Invalid Reader(s)", func(t *testing.T) {
+		_, err := db.MultipleSets(context.Background(), "CALL get_user(?);", []interface{}{id}, testInvalidReader, testInvalidReader)
+		if err == nil {
+			t.Errorf("expected an error")
+		}
+	})
+
+	t.Run("No Readers", func(t *testing.T) {
+		_, err := db.MultipleSets(context.Background(), "CALL get_user(?)", []interface{}{id})
+		if err == nil {
+			t.Errorf("expected an error")
+		}
+	})
+}
+
 // HELPERS
 
 func executeHelper(query string, args ...interface{}) {
@@ -478,4 +553,34 @@ func testInvalidReader(s ScannerFunc) (interface{}, error) {
 
 	// should never get this far.
 	return fmt.Sprintf("%d, %s", name, age), err
+}
+
+func testUserReader(s ScannerFunc) (interface{}, error) {
+	var dm datamodel.User
+	err := s(
+		&dm.ID,
+		&dm.Firstname,
+		&dm.Lastname,
+		&dm.Email,
+		&dm.NormalizedEmail,
+		&dm.PasswordHash,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dm, nil
+}
+
+func testScopeReader(s ScannerFunc) (interface{}, error) {
+	var dm datamodel.UserScope
+	err := s(
+		&dm.ScopeID,
+		&dm.ScopeName,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dm, nil
 }

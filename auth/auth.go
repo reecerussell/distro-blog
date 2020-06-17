@@ -34,6 +34,11 @@ const (
 	ClaimTypeScopes = "scp"
 )
 
+const (
+	ScopeUserRead = "users:read"
+	ScopeUserWrite = "users:write"
+)
+
 // Service is used to handle authentication and authorization of users
 // using JSON-Web-Tokens.
 type Service struct {

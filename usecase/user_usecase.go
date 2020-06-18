@@ -19,6 +19,7 @@ type UserUsecase interface {
 	Get(ctx context.Context, id string) result.Result
 	Create(ctx context.Context, cu *dto.CreateUser) result.Result
 	Update(ctx context.Context, uu *dto.UpdateUser) result.Result
+	Token(ctx context.Context, cred *dto.UserCredential) result.Result
 }
 
 // userUsecase is an implementation of the UserUsecase interface.
@@ -102,4 +103,8 @@ func (u *userUsecase) Update(ctx context.Context, uu *dto.UpdateUser) result.Res
 	}
 
 	return result.Ok()
+}
+
+func (u *userUsecase) Token(ctx context.Context, cred *dto.UserCredential) result.Result {
+
 }

@@ -464,3 +464,31 @@ func TestUser_Update(t *testing.T) {
 		}
 	})
 }
+
+func TestUser_VerifyPassword(t *testing.T) {
+	u := &User{
+		id: "63",
+		firstname: "John",
+		lastname: "Doe",
+		email: "john@doe.com",
+		normalizedEmail: testNormalizer.Normalize("john@doe.com"),
+	}
+	testPassword := "MySecurePassword123"
+
+	err := u.setPassword(testPassword, testPasswordService)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+
+	err = u.VerifyPassword(testPassword, testPasswordService)
+	if err != nil {
+		t.Errorf("expected nil but got: %v", err)
+	}
+
+	t.Run("Invalid Password", func(t *testing.T) {
+		err := u.VerifyPassword("some random invalid password", testPasswordService)
+		if err == nil {
+			t.Errorf("expected to fail")
+		}
+	})
+}

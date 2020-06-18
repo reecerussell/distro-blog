@@ -155,6 +155,15 @@ func (u *User) setPassword(password string, serv password.Service) error {
 	return nil
 }
 
+func (u *User) VerifyPassword(password string, serv password.Service) error {
+	ok := serv.Verify(password, u.passwordHash)
+	if !ok {
+		return fmt.Errorf("password is invalid")
+	}
+
+	return nil
+}
+
 // DataModel returns a datamodel object for the User.
 func (u *User) DataModel() *datamodel.User {
 	return &datamodel.User{

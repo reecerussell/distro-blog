@@ -9,17 +9,20 @@ import (
 	"github.com/reecerussell/distro-blog/domain/model"
 	"github.com/reecerussell/distro-blog/domain/repository"
 	"github.com/reecerussell/distro-blog/libraries/database"
+	"github.com/reecerussell/distro-blog/libraries/normalization"
 	"github.com/reecerussell/distro-blog/libraries/result"
 	"net/http"
 )
 
 type userRepository struct {
 	db *database.MySQL
+	norm normalization.Normalizer
 }
 
 func NewUserRepository(db *database.MySQL) repository.UserRepository {
 	return &userRepository{
 		db: db,
+		norm: normalization.New(),
 	}
 }
 
@@ -58,18 +61,37 @@ func (r *userRepository) Get(ctx context.Context, id string) result.Result {
 	const query string = "CALL `get_user`(?);"
 	args := []interface{}{id}
 
+	return r.getUser(ctx, query, args)
+}
+
+func (r *userRepository) GetByEmail(ctx context.Context, email string) result.Result {
+	const query string = "CALL `get_user_by_email`(?);"
+	args := []interface{} {
+		r.norm.Normalize(email),
+	}
+
+	return r.getUser(ctx, query, args)
+}
+
+func (r *userRepository) getUser(ctx context.Context, query string, args []interface{}) result.Result {
 	sets, err := r.db.MultipleSets(ctx, query, args, userReader, userScopeReader)
 	if err != nil && err != sql.ErrNoRows{
 		return result.Failure(err)
 	}
 
 	if len(sets) < 1 || sets[0] == nil || len(sets[0]) < 1 || err == sql.ErrNoRows {
-		msg := fmt.Sprintf("No user was found with id '%s'", id)
+		msg := fmt.Sprintf("User not found")
 		return result.Failure(msg).WithStatusCode(http.StatusNotFound)
 	}
 
 	udm := sets[0][0].(*datamodel.User)
-	u := model.UserFromDataModel(udm)
+	sdm := make([]*datamodel.UserScope, len(sets[1]))
+
+	for i, dm := range sets[1] {
+		sdm[i] = dm.(*datamodel.UserScope)
+	}
+
+	u := model.UserFromDataModel(udm, sdm)
 
 	return result.Ok().
 		WithValue(u)

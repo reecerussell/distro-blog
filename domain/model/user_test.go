@@ -14,7 +14,7 @@ var testPasswordService = password.New()
 var testNormalizer = normalization.New()
 var longString = `PGcDxEDyVoe4KTTCDlC8GKbiPtL6MCxfQIlUiOi03AhiObscUSQU1dsZbOUp3VMXpGpLO7bDyFcM1H2XS3J1WlUTsi51SIONukqdb`
 
-func TestUpdateFirstname(t *testing.T) {
+func TestUser_UpdateFirstname(t *testing.T) {
 	u := new(User)
 
 	// Empty firstname - should fail.
@@ -51,7 +51,7 @@ func TestUpdateFirstname(t *testing.T) {
 	}
 }
 
-func TestUpdateLastname(t *testing.T) {
+func TestUser_UpdateLastname(t *testing.T) {
 	u := new(User)
 
 	// Empty lastname - should fail.
@@ -88,7 +88,7 @@ func TestUpdateLastname(t *testing.T) {
 	}
 }
 
-func TestUpdateEmail(t *testing.T) {
+func TestUser_UpdateEmail(t *testing.T) {
 	u := new(User)
 
 	// empty email - should fail
@@ -139,7 +139,7 @@ func TestUpdateEmail(t *testing.T) {
 	}
 }
 
-func TestSetPassword(t *testing.T) {
+func TestSUser_etPassword(t *testing.T) {
 	pwdOpts := &password.Options{
 		RequiredLength:         6,
 		RequireUppercase:       true,
@@ -244,7 +244,7 @@ func TestNewUserWithInvalidPassword(t *testing.T) {
 	}
 }
 
-func TestGetEmail(t *testing.T) {
+func TestUser_GetEmail(t *testing.T) {
 	testEmail := "john@doe.com"
 	u := &User{
 		email: testEmail,
@@ -255,7 +255,7 @@ func TestGetEmail(t *testing.T) {
 	}
 }
 
-func TestGetNormalizedEmail(t *testing.T) {
+func TestUser_GetNormalizedEmail(t *testing.T) {
 	testEmail := "JOHN@DOE.COM"
 	u := &User{
 		normalizedEmail: testEmail,
@@ -266,7 +266,7 @@ func TestGetNormalizedEmail(t *testing.T) {
 	}
 }
 
-func TestDataModel(t *testing.T) {
+func TestUser_DataModel(t *testing.T) {
 	u := &User{
 		id:              "id",
 		firstname:       "firstname",
@@ -313,7 +313,14 @@ func TestUserFromDataModel(t *testing.T) {
 		PasswordHash:    "h384nfkjdf=",
 	}
 
-	u := UserFromDataModel(dm)
+	sdm := []*datamodel.UserScope{
+		&datamodel.UserScope{
+			ScopeID: "3949",
+			ScopeName: "scope:test",
+		},
+	}
+
+	u := UserFromDataModel(dm, sdm)
 
 	if u.id != dm.ID {
 		t.Errorf("expected '%s' but got '%s'", dm.ID, u.id)
@@ -337,6 +344,17 @@ func TestUserFromDataModel(t *testing.T) {
 
 	if u.passwordHash != dm.PasswordHash {
 		t.Errorf("expected '%s' but got '%s'", dm.PasswordHash, u.passwordHash)
+	}
+
+	if len(u.scopes) > 0 {
+		s := u.scopes[0]
+		if s.id != sdm[0].ScopeID {
+			t.Errorf("expected '%s' but got '%s'", sdm[0].ScopeID, s.id)
+		}
+
+		if s.name != sdm[0].ScopeName {
+			t.Errorf("expected '%s' but got '%s'", sdm[0].ScopeName, s.name)
+		}
 	}
 }
 

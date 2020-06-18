@@ -20,6 +20,8 @@ type User struct {
 	email           string
 	normalizedEmail string
 	passwordHash    string
+
+	scopes []*Scope
 }
 
 // NewUser returns a new instance of a User domain model, after going
@@ -167,7 +169,14 @@ func (u *User) DataModel() *datamodel.User {
 
 // UserFromDataModel returns a new instance of User populated with
 // data from the given data-model object.
-func UserFromDataModel(dm *datamodel.User) *User {
+func UserFromDataModel(dm *datamodel.User, sdm []*datamodel.UserScope) *User {
+	var scopes []*Scope
+	if sdm != nil && len(sdm) > 0 {
+		for _, s := range sdm {
+			scopes = append(scopes, ScopeFromDataModel(s))
+		}
+	}
+
 	return &User{
 		id: dm.ID,
 		firstname: dm.Firstname,
@@ -175,6 +184,7 @@ func UserFromDataModel(dm *datamodel.User) *User {
 		email: dm.Email,
 		normalizedEmail: dm.NormalizedEmail,
 		passwordHash: dm.PasswordHash,
+		scopes: scopes,
 	}
 }
 

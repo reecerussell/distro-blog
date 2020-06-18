@@ -25,7 +25,7 @@ func NewUserRepository(db *database.MySQL) repository.UserRepository {
 
 func (r *userRepository) List(ctx context.Context) result.Result {
 	query := "SELECT * FROM `view_user_list`;"
-	items, err := r.db.Multiple(ctx, query, userReader)
+	items, err := r.db.Multiple(ctx, query, userListReader)
 	if err != nil {
 		return result.Failure(err)
 	}
@@ -40,7 +40,7 @@ func (r *userRepository) List(ctx context.Context) result.Result {
 	return result.Ok().WithValue(dtos)
 }
 
-func userReader(s database.ScannerFunc) (interface{}, error) {
+func userListReader(s database.ScannerFunc) (interface{}, error) {
 	var dto dto.UserListItem
 	err := s(
 		&dto.ID,
@@ -56,36 +56,53 @@ func userReader(s database.ScannerFunc) (interface{}, error) {
 
 func (r *userRepository) Get(ctx context.Context, id string) result.Result {
 	const query string = "CALL `get_user`(?);"
+	args := []interface{}{id}
 
-	dm, err := r.db.Read(ctx, query, func(s database.ScannerFunc) (interface{}, error) {
-		var dm datamodel.User
-		err := s(
-			&dm.ID,
-			&dm.Firstname,
-			&dm.Lastname,
-			&dm.Email,
-			&dm.NormalizedEmail,
-			&dm.PasswordHash,
-		)
-		if err != nil {
-			return nil, err
-		}
-
-		return &dm, nil
-	}, id)
+	sets, err := r.db.MultipleSets(ctx, query, args, userReader, userScopeReader)
 	if err != nil && err != sql.ErrNoRows{
 		return result.Failure(err)
 	}
 
-	if dm == nil || err == sql.ErrNoRows {
+	if len(sets) < 1 || sets[0] == nil || len(sets[0]) < 1 || err == sql.ErrNoRows {
 		msg := fmt.Sprintf("No user was found with id '%s'", id)
 		return result.Failure(msg).WithStatusCode(http.StatusNotFound)
 	}
 
-	u := model.UserFromDataModel(dm.(*datamodel.User))
+	udm := sets[0][0].(*datamodel.User)
+	u := model.UserFromDataModel(udm)
 
 	return result.Ok().
 		WithValue(u)
+}
+
+func userReader(s database.ScannerFunc) (interface{}, error) {
+	var dm datamodel.User
+	err := s(
+		&dm.ID,
+		&dm.Firstname,
+		&dm.Lastname,
+		&dm.Email,
+		&dm.NormalizedEmail,
+		&dm.PasswordHash,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dm, nil
+}
+
+func userScopeReader(s database.ScannerFunc) (interface{}, error) {
+	var dm datamodel.UserScope
+	err := s(
+		&dm.ScopeID,
+		&dm.ScopeName,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dm, nil
 }
 
 func (r *userRepository) Add(ctx context.Context, u *model.User) result.Result {

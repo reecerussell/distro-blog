@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	
+
 	"github.com/reecerussell/distro-blog/domain/datamodel"
 	"github.com/reecerussell/distro-blog/libraries/normalization"
 )

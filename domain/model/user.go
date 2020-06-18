@@ -54,6 +54,11 @@ func NewUser(data *dto.CreateUser, serv password.Service, norm normalization.Nor
 	return u, nil
 }
 
+// ID returns the user's id.
+func (u *User) ID() string {
+	return u.id
+}
+
 // Email returns the User's email.
 func (u *User) Email() string {
 	return u.email
@@ -62,6 +67,11 @@ func (u *User) Email() string {
 // NormalizedEmail returns the User's normalized email.
 func (u *User) NormalizedEmail() string {
 	return u.normalizedEmail
+}
+
+// Scopes returns the user's scopes.
+func (u *User) Scopes() []*Scope {
+	return u.scopes
 }
 
 // Update is used to update the user's core values, in a single function,

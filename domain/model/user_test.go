@@ -244,6 +244,16 @@ func TestNewUserWithInvalidPassword(t *testing.T) {
 	}
 }
 
+func TestUser_ID(t *testing.T) {
+	u := &User{
+		id: "34792",
+	}
+
+	if v := u.ID(); v != u.id {
+		t.Errorf("expected '%s' but got '%s'", u.id, v)
+	}
+}
+
 func TestUser_GetEmail(t *testing.T) {
 	testEmail := "john@doe.com"
 	u := &User{
@@ -263,6 +273,25 @@ func TestUser_GetNormalizedEmail(t *testing.T) {
 
 	if v := u.NormalizedEmail(); v != testEmail {
 		t.Errorf("expected '%s' but got '%s'", testEmail, v)
+	}
+}
+
+func TestUser_Scopes(t *testing.T) {
+	scopes := []*Scope{
+		&Scope{
+			id: "2739",
+			name: "scope:test",
+		},
+	}
+
+	u := &User{
+		scopes: scopes,
+	}
+
+	for i, s := range scopes {
+		if s != u.scopes[i] {
+			t.Errorf("mismatched scope")
+		}
 	}
 }
 

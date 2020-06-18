@@ -5,6 +5,16 @@ import (
 	"testing"
 )
 
+func TestScope_Name(t *testing.T) {
+	s := &Scope{
+		name: "my scope",
+	}
+
+	if v := s.Name(); v != s.name {
+		t.Errorf("expected '%s' but got '%s'", s.name, v)
+	}
+}
+
 func TestScope_DTO(t *testing.T) {
 	s := &Scope{
 		id: "34693423",

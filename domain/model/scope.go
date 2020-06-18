@@ -11,6 +11,11 @@ type Scope struct {
 	name string
 }
 
+// Name returns the scope's name.
+func (s *Scope) Name() string {
+	return s.name
+}
+
 // DTO returns a new *dto.Scope populated with the scopes's values.
 func (s *Scope) DTO() *dto.Scope {
 	return &dto.Scope{

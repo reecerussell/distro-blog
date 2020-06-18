@@ -101,6 +101,14 @@ func TestToken_Number(t *testing.T) {
 	})
 }
 
+func TestToken_String(t *testing.T) {
+	tkn := testService.NewToken().AddClaim("id", 5).Build()
+
+	if v := string(tkn); v != tkn.String() {
+		t.Errorf("expected '%s' but got '%s'", v, tkn.String())
+	}
+}
+
 func TestService_VerifyToken(t *testing.T) {
 	tkn := testService.NewToken().AddClaim("id", 5).Build()
 	if !testService.VerifyToken(tkn) {

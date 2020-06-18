@@ -31,6 +31,7 @@ const (
 // Custom claim types.
 const (
 	ClaimTypeUserId = "uid"
+	ClaimTypeEmail = "email"
 	ClaimTypeScopes = "scp"
 )
 
@@ -220,4 +221,9 @@ func (t Token) scan() (int, []byte, error) {
 	}
 
 	return ld, buf[:n], nil
+}
+
+// String returns the token data as a string.
+func (t *Token) String() string {
+	return string(*t)
 }

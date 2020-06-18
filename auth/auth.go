@@ -2,17 +2,26 @@ package auth
 
 import (
 	"bytes"
+	"context"
 	"crypto"
-	"crypto/rand"
 	"crypto/rsa"
+	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"log"
 	"strings"
 	"time"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/kms"
+
+	"github.com/reecerussell/distro-blog/libraries/contextkey"
 )
 
 var encoding = base64.RawURLEncoding
+const signingAlgorithm = "RSASSA_PKCS1_V1_5_SHA_512"
 
 // Common errors.
 var (
@@ -43,30 +52,47 @@ const (
 // Service is used to handle authentication and authorization of users
 // using JSON-Web-Tokens.
 type Service struct {
-	sk       *rsa.PrivateKey
-	alg crypto.Hash
+	svc *kms.KMS
 }
 
-func New(privKey *rsa.PrivateKey, alg crypto.Hash) *Service {
+func New() (*Service) {
+	sess, _ := session.NewSession()
+	svc := kms.New(sess)
+
 	return &Service{
-		sk:       privKey,
-		alg: alg,
+		svc: svc,
 	}
 }
 
-func (as *Service) VerifyToken(data []byte) bool {
+func (as *Service) VerifyToken(ctx context.Context, data []byte) bool {
 	token := Token(data)
 	ld, sig, err := token.scan()
 	if err != nil {
 		return false
 	}
 
-	digest := as.alg.New()
+	digest := crypto.SHA512.New()
 	digest.Write(data[:ld])
 
-	err = rsa.VerifyPKCS1v15(&as.sk.PublicKey, as.alg, digest.Sum(sig[len(sig):]), sig)
+	keyIDValue := ctx.Value(contextkey.ContextKey("JWT_KEY_ID"))
+	if keyIDValue == nil {
+		log.Printf("[ERROR]: key id value is not set")
+		return false
+	}
+
+	res, err := as.svc.Verify(&kms.VerifyInput{
+		Signature: sig,
+		SigningAlgorithm: aws.String(signingAlgorithm),
+		Message: digest.Sum(sig[len(sig):]),
+		MessageType: aws.String("DIGEST"),
+		KeyId: aws.String(keyIDValue.(string)),
+	})
 	if err != nil {
-		// signature mismatch
+		log.Printf("[ERROR]: %v", err)
+		return false
+	}
+
+	if !*res.SignatureValid {
 		return false
 	}
 
@@ -82,6 +108,7 @@ func (as *Service) VerifyToken(data []byte) bool {
 // construct JSON-Web-Tokens.
 type TokenBuilder struct {
 	as *Service
+	ctx context.Context
 	claims map[string]interface{}
 }
 
@@ -90,9 +117,10 @@ type TokenBuilder struct {
 type Token []byte
 
 // NewToken returns a new builder, used to construct a token.
-func (as *Service) NewToken() *TokenBuilder {
+func (as *Service) NewToken(ctx context.Context) *TokenBuilder {
 	return &TokenBuilder{
 		as: as,
+		ctx: ctx,
 		claims: make(map[string]interface{}),
 	}
 }
@@ -157,10 +185,22 @@ func (tb *TokenBuilder) Build() Token {
 	header := make([]byte, encoding.EncodedLen(len(headerData)))
 	encoding.Encode(header, headerData)
 
+	keyIDValue := tb.ctx.Value(contextkey.ContextKey("JWT_KEY_ID"))
+	if keyIDValue == nil {
+		log.Printf("[ERROR]: key id value is not set")
+		return nil
+	}
+
+	keySize, err := tb.getPublicKeySize(keyIDValue.(string))
+	if err != nil {
+		log.Printf("[ERROR]: %v", err)
+		return nil
+	}
+
 	// construct token
 	payload, _ := json.Marshal(tb.claims)
 	l := len(header) + 1 + encoding.EncodedLen(len(payload))
-	token := make([]byte, l, l+1+encoding.EncodedLen(tb.as.sk.Size()))
+	token := make([]byte, l, l+1+encoding.EncodedLen(keySize))
 
 	i := copy(token, header)
 	token[i] = '.'
@@ -168,19 +208,44 @@ func (tb *TokenBuilder) Build() Token {
 	encoding.Encode(token[i:], payload)
 	token = token[:l]
 
-	digest := tb.as.alg.New()
+	digest := crypto.SHA512.New()
 	digest.Write(token)
 
 	// use signature space as a buffer while it's not set
 	buf := token[len(token):]
-	sig, _ := rsa.SignPKCS1v15(rand.Reader, tb.as.sk, tb.as.alg, digest.Sum(buf))
+	res, err := tb.as.svc.Sign(&kms.SignInput{
+		KeyId: aws.String(keyIDValue.(string)),
+		SigningAlgorithm: aws.String(signingAlgorithm),
+		MessageType: aws.String("DIGEST"),
+		Message: digest.Sum(buf),
+	})
+	if err != nil {
+		log.Printf("[ERROR]: %v", err)
+		return nil
+	}
 
 	i = len(token)
 	token = token[:cap(token)]
 	token[i] = '.'
-	encoding.Encode(token[i+1:], sig)
+	encoding.Encode(token[i+1:], res.Signature)
 
 	return token
+}
+
+func (tb *TokenBuilder) getPublicKeySize(keyID string) (int, error) {
+	res, err := tb.as.svc.GetPublicKey(&kms.GetPublicKeyInput{
+		KeyId: aws.String(keyID),
+	})
+	if err != nil {
+		return 0, err
+	}
+
+	key, err := x509.ParsePKIXPublicKey(res.PublicKey)
+	if err != nil {
+		return 0, err
+	}
+
+	return key.(*rsa.PublicKey).Size(), nil
 }
 
 // Number returns a number for the given claim from the Token payload.

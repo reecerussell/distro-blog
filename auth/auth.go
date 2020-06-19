@@ -260,6 +260,20 @@ func (t *Token) Number(name string) *float64 {
 	return &f
 }
 
+// Strings returns a []string from the payload for the given claim. If the
+// claim doesn't exist, a nil-slice will be returned. However, if the claim
+// exists but isn't a []string, it will panic.
+//
+// TODO: add type check
+func (t *Token) Strings(name string) []string {
+	v, ok := t.getPayload()[name]
+	if !ok {
+		return nil
+	}
+
+	return v.([]string)
+}
+
 func (t *Token) getPayload() (payload map[string]interface{}) {
 	encodedData := strings.Split(string(*t), ".")[1]
 	rawData, _ := encoding.DecodeString(encodedData)

@@ -84,7 +84,7 @@ func TestToken_Number(t *testing.T) {
 
 	v := tkn.Number("id")
 	if v == nil {
-		t.Errorf("expected a non-nil pointer")
+		t.Errorf("unexpected a non-nil pointer")
 	}
 
 	if *v != float64(5) {
@@ -93,6 +93,32 @@ func TestToken_Number(t *testing.T) {
 
 	t.Run("Non-existent Claim", func(t *testing.T) {
 		v = tkn.Number("age")
+		if v != nil {
+			t.Errorf("expected a nil pointer")
+		}
+	})
+}
+
+func TestToken_Strings(t *testing.T) {
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, contextkey.ContextKey("JWT_KEY_ID"), testKeyId)
+
+	names := []string{"John", "Jane"}
+	tkn := testService.NewToken(ctx).AddClaim("names", names).Build()
+
+	v := tkn.Strings("names")
+	if v == nil {
+		t.Errorf("unexpected a non-nil slice")
+	}
+
+	for i, n := range v {
+		if n != names[i] {
+			t.Errorf("name[i] expected to be '%s' but was '%s'", names[i], n)
+		}
+	}
+
+	t.Run("Non-existent Claim", func(t *testing.T) {
+		v = tkn.Strings("age")
 		if v != nil {
 			t.Errorf("expected a nil pointer")
 		}

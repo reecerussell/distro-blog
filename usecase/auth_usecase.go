@@ -13,6 +13,8 @@ import (
 	"github.com/reecerussell/distro-blog/password"
 )
 
+// AuthUsecase is a high-level interface for handling the generation
+// and verification of access tokens.
 type AuthUsecase interface {
 	Token(ctx context.Context, cred *dto.UserCredential) result.Result
 	Verify(ctx context.Context, tokenData []byte) result.Result
@@ -24,6 +26,7 @@ type authUsecase struct {
 	auth *auth.Service
 }
 
+// NewAuthUsecase returns a new instance of AuthUsecase with the given repo.
 func NewAuthUsecase(repo repository.UserRepository) AuthUsecase {
 	return &authUsecase{
 		repo: repo,
@@ -32,6 +35,9 @@ func NewAuthUsecase(repo repository.UserRepository) AuthUsecase {
 	}
 }
 
+// Token generates a new access token for the user with the
+// given credentials. If the credentials are invalid a failed result
+// will be returned, with a bad request status code.
 func (u *authUsecase) Token(ctx context.Context, cred *dto.UserCredential) result.Result {
 	defaultErr := "Email and/or password is incorrect."
 
@@ -72,11 +78,16 @@ func (u *authUsecase) Token(ctx context.Context, cred *dto.UserCredential) resul
 		SetExpiry(exp).
 		AddClaims(claims).
 		Build()
+	if t == nil {
+		errMsg := "Oops, something went wrong when generating your access token :/"
+		return result.Failure(errMsg)
+	}
 
 	ac := auth.NewAccessToken(t, exp)
 	return result.Ok().WithValue(ac)
 }
 
+// Verify verifies the given access token.
 func (u *authUsecase) Verify(ctx context.Context, tokenData []byte) result.Result {
 	ok := u.auth.VerifyToken(ctx, tokenData)
 	if !ok {

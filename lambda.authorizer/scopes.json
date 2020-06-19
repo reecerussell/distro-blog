@@ -1,0 +1,27 @@
+{
+  "*/GET/users": [
+    "users:read",
+    "users:write"
+  ],
+  "*/POST/users": [
+    "users:write"
+  ],
+  "*/PUT/users": [
+    "users:write"
+  ],
+  "*/OPTIONS/users": [
+    "users:read",
+    "users:write"
+  ],
+  "*/DELETE/users/*": [
+    "users:write"
+  ],
+  "*/GET/users/*": [
+    "users:write",
+    "users:read"
+  ],
+  "*/OPTIONS/users/*": [
+    "users:write",
+    "users:read"
+  ]
+}

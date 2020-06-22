@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"os"
 	"testing"
 
@@ -121,7 +122,58 @@ func TestAuthUsecase_Verify(t *testing.T) {
 	})
 }
 
-func seedUser(email string, pwd string) {
-	executeHelper("CALL create_user(UUID(), 'John', 'Doe', ?, ?, ?);",
-		email, normalization.New().Normalize(email), password.New().Hash(pwd))
+func TestAuthUsecase_VerifyWithScopes(t *testing.T) {
+	email, password, scope := "verifyWithScopes@authUsecase.test", "MyTestPassword1", "verify:withScopes"
+	userID := seedUser(email, password)
+	scopeID := uuid.New().String()
+	executeHelper("INSERT INTO `scopes` (`id`,`name`,`description`) VALUES (?,?,'test scope');", scopeID, scope)
+	executeHelper("INSERT INTO `user_scopes` (`user_id`,`scope_id`) VALUES (?,?);", userID, scopeID)
+
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, contextkey.ContextKey("JWT_KEY_ID"), "alias/distro-jwt")
+
+	d := &dto.UserCredential{
+		Email: email,
+		Password: password,
+	}
+	success, _, value, err := testAuthUsecase.Token(ctx, d).Deconstruct()
+	if !success {
+		t.Errorf("unexpected failure: %v", err)
+	}
+
+	tokenData := []byte(value.(*auth.AccessToken).Token)
+
+	// test start
+	success, _, _, err = testAuthUsecase.VerifyWithScopes(ctx, tokenData, scope).Deconstruct()
+	if !success {
+		t.Errorf("unexpected error: %v", err)
+	}
+
+	t.Run("User Doesn't Have Given Scope", func(t *testing.T) {
+		res := testAuthUsecase.VerifyWithScopes(ctx, tokenData, "random:scope")
+		if res.IsOk() {
+			t.Errorf("expected to fail")
+		}
+	})
+
+	t.Run("No Key ID Defined", func(t *testing.T) {
+		res := testAuthUsecase.VerifyWithScopes(context.Background(), tokenData, scope)
+		if res.IsOk() {
+			t.Errorf("expected to fail")
+		}
+	})
+
+	t.Run("Invalid Token", func(t *testing.T) {
+		res := testAuthUsecase.VerifyWithScopes(ctx, tokenData[10:], scope)
+		if res.IsOk() {
+			t.Errorf("expected to fail")
+		}
+	})
+}
+
+func seedUser(email string, pwd string) string {
+	id := uuid.New().String()
+	executeHelper("CALL create_user(?, 'John', 'Doe', ?, ?, ?);",
+		id, email, normalization.New().Normalize(email), password.New().Hash(pwd))
+	return id
 }

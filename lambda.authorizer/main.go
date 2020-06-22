@@ -15,13 +15,25 @@ import (
 
 var (
 	auth usecase.AuthUsecase
-	scopes map[string][]string
+	scopes = map[string][]string {
+		"/*/GET/users": {"users:read"},
+	}
 )
 
 func init() {
 	db := database.NewMySQL(os.Getenv("CONN_STRING"))
 	repo := persistence.NewUserRepository(db)
 	auth = usecase.NewAuthUsecase(repo)
+}
+
+func getAllowedScopes(methodArn string) []string {
+	for suf, scopes := range scopes {
+		if strings.HasSuffix(methodArn, suf) {
+			return scopes
+		}
+	}
+
+	return make([]string, 0)
 }
 
 func generatePolicy(effect, methodArn string) events.APIGatewayCustomAuthorizerResponse {
@@ -48,7 +60,7 @@ func handleAuthorization(ctx context.Context, req events.APIGatewayCustomAuthori
 		return generatePolicy("Deny", req.MethodArn), errors.New("Unauthorized")
 	}
 
-	success, _, _, err := auth.VerifyWithScopes(ctx, []byte(parts[1])).Deconstruct()
+	success, _, _, err := auth.VerifyWithScopes(ctx, []byte(parts[1]), getAllowedScopes(req.MethodArn)...).Deconstruct()
 	if !success {
 		pol := generatePolicy("Deny", req.MethodArn)
 		pol.Context = map[string]interface{}{

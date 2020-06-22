@@ -9,6 +9,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"github.com/reecerussell/distro-blog/libraries/logging"
 	"log"
 	"strings"
 	"time"
@@ -55,7 +56,7 @@ type Service struct {
 	svc *kms.KMS
 }
 
-func New() (*Service) {
+func New() *Service {
 	sess, _ := session.NewSession()
 	svc := kms.New(sess)
 
@@ -76,9 +77,11 @@ func (as *Service) VerifyToken(ctx context.Context, data []byte) bool {
 
 	keyIDValue := ctx.Value(contextkey.ContextKey("JWT_KEY_ID"))
 	if keyIDValue == nil {
-		log.Printf("[ERROR]: key id value is not set")
+		logging.Errorf("key id value is not set\n")
 		return false
 	}
+
+	logging.Debugf("Attempting to verify token with KMS Key: %v\n", keyIDValue)
 
 	res, err := as.svc.Verify(&kms.VerifyInput{
 		Signature: sig,
@@ -88,11 +91,12 @@ func (as *Service) VerifyToken(ctx context.Context, data []byte) bool {
 		KeyId: aws.String(keyIDValue.(string)),
 	})
 	if err != nil {
-		log.Printf("[ERROR]: %v", err)
+		logging.Errorf("failed to verify: %v", err)
 		return false
 	}
 
 	if !*res.SignatureValid {
+		logging.Debugf("Token signature is not valid.\n")
 		return false
 	}
 
@@ -101,7 +105,12 @@ func (as *Service) VerifyToken(ctx context.Context, data []byte) bool {
 	n := convertToMilliseconds(time.Now().UTC())
 
 	// ensure token expiry is within bounds
-	return (exp == nil || *exp > n) && (nbf == nil || *nbf <= n)
+	ok := (exp == nil || *exp > n) && (nbf == nil || *nbf <= n)
+	if !ok {
+		logging.Debugf("Token is out of time bounds.\n")
+	}
+
+	return ok
 }
 
 // TokenBuilder is an extension type to the Service struct, used to
@@ -271,7 +280,13 @@ func (t *Token) Strings(name string) []string {
 		return nil
 	}
 
-	return v.([]string)
+	out := make([]string, len(v.([]interface{})))
+
+	for i, s := range v.([]interface{}) {
+		out[i] = s.(string)
+	}
+
+	return out
 }
 
 func (t *Token) getPayload() (payload map[string]interface{}) {

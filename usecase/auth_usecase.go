@@ -18,6 +18,7 @@ import (
 type AuthUsecase interface {
 	Token(ctx context.Context, cred *dto.UserCredential) result.Result
 	Verify(ctx context.Context, tokenData []byte) result.Result
+	VerifyWithScopes(ctx context.Context, tokenData []byte, scopes ...string) result.Result
 }
 
 type authUsecase struct {
@@ -96,4 +97,30 @@ func (u *authUsecase) Verify(ctx context.Context, tokenData []byte) result.Resul
 	}
 
 	return result.Ok()
+}
+
+// VerifyWithScopes verifies the token, then verifies if the token contains
+// any of the given scopes.
+func (u *authUsecase) VerifyWithScopes(ctx context.Context, tokenData []byte, scopes ...string) result.Result {
+	res := u.Verify(ctx, tokenData)
+	if !res.IsOk() {
+		return res
+	}
+
+	t := auth.Token(tokenData)
+	tokenScopes := t.Strings(auth.ClaimTypeScopes)
+
+	allowedScopes := make(map[string]int)
+	for _, s := range scopes {
+		allowedScopes[s] = 1
+	}
+
+	for _, ts := range tokenScopes {
+		if _, ok := allowedScopes[ts]; ok {
+			return result.Ok()
+		}
+	}
+
+	return result.Failure("You're not allowed to access this resource :(").
+		WithStatusCode(http.StatusForbidden)
 }

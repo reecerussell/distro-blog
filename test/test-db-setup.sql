@@ -69,6 +69,21 @@ CREATE DATABASE /*!32312 IF NOT EXISTS*/ `distro-blog-test` /*!40100 DEFAULT CHA
 USE `distro-blog-test`;
 
 --
+-- Table structure for table `scopes`
+--
+
+DROP TABLE IF EXISTS `scopes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `scopes` (
+  `id` varchar(128) NOT NULL,
+  `name` varchar(45) NOT NULL,
+  `description` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `table-one`
 --
 
@@ -81,7 +96,7 @@ CREATE TABLE `table-one` (
   `age` int(8) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name_UNIQUE` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=63 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=81 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -102,6 +117,23 @@ CREATE TABLE `user_audit` (
   KEY `fk_user_audit_performer_idx` (`performed_by_id`),
   CONSTRAINT `fk_user_audit_performer` FOREIGN KEY (`performed_by_id`) REFERENCES `users` (`id`),
   CONSTRAINT `fk_user_audit_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `user_scopes`
+--
+
+DROP TABLE IF EXISTS `user_scopes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `user_scopes` (
+  `user_id` varchar(128) NOT NULL,
+  `scope_id` varchar(128) NOT NULL,
+  PRIMARY KEY (`user_id`,`scope_id`),
+  KEY `fk_user_scope_scope_idx` (`scope_id`),
+  CONSTRAINT `fk_user_scope_scope` FOREIGN KEY (`scope_id`) REFERENCES `scopes` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_user_scope_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -237,6 +269,42 @@ BEGIN
 		id, first_name, last_name, email, normalized_email, password_hash
 	FROM users
 	WHERE id = userId;
+    
+    SELECT 
+		s.id AS `ScopeId`, s.name AS `ScopeName`
+	FROM
+		user_scopes AS us
+			INNER JOIN
+		scopes AS s ON s.id = us.scope_id
+	WHERE
+		us.user_id = userId;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `get_user_by_email` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_user_by_email`(IN normalizedEmail VARCHAR(255))
+BEGIN
+	DECLARE userId VARCHAR(255);
+	SELECT 
+		`id`
+	INTO userId FROM
+		users
+	WHERE
+		normalized_email = normalizedEmail;
+    
+    CALL get_user(userId);
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -332,4 +400,4 @@ USE `distro-blog-test`;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-06-15 16:37:51
+-- Dump completed on 2020-06-19 11:30:10

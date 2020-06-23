@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/reecerussell/distro-blog/auth"
 	"github.com/reecerussell/distro-blog/domain/dto"
 	"github.com/reecerussell/distro-blog/domain/model"
 	"github.com/reecerussell/distro-blog/domain/repository"
@@ -28,6 +29,7 @@ type userUsecase struct {
 	serv    *service.UserService
 	norm    normalization.Normalizer
 	pwdServ password.Service
+	auth *auth.Service
 }
 
 // NewUserUsecase returns a new instance of the UserUsecase

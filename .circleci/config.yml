@@ -30,12 +30,16 @@ jobs:
             - run: go get golang.org/x/crypto/pbkdf2
             - run: go get github.com/aws/aws-lambda-go/events
             - run: go get github.com/aws/aws-lambda-go/lambda
+            - run: go get github.com/aws/aws-sdk-go/aws
+            - run: go get github.com/aws/aws-sdk-go/aws/session
+            - run: go get github.com/aws/aws-sdk-go/service/kms
 
             # Tests
             - run:
                   name: Run unit tests
                   environment:
                       CONN_STRING: root:password@tcp(127.0.0.1)/distro-blog-test?parseTime=true
+                      JWT_KEY_ID: alias/distro-jwt
                   command: go test -v ./... -race -coverprofile=coverage.txt -covermode=atomic
             - run: bash <(curl -s https://codecov.io/bash)
 

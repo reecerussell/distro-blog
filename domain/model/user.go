@@ -20,6 +20,8 @@ type User struct {
 	email           string
 	normalizedEmail string
 	passwordHash    string
+
+	scopes []*Scope
 }
 
 // NewUser returns a new instance of a User domain model, after going
@@ -52,6 +54,11 @@ func NewUser(data *dto.CreateUser, serv password.Service, norm normalization.Nor
 	return u, nil
 }
 
+// ID returns the user's id.
+func (u *User) ID() string {
+	return u.id
+}
+
 // Email returns the User's email.
 func (u *User) Email() string {
 	return u.email
@@ -60,6 +67,11 @@ func (u *User) Email() string {
 // NormalizedEmail returns the User's normalized email.
 func (u *User) NormalizedEmail() string {
 	return u.normalizedEmail
+}
+
+// Scopes returns the user's scopes.
+func (u *User) Scopes() []*Scope {
+	return u.scopes
 }
 
 // Update is used to update the user's core values, in a single function,
@@ -153,6 +165,15 @@ func (u *User) setPassword(password string, serv password.Service) error {
 	return nil
 }
 
+func (u *User) VerifyPassword(password string, serv password.Service) error {
+	ok := serv.Verify(password, u.passwordHash)
+	if !ok {
+		return fmt.Errorf("password is invalid")
+	}
+
+	return nil
+}
+
 // DataModel returns a datamodel object for the User.
 func (u *User) DataModel() *datamodel.User {
 	return &datamodel.User{
@@ -167,7 +188,14 @@ func (u *User) DataModel() *datamodel.User {
 
 // UserFromDataModel returns a new instance of User populated with
 // data from the given data-model object.
-func UserFromDataModel(dm *datamodel.User) *User {
+func UserFromDataModel(dm *datamodel.User, sdm []*datamodel.UserScope) *User {
+	var scopes []*Scope
+	if sdm != nil && len(sdm) > 0 {
+		for _, s := range sdm {
+			scopes = append(scopes, ScopeFromDataModel(s))
+		}
+	}
+
 	return &User{
 		id: dm.ID,
 		firstname: dm.Firstname,
@@ -175,6 +203,7 @@ func UserFromDataModel(dm *datamodel.User) *User {
 		email: dm.Email,
 		normalizedEmail: dm.NormalizedEmail,
 		passwordHash: dm.PasswordHash,
+		scopes: scopes,
 	}
 }
 

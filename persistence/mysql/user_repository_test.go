@@ -182,9 +182,7 @@ func TestUserRepository_Update(t *testing.T) {
 		return
 	}
 
-	// check user
-
-
+	// TODO: check user values.
 
 	t.Run("Non Existent User", func(t *testing.T) {
 		u := buildUser("nonExistentUser@update.test")
@@ -204,6 +202,24 @@ func TestUserRepository_Update(t *testing.T) {
 
 		res := testRepoEmptySchema.Update(ctx, u)
 		if res.IsOk() {
+			t.Errorf("expected an error")
+		}
+	})
+}
+
+func TestUserRepository_Delete(t *testing.T) {
+	testEmail := "userRepository@delete.test"
+	_, id := seedUser(testEmail)
+	ctx := context.Background()
+
+	success, _, _, err := testRepo.Delete(ctx, id).Deconstruct()
+	if !success {
+		t.Errorf("unexpected error: %v", err)
+	}
+
+	t.Run("Invalid Schema", func(t *testing.T) {
+		res := testRepoEmptySchema.Delete(ctx, id)
+		if res.IsOk(){
 			t.Errorf("expected an error")
 		}
 	})

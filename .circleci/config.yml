@@ -39,6 +39,7 @@ jobs:
                   name: Run unit tests
                   environment:
                       CONN_STRING: root:password@tcp(127.0.0.1)/distro-blog-test?parseTime=true
+                      JWT_KEY_ID: alias/distro-jwt
                   command: go test -v ./... -race -coverprofile=coverage.txt -covermode=atomic
             - run: bash <(curl -s https://codecov.io/bash)
 

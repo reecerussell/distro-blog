@@ -16,7 +16,11 @@ import (
 var (
 	auth usecase.AuthUsecase
 	scopes = map[string][]string {
-		"/*/GET/users": {"users:read"},
+		"/*/GET/users": {"users:read", "users:write"},
+		"/*/POST/users": {"users:write"},
+		"/*/PUT/users": {"users:write"},
+		"/*/GET/users/*": {"users:read", "users:write"},
+		"/*/DELETE/users/*": {"users:write"},
 	}
 )
 

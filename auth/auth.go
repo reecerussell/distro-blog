@@ -9,7 +9,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"github.com/reecerussell/distro-blog/libraries/logging"
 	"log"
 	"strings"
 	"time"
@@ -19,6 +18,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/kms"
 
 	"github.com/reecerussell/distro-blog/libraries/contextkey"
+	"github.com/reecerussell/distro-blog/libraries/logging"
 )
 
 var encoding = base64.RawURLEncoding

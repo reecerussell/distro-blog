@@ -3,9 +3,10 @@ package auth
 import (
 	"bytes"
 	"context"
-	"github.com/reecerussell/distro-blog/libraries/contextkey"
 	"testing"
 	"time"
+
+	"github.com/reecerussell/distro-blog/libraries/contextkey"
 )
 
 var (

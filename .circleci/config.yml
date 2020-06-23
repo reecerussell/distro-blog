@@ -30,6 +30,9 @@ jobs:
             - run: go get golang.org/x/crypto/pbkdf2
             - run: go get github.com/aws/aws-lambda-go/events
             - run: go get github.com/aws/aws-lambda-go/lambda
+            - run: go get github.com/aws/aws-sdk-go/aws
+            - run: go get github.com/aws/aws-sdk-go/aws/session
+            - run: go get github.com/aws/aws-sdk-go/service/kms
 
             # Tests
             - run:

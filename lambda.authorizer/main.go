@@ -22,7 +22,6 @@ var (
 	auth usecase.AuthUsecase
 	store *storage.Service
 	cache caching.Cache
-	resources *Resources
 )
 
 type Resource struct {
@@ -38,18 +37,19 @@ func getAllowedScopes(methodArn string) []string {
 	key := os.Getenv("SCOPES_STORAGE_KEY")
 	methodKey := fmt.Sprintf("auth_scopes:%s", methodArn)
 	bytes, ok := cache.Get(methodKey)
+
+	var resources Resources
+
 	if ok {
 		var scopes []string
 		err := json.Unmarshal(bytes, &scopes)
 		if err == nil {
 			return scopes
 		}
-	}
-
-	if resources == nil {
+	} else {
 		bytes, ok = cache.Get(key)
 		if ok {
-			json.Unmarshal(bytes, resources)
+			json.Unmarshal(bytes, &resources)
 		} else {
 			bytes, err := store.Get(key)
 			if err != nil {
@@ -58,7 +58,7 @@ func getAllowedScopes(methodArn string) []string {
 				panic(err)
 			}
 
-			json.Unmarshal(bytes, resources)
+			json.Unmarshal(bytes, &resources)
 		}
 	}
 

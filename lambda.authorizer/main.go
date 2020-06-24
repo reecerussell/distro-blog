@@ -2,11 +2,16 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/reecerussell/distro-blog/libraries/caching"
 	"github.com/reecerussell/distro-blog/libraries/contextkey"
 	"github.com/reecerussell/distro-blog/libraries/database"
+	"github.com/reecerussell/distro-blog/libraries/logging"
+	"github.com/reecerussell/distro-blog/libraries/storage"
 	"github.com/reecerussell/distro-blog/persistence"
 	"github.com/reecerussell/distro-blog/usecase"
 	"os"
@@ -15,29 +20,67 @@ import (
 
 var (
 	auth usecase.AuthUsecase
-	scopes = map[string][]string {
-		"/*/GET/users": {"users:read", "users:write"},
-		"/*/POST/users": {"users:write"},
-		"/*/PUT/users": {"users:write"},
-		"/*/GET/users/*": {"users:read", "users:write"},
-		"/*/DELETE/users/*": {"users:write"},
-	}
+	store *storage.Service
+	cache caching.Cache
+	resources *Resources
 )
 
-func init() {
-	db := database.NewMySQL(os.Getenv("CONN_STRING"))
-	repo := persistence.NewUserRepository(db)
-	auth = usecase.NewAuthUsecase(repo)
+type Resource struct {
+	MethodARNSuffix string `yaml:"methodArnSuffix"`
+	Scopes []string `yaml:"scopes"`
+}
+
+type Resources struct {
+	Resources []Resource `yaml:"resources"`
 }
 
 func getAllowedScopes(methodArn string) []string {
-	for suf, scopes := range scopes {
-		if strings.HasSuffix(methodArn, suf) {
+	key := os.Getenv("SCOPES_STORAGE_KEY")
+	methodKey := fmt.Sprintf("auth_scopes:%s", methodArn)
+	bytes, ok := cache.Get(methodKey)
+	if ok {
+		var scopes []string
+		err := json.Unmarshal(bytes, &scopes)
+		if err == nil {
 			return scopes
 		}
 	}
 
-	return make([]string, 0)
+	if resources == nil {
+		bytes, ok = cache.Get(key)
+		if ok {
+			json.Unmarshal(bytes, resources)
+		} else {
+			bytes, err := store.Get(key)
+			if err != nil {
+				err = fmt.Errorf("failed to get resources from store: %v", err)
+				logging.Error(err)
+				panic(err)
+			}
+
+			json.Unmarshal(bytes, resources)
+		}
+	}
+
+	var scopes []string
+
+	for _ ,r := range resources.Resources {
+		if !strings.HasSuffix(methodArn, r.MethodARNSuffix) {
+			continue
+		}
+
+		scopes = r.Scopes
+	}
+
+	bytes, err := json.Marshal(scopes)
+	if err == nil {
+		err = cache.Set(methodKey, bytes)
+		if err != nil {
+			logging.Errorf("failed to set cache for method arn '%s': %v", methodArn, err)
+		}
+	}
+
+	return scopes
 }
 
 func generatePolicy(effect, methodArn string) events.APIGatewayCustomAuthorizerResponse {
@@ -77,5 +120,24 @@ func handleAuthorization(ctx context.Context, req events.APIGatewayCustomAuthori
 }
 
 func main() {
+	db := database.NewMySQL(os.Getenv("CONN_STRING"))
+	repo := persistence.NewUserRepository(db)
+	auth = usecase.NewAuthUsecase(repo)
+
+	var err error
+	store, err = storage.New(os.Getenv("CONFIG_BUCKET_NAME"))
+	if err != nil {
+		err = fmt.Errorf("failed to init storage: %v", err)
+		logging.Error(err)
+		panic(err)
+	}
+
+	cache, err = caching.New(os.Getenv("CACHE_HOST"))
+	if err != nil {
+		err = fmt.Errorf("failed to init cache: %v", err)
+		logging.Error(err)
+		panic(err)
+	}
+
 	lambda.Start(handleAuthorization)
 }

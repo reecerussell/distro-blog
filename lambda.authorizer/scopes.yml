@@ -1,0 +1,23 @@
+resources:
+  get-users:
+    methodArnSuffix: "/*/GET/users"
+    scopes:
+      - "users:read"
+      - "users:write"
+  get-user:
+    methodArnSuffix: "/*/GET/users/*"
+    scopes:
+      - "users:read"
+      - "users:write"
+  create-user:
+    methodArnSuffix: "/*/POST/users"
+    scopes:
+      - "users:write"
+  update-user:
+    methodArnSuffix: "/*/POST/users"
+    scopes:
+      - "users:write"
+  delete-user:
+    methodArnSuffix: "/*/DELETE/users/*"
+    scopes:
+      - "users:write"

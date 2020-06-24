@@ -33,6 +33,7 @@ jobs:
             - run: go get github.com/aws/aws-sdk-go/aws
             - run: go get github.com/aws/aws-sdk-go/aws/session
             - run: go get github.com/aws/aws-sdk-go/service/kms
+            - run: go get gopkg.in/yaml.v2
 
             # Tests
             - run:

@@ -77,6 +77,41 @@ func TestHandleAuthentication(t *testing.T) {
 	})
 }
 
+func TestFindAllowedScopes(t *testing.T) {
+	config = &Config{
+		Scopes: map[string][]string{
+			"/GET/test": {"test:scope"},
+			"/GET/test/*": {"my_test:scope"},
+		},
+	}
+
+	t.Run("1", func(t *testing.T) {
+		arn := "arn:aws:execute-api:<region>:<account id>:<rest api id>/dev/GET/test"
+		scopes := findAllowedScopes(arn)
+		if len(scopes) < 1 {
+			t.Errorf("expected at least one scope")
+			return
+		}
+
+		if v := scopes[0]; v != "test:scope" {
+			t.Errorf("expected first scope to be 'test:scope' but got: '%s'", v)
+		}
+	})
+
+	t.Run("2", func(t *testing.T) {
+		arn := "arn:aws:execute-api:<region>:<account id>:<rest api id>/dev/GET/test/236823"
+		scopes := findAllowedScopes(arn)
+		if len(scopes) < 1 {
+			t.Errorf("expected at least one scope")
+			return
+		}
+
+		if v := scopes[0]; v != "my_test:scope" {
+			t.Errorf("expected first scope to be 'my_test:scope' but got: '%s'", v)
+		}
+	})
+}
+
 func seedUser(email, pwd, scope string) {
 	userID := uuid.New().String()
 	executeHelper("CALL create_user(?, 'John', 'Doe', ?, ?, ?);",

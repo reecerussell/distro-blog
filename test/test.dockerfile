@@ -10,12 +10,16 @@ RUN go get github.com/aws/aws-lambda-go/lambda
 RUN go get github.com/aws/aws-sdk-go/aws
 RUN go get github.com/aws/aws-sdk-go/aws/session
 RUN go get github.com/aws/aws-sdk-go/service/kms
+RUN go get github.com/rainycape/memcache
+RUN go get gopkg.in/yaml.v2
 
 WORKDIR /go/src/github.com/reecerussell/distro-blog
 
 ENV AWS_REGION=eu-west-2
-ENV AWS_ACCESS_KEY_ID=<aws access id>
-ENV AWS_SECRET_ACCESS_KEY=<aws access key>
+ENV AWS_ACCESS_KEY_ID=AKIAJ73S77NPXL56WT6Q
+ENV AWS_SECRET_ACCESS_KEY=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
 ENV JWT_KEY_ID=alias/distro-jwt
+ENV CONFIG_BUCKET_NAME=distro-config-store
+ENV AUTH_CONFIG_BUCKET_KEY=authorizer-config.yml
 
-CMD sleep 15; go test -v ./... -race -coverprofile=coverage.txt -covermode=atomic
+CMD sleep 10; go test -v ./... -race -coverprofile=coverage.txt -covermode=atomic

@@ -2,89 +2,86 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
+	"os"
+	"regexp"
+	"strings"
+
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/reecerussell/distro-blog/libraries/caching"
+	"gopkg.in/yaml.v2"
+
 	"github.com/reecerussell/distro-blog/libraries/contextkey"
-	"github.com/reecerussell/distro-blog/libraries/database"
 	"github.com/reecerussell/distro-blog/libraries/logging"
 	"github.com/reecerussell/distro-blog/libraries/storage"
-	"github.com/reecerussell/distro-blog/persistence"
 	"github.com/reecerussell/distro-blog/usecase"
-	"os"
-	"strings"
 )
 
 var (
 	auth usecase.AuthUsecase
 	store *storage.Service
-	cache caching.Cache
+	config *Config
 )
 
-type Resource struct {
-	MethodARNSuffix string `yaml:"methodArnSuffix"`
-	Scopes []string `yaml:"scopes"`
-}
+func buildResources(methodArn string, scopes []string) []string {
+	resourceMap := make(map[string]bool)
+	parts := strings.Split(methodArn, "/")
+	baseArn := strings.Join(parts[:2], "/")
 
-type Resources struct {
-	Resources []Resource `yaml:"resources"`
-}
+	var resources []string
 
-func getAllowedScopes(methodArn string) []string {
-	key := os.Getenv("SCOPES_STORAGE_KEY")
-	methodKey := fmt.Sprintf("auth_scopes:%s", methodArn)
-	bytes, ok := cache.Get(methodKey)
-
-	var resources Resources
-
-	if ok {
-		var scopes []string
-		err := json.Unmarshal(bytes, &scopes)
-		if err == nil {
-			return scopes
-		}
-	} else {
-		bytes, ok = cache.Get(key)
-		if ok {
-			json.Unmarshal(bytes, &resources)
-		} else {
-			bytes, err := store.Get(key)
-			if err != nil {
-				err = fmt.Errorf("failed to get resources from store: %v", err)
-				logging.Error(err)
-				panic(err)
-			}
-
-			json.Unmarshal(bytes, &resources)
-		}
-	}
-
-	var scopes []string
-
-	for _ ,r := range resources.Resources {
-		if !strings.HasSuffix(methodArn, r.MethodARNSuffix) {
+	for _, scope := range scopes {
+		methods, ok := config.ScopePolicies[scope]
+		if !ok {
 			continue
 		}
 
-		scopes = r.Scopes
-	}
+		for _, m := range methods {
+			_, ok = resourceMap[baseArn + m]
+			if ok {
+				continue
+			}
 
-	bytes, err := json.Marshal(scopes)
-	if err == nil {
-		err = cache.Set(methodKey, bytes)
-		if err != nil {
-			logging.Errorf("failed to set cache for method arn '%s': %v", methodArn, err)
+			resourceMap[baseArn + m] = true
+			resources = append(resources, baseArn+m)
 		}
 	}
 
-	return scopes
+	return resources
 }
 
-func generatePolicy(effect, methodArn string) events.APIGatewayCustomAuthorizerResponse {
-	return events.APIGatewayCustomAuthorizerResponse{
+func findAllowedScopes(methodArn string) []string {
+	allowedMap := make(map[string]bool)
+
+	var allowed []string
+
+	for suf, scps := range config.Scopes {
+		suf = strings.ReplaceAll(suf, "*", "(.+)")
+		arn := methodArn[strings.Index(methodArn, "/"):]
+
+		re := regexp.MustCompile(fmt.Sprintf("%s$", suf))
+		if !re.MatchString(arn) {
+			continue
+		}
+
+		for _, s := range scps {
+			_, ok := allowedMap[s]
+			if ok {
+				continue
+			}
+
+			allowedMap[s] = true
+			allowed = append(allowed, s)
+		}
+	}
+
+	return allowed
+}
+
+func generatePolicy(effect, methodArn string, scopes []string) events.APIGatewayCustomAuthorizerResponse {
+		return events.APIGatewayCustomAuthorizerResponse{
 		PrincipalID: "user",
 		PolicyDocument: events.APIGatewayCustomAuthorizerPolicy{
 			Version: "2012-10-17",
@@ -92,7 +89,7 @@ func generatePolicy(effect, methodArn string) events.APIGatewayCustomAuthorizerR
 				{
 					Action: []string{"execute-api:Invoke"},
 					Effect: effect,
-					Resource: []string{methodArn},
+					Resource: buildResources(methodArn, scopes),
 				},
 			},
 		},
@@ -102,27 +99,50 @@ func generatePolicy(effect, methodArn string) events.APIGatewayCustomAuthorizerR
 func handleAuthorization(ctx context.Context, req events.APIGatewayCustomAuthorizerRequest) (events.APIGatewayCustomAuthorizerResponse, error) {
 	ctx = context.WithValue(ctx, contextkey.ContextKey("JWT_KEY_ID"), os.Getenv("JWT_KEY_ID"))
 
+	scopes := findAllowedScopes(req.MethodArn)
 	parts := strings.Split(req.AuthorizationToken, " ")
 	if len(parts) < 2 || parts[0] != "Bearer" {
-		return generatePolicy("Deny", req.MethodArn), errors.New("Unauthorized")
+		return generatePolicy("Deny", req.MethodArn, scopes), errors.New("Unauthorized")
 	}
 
-	success, _, _, err := auth.VerifyWithScopes(ctx, []byte(parts[1]), getAllowedScopes(req.MethodArn)...).Deconstruct()
+	success, status, _, err := auth.VerifyWithScopes(ctx, []byte(parts[1]), scopes...).Deconstruct()
 	if !success {
-		pol := generatePolicy("Deny", req.MethodArn)
-		pol.Context = map[string]interface{}{
-			"error": err.Error(),
+		pol := generatePolicy("Deny", req.MethodArn, scopes)
+
+		if status == http.StatusForbidden {
+			err = errors.New("Forbidden")
+		} else {
+			err = errors.New("Unauthorized")
 		}
-		return pol, errors.New("Unauthorized")
+
+		return pol, err
 	}
 
-	return generatePolicy("Allow", req.MethodArn), nil
+	return generatePolicy("Allow", req.MethodArn, scopes), nil
+}
+
+type Config struct {
+	Scopes map[string][]string `yaml:"scopes"`
+	ScopePolicies map[string][]string `yaml:"scope_policies"`
+}
+
+func loadConfig(configKey string) (*Config, error) {
+	data, err := store.Get(configKey)
+	if err != nil {
+		return nil, err
+	}
+
+	var config Config
+	err = yaml.Unmarshal(data, &config)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read config")
+	}
+
+	return &config, nil
 }
 
 func main() {
-	db := database.NewMySQL(os.Getenv("CONN_STRING"))
-	repo := persistence.NewUserRepository(db)
-	auth = usecase.NewAuthUsecase(repo)
+	auth = usecase.NewAuthUsecase(nil)
 
 	var err error
 	store, err = storage.New(os.Getenv("CONFIG_BUCKET_NAME"))
@@ -132,9 +152,8 @@ func main() {
 		panic(err)
 	}
 
-	cache, err = caching.New(os.Getenv("CACHE_HOST"))
+	config, err = loadConfig(os.Getenv("CONFIG_BUCKET_KEY"))
 	if err != nil {
-		err = fmt.Errorf("failed to init cache: %v", err)
 		logging.Error(err)
 		panic(err)
 	}

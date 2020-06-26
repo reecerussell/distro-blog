@@ -13,12 +13,26 @@ class UserService {
     }
 
     async List(): Promise<ApiResponse> {
-        const res = await fetch(this.baseUrl);
+        const res = await fetch(this.baseUrl, {
+            method: "GET",
+            headers: {
+                Authorization:
+                    "Bearer " +
+                    localStorage.getItem("distro_blog:access_token"),
+            },
+        });
         return await this.parseResponse(res);
     }
 
     async Get(id: string): Promise<ApiResponse> {
-        const res = await fetch(this.baseUrl + `/${id}`);
+        const res = await fetch(this.baseUrl + `/${id}`, {
+            method: "GET",
+            headers: {
+                Authorization:
+                    "Bearer " +
+                    localStorage.getItem("distro_blog:access_token"),
+            },
+        });
         return await this.parseResponse(res);
     }
 
@@ -27,6 +41,9 @@ class UserService {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                Authorization:
+                    "Bearer " +
+                    localStorage.getItem("distro_blog:access_token"),
             },
             body: JSON.stringify(data),
         });
@@ -39,6 +56,9 @@ class UserService {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
+                Authorization:
+                    "Bearer " +
+                    localStorage.getItem("distro_blog:access_token"),
             },
             body: JSON.stringify(data),
         });
@@ -49,6 +69,11 @@ class UserService {
     async Delete(id: string): Promise<ApiResponse> {
         const res = await fetch(this.baseUrl + `/${id}`, {
             method: "DELETE",
+            headers: {
+                Authorization:
+                    "Bearer " +
+                    localStorage.getItem("distro_blog:access_token"),
+            },
         });
         return await this.parseResponse(res);
     }
@@ -83,4 +108,29 @@ export class ApiService {
     }
 
     public Users: UserService;
+
+    async Login(email: string, password: string): Promise<ApiResponse> {
+        const res = await fetch(this.baseUrl + "token", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+        if (res.status === 200) {
+            const { data } = await res.json();
+            return {
+                ok: true,
+                error: null,
+                data: data,
+            };
+        }
+
+        const { error } = await res.json();
+        return {
+            ok: false,
+            error: error,
+            data: null,
+        };
+    }
 }

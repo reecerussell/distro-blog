@@ -25,6 +25,24 @@ var (
 	config *Config
 )
 
+func init(){
+	auth = usecase.NewAuthUsecase(nil)
+
+	var err error
+	store, err = storage.New(os.Getenv("CONFIG_BUCKET_NAME"))
+	if err != nil {
+		err = fmt.Errorf("failed to init storage: %v", err)
+		logging.Error(err)
+		panic(err)
+	}
+
+	config, err = loadConfig(os.Getenv("CONFIG_BUCKET_KEY"))
+	if err != nil {
+		logging.Error(err)
+		panic(err)
+	}
+}
+
 func buildResources(methodArn string, scopes []string) []string {
 	resourceMap := make(map[string]bool)
 	parts := strings.Split(methodArn, "/")
@@ -144,21 +162,5 @@ func loadConfig(configKey string) (*Config, error) {
 }
 
 func main() {
-	auth = usecase.NewAuthUsecase(nil)
-
-	var err error
-	store, err = storage.New(os.Getenv("CONFIG_BUCKET_NAME"))
-	if err != nil {
-		err = fmt.Errorf("failed to init storage: %v", err)
-		logging.Error(err)
-		panic(err)
-	}
-
-	config, err = loadConfig(os.Getenv("CONFIG_BUCKET_KEY"))
-	if err != nil {
-		logging.Error(err)
-		panic(err)
-	}
-
 	lambda.Start(handleAuthorization)
 }

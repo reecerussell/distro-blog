@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	// MySQL driver
 	_ "github.com/go-sql-driver/mysql"
@@ -111,7 +112,7 @@ func (mysql *MySQL) Multiple(ctx context.Context, query string, rdr ReaderFunc, 
 	}
 	defer rows.Close()
 
-	items := []interface{}{}
+	var items []interface{}
 
 	for rows.Next() {
 		item, err := rdr(rows.Scan)
@@ -122,7 +123,7 @@ func (mysql *MySQL) Multiple(ctx context.Context, query string, rdr ReaderFunc, 
 		items = append(items, item)
 	}
 
-	// Understaning that an error can be returned from here,
+	// Understanding that an error can be returned from here,
 	// I can't seem to find or create a case where an error
 	// would be returned.
 	// err = rows.Err()
@@ -131,6 +132,62 @@ func (mysql *MySQL) Multiple(ctx context.Context, query string, rdr ReaderFunc, 
 	// }
 
 	return items, nil
+}
+
+// MultipleSets queries the database using the given query and arguments,
+// but loops through all of the result sets. The number of readers given must
+// be at least the number of results sets returned from the query.
+func (mysql *MySQL) MultipleSets(ctx context.Context, query string, args []interface{}, readers ...ReaderFunc) ([][]interface{}, error) {
+	if len(readers) < 1 {
+		return nil, fmt.Errorf("multiple sets: requires at least one reader")
+	}
+
+	err := mysql.ensureConnected()
+	if err != nil {
+		return nil, err
+	}
+
+	stmt, err := mysql.db.PrepareContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.QueryContext(ctx, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	results := make([][]interface{}, len(readers))
+	i := 0
+
+	for true {
+		if len(readers) < i+1 {
+			return nil, fmt.Errorf("invalid number of readers, expected at least %d", i+1)
+		}
+
+		var set []interface{}
+
+		for rows.Next() {
+			item, err := readers[i](rows.Scan)
+			if err != nil {
+				return nil, err
+			}
+
+			set = append(set, item)
+		}
+
+		results[i] = set
+
+		if rows.NextResultSet() {
+			i++
+		} else {
+			break
+		}
+	}
+
+	return results, nil
 }
 
 // Count is similar to Read, but can be used to read a single integer from a query. If

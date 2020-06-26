@@ -7,6 +7,11 @@ RUN go get github.com/go-sql-driver/mysql
 RUN go get golang.org/x/crypto/pbkdf2
 RUN go get github.com/aws/aws-lambda-go/events
 RUN go get github.com/aws/aws-lambda-go/lambda
+RUN go get github.com/aws/aws-sdk-go/aws
+RUN go get github.com/aws/aws-sdk-go/aws/session
+RUN go get github.com/aws/aws-sdk-go/service/kms
+RUN go get github.com/rainycape/memcache
+RUN go get gopkg.in/yaml.v2
 
 WORKDIR /go/src/github.com/reecerussell/distro-blog
 

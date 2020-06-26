@@ -12,6 +12,11 @@ services:
         networks:
             - distro-test
 
+    cache:
+        image: memcached
+        networks:
+            - distro-test
+
     test:
         build:
             context: ..
@@ -20,6 +25,7 @@ services:
             - "CONN_STRING=root:password@tcp(db)/distro-blog-test?parseTime=true"
             - "CONN_STRING_DEFORMED=root:password@tcp(db)/distro-blog-test-deformed?parseTime=true"
             - "CONN_STRING_EMPTY_SCHEMA=root:password@tcp(db)/distro-blog-test-empty-schema?parseTime=true"
+            - "CACHE_HOST=cache:11211"
         networks:
             - distro-test
         depends_on:

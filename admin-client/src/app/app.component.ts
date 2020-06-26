@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, OnInit, OnDestroy } from "@angular/core";
 import { UserService } from "./user.service";
 
 @Component({
@@ -6,7 +6,7 @@ import { UserService } from "./user.service";
     templateUrl: "./app.component.html",
     styleUrls: ["./app.component.scss"],
 })
-export class AppComponent {
+export class AppComponent implements OnInit, OnDestroy {
     title = "admin-client";
 
     isLoggedIn: boolean = false;
@@ -26,5 +26,13 @@ export class AppComponent {
             "app",
             () => (this.isLoggedIn = this.user.IsAuthenticated())
         );
+    }
+
+    ngOnDestroy() {
+        this.user.Unlisten("app");
+    }
+
+    logout() {
+        this.user.Logout();
     }
 }

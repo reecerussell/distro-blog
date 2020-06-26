@@ -1,1 +1,72 @@
-<p>login works!</p>
+<div class="login">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8">
+                <div class="card p-4">
+                    <div class="card-body">
+                        <h1>Login</h1>
+                        <p class="text-muted">
+                            Sign in to your account
+                        </p>
+                        <hr />
+                        <form (submit)="onSubmit()" novalidate>
+                            <ng-template [ngIf]="error">
+                                <div class="alert alert-danger" role="alert">
+                                    {{ error }}
+                                </div>
+                            </ng-template>
+                            <div class="form-group">
+                                <input
+                                    type="text"
+                                    name="email"
+                                    id="email"
+                                    class="form-control"
+                                    [class.is-invalid]="emailError"
+                                    [(ngModel)]="email"
+                                    (keyup)="validateEmail(false)"
+                                    placeholder="Enter your username..."
+                                    required
+                                />
+                                <ng-template [ngIf]="emailError">
+                                    <div class="invalid-feedback">
+                                        {{ emailError }}
+                                    </div>
+                                </ng-template>
+                            </div>
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-sm-9">
+                                        <input
+                                            type="password"
+                                            name="password"
+                                            id="password"
+                                            class="form-control"
+                                            [class.is-invalid]="passwordError"
+                                            [(ngModel)]="password"
+                                            (keyup)="validatePassword()"
+                                            placeholder="Enter your password..."
+                                            required
+                                        />
+                                    </div>
+                                    <div class="col-sm-3 mt-3 mt-sm-0">
+                                        <button
+                                            type="submit"
+                                            class="btn btn-block btn-primary"
+                                        >
+                                            Login
+                                        </button>
+                                    </div>
+                                </div>
+                                <ng-template [ngIf]="passwordError">
+                                    <div class="invalid-feedback">
+                                        {{ passwordError }}
+                                    </div>
+                                </ng-template>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

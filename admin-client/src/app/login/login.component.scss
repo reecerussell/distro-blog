@@ -1,0 +1,19 @@
+.login-background {
+    min-height: 100vh;
+    background-image: url("https://eskipaper.com/images/shapes-wallpaper-3.jpg");
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.login {
+    margin-top: 15%;
+
+    .card {
+        -webkit-box-shadow: 10px 10px 20px -6px rgba(0, 0, 0, 0.25);
+        -moz-box-shadow: 10px 10px 20px -6px rgba(0, 0, 0, 0.25);
+        box-shadow: 10px 10px 20px -6px rgba(0, 0, 0, 0.25);
+        border-radius: 0;
+        border: 0;
+    }
+}

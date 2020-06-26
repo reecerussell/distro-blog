@@ -78,7 +78,7 @@ body {
 }
 
 .sidebar .nav-link.active {
-    color: #007bff;
+    color: $primary;
 }
 
 .sidebar .nav-link:hover .feather,
@@ -128,9 +128,5 @@ body {
 // Bootstrap Overrides
 
 .btn-success {
-    color: #fff;
-}
-
-.nav-link.active {
-    color: $primary;
+    color: #666;
 }

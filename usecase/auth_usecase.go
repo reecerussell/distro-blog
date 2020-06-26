@@ -3,12 +3,14 @@ package usecase
 import (
 	"context"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/reecerussell/distro-blog/auth"
 	"github.com/reecerussell/distro-blog/domain/dto"
 	"github.com/reecerussell/distro-blog/domain/model"
 	"github.com/reecerussell/distro-blog/domain/repository"
+	"github.com/reecerussell/distro-blog/libraries/logging"
 	"github.com/reecerussell/distro-blog/libraries/result"
 	"github.com/reecerussell/distro-blog/password"
 )
@@ -110,6 +112,8 @@ func (u *authUsecase) VerifyWithScopes(ctx context.Context, tokenData []byte, sc
 	t := auth.Token(tokenData)
 	tokenScopes := t.Strings(auth.ClaimTypeScopes)
 
+	logging.Debugf("Token scopes: %s\n", strings.Join(tokenScopes, ", "))
+
 	allowedScopes := make(map[string]int)
 	for _, s := range scopes {
 		allowedScopes[s] = 1
@@ -117,9 +121,12 @@ func (u *authUsecase) VerifyWithScopes(ctx context.Context, tokenData []byte, sc
 
 	for _, ts := range tokenScopes {
 		if _, ok := allowedScopes[ts]; ok {
+			logging.Debugf("Scope matched: %s\n", ts)
 			return result.Ok()
 		}
 	}
+
+	logging.Debugf("Token is not valid for the given scopes: %s\n", strings.Join(scopes, ", "))
 
 	return result.Failure("You're not allowed to access this resource :(").
 		WithStatusCode(http.StatusForbidden)

@@ -36,7 +36,7 @@ func init(){
 		panic(err)
 	}
 
-	config, err = loadConfig(os.Getenv("CONFIG_BUCKET_KEY"))
+	config, err = loadConfig(os.Getenv("AUTH_CONFIG_BUCKET_KEY"))
 	if err != nil {
 		logging.Error(err)
 		panic(err)

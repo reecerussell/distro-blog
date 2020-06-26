@@ -17,7 +17,7 @@ export class AppComponent {
 
     ngOnInit() {
         setInterval(() => {
-            if (!this.user.IsAuthenticated()) {
+            if (!this.user.IsAuthenticated() && this.isLoggedIn) {
                 this.user.Logout();
             }
         }, 5000);

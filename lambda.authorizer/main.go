@@ -75,6 +75,8 @@ func findAllowedScopes(methodArn string) []string {
 			allowedMap[s] = true
 			allowed = append(allowed, s)
 		}
+
+		break
 	}
 
 	return allowed

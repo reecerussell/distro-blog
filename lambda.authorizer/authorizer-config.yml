@@ -1,0 +1,24 @@
+scopes:
+  "/GET/users":
+    - "users:read"
+    - "users:write"
+  "/GET/users/*":
+    - "users:read"
+    - "users:write"
+  "/POST/users":
+    - "users:write"
+  "/PUT/users":
+    - "users:write"
+  "/DELETE/users/*":
+    - "users:write"
+
+scope_policies:
+  "users:read":
+    - "/GET/users"
+    - "/GET/users/*"
+  "users:write":
+    - "/GET/users"
+    - "/GET/users/*"
+    - "/POST/users"
+    - "/PUT/users"
+    - "/DELETE/users/*"

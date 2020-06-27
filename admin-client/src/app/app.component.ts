@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
 import { UserService } from "./user.service";
+import { Router } from "@angular/router";
 
 @Component({
     selector: "app-root",
@@ -10,8 +11,9 @@ export class AppComponent implements OnInit, OnDestroy {
     title = "admin-client";
 
     isLoggedIn: boolean = false;
+    showMenu: boolean = false;
 
-    constructor(private user: UserService) {
+    constructor(private user: UserService, private router: Router) {
         this.isLoggedIn = user.IsAuthenticated();
     }
 
@@ -26,6 +28,8 @@ export class AppComponent implements OnInit, OnDestroy {
             "app",
             () => (this.isLoggedIn = this.user.IsAuthenticated())
         );
+
+        this.router.events.subscribe(() => (this.showMenu = false));
     }
 
     ngOnDestroy() {
@@ -34,5 +38,9 @@ export class AppComponent implements OnInit, OnDestroy {
 
     logout() {
         this.user.Logout();
+    }
+
+    toggleMenu() {
+        this.showMenu = !this.showMenu;
     }
 }

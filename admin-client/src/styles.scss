@@ -23,6 +23,7 @@ $info: #32d8cb;
 
 body {
     font-size: 0.875rem;
+    background-color: #f8f9fa;
 }
 
 .feather {
@@ -43,6 +44,7 @@ body {
     z-index: 100; /* Behind the navbar */
     padding: 48px 0 0; /* Height of navbar */
     box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
+    background-color: #fff;
 }
 
 @media (max-width: 767.98px) {
@@ -129,10 +131,10 @@ body {
 
 .taskbar {
     display: block;
-    background-color: #fff;
     box-sizing: border-box;
     border-bottom: 1px solid #dee2e6;
     margin: 0 -15px 20px -15px;
+    background-color: #fff;
 
     h1 {
         display: block;
@@ -160,7 +162,7 @@ body {
             border-left: 0;
 
             &:hover {
-                background-color: #eee;
+                background-color: #f8f9fa;
             }
 
             a {
@@ -224,4 +226,37 @@ body {
 
 .btn-success {
     color: #666;
+}
+
+.card {
+    border-radius: 0;
+    border: 0;
+
+    .card-header {
+        background-color: #fff;
+    }
+}
+
+.btn-success {
+    color: #fff;
+    font-family: 600;
+    background-color: darken($color: $success, $amount: 12.5);
+
+    &:hover,
+    &:focus,
+    &:active {
+        color: #fff;
+        background-color: darken($color: $success, $amount: 20);
+    }
+
+    &[disabled] {
+        background-color: darken($color: $success, $amount: 12.5);
+        color: #fff;
+    }
+}
+
+.btn,
+.form-control,
+.form-control-sm {
+    border-radius: 0;
 }

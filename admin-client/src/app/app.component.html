@@ -8,11 +8,10 @@
         <button
             class="navbar-toggler position-absolute d-md-none collapsed"
             type="button"
-            data-toggle="collapse"
-            data-target="#sidebarMenu"
             aria-controls="sidebarMenu"
             aria-expanded="false"
             aria-label="Toggle navigation"
+            (click)="toggleMenu()"
         >
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -33,7 +32,8 @@
         <div class="row">
             <nav
                 id="sidebarMenu"
-                class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse"
+                class="col-md-3 col-lg-2 d-md-block sidebar collapse"
+                [class.show]="showMenu"
             >
                 <div class="sidebar-sticky pt-3">
                     <ul class="nav flex-column">

@@ -128,33 +128,36 @@ body {
 // Taskbar
 
 .taskbar {
-    display: flex;
-    height: 80px;
+    display: block;
     background-color: #fff;
+    box-sizing: border-box;
     border-bottom: 1px solid #dee2e6;
-    margin: 0 -24px;
-    padding: 0 24px;
+    margin: 0 -15px 20px -15px;
 
     h1 {
-        flex: 1;
-        line-height: 80px;
+        display: block;
+        line-height: 79px;
+        height: 79px;
         margin: 0;
         font-weight: 200;
+        padding: 0 15px;
     }
 
     ul {
-        height: 80px;
-        flex: 1;
+        height: 79px;
+        display: block;
         margin: 0;
         padding: 0;
         list-style: none;
+        border-top: 1px solid #dee2e6;
 
         li {
-            height: 80px;
-            border-left: 1px solid #dee2e6;
-            padding: 0 16px;
+            height: 79px;
+            border-right: 1px solid #dee2e6;
             text-align: center;
-            width: 90px;
+            width: 81px;
+            display: inline-block;
+            border-left: 0;
 
             &:hover {
                 background-color: #eee;
@@ -162,7 +165,9 @@ body {
 
             a {
                 height: 80px;
+                padding: 10px 16px;
                 width: 100%;
+                display: block;
 
                 i {
                     font-size: 40px;
@@ -173,6 +178,44 @@ body {
                     text-decoration: none;
                 }
             }
+        }
+    }
+}
+
+@media (min-width: 550px) {
+    .taskbar {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+
+        ul {
+            padding: 0 15px;
+            border-top: 0;
+
+            li {
+                border-left: 1px solid #dee2e6;
+                border-right: 0;
+
+                &:last-of-type {
+                    border-right: 1px solid #dee2e6;
+                    width: 82px;
+                }
+            }
+        }
+    }
+}
+
+@media (min-width: 768px) {
+    .taskbar {
+        margin: 0 -24px 20px -24px;
+
+        h1 {
+            padding: 0 24px;
+        }
+
+        ul {
+            padding: 0 24px;
         }
     }
 }

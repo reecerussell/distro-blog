@@ -1,7 +1,19 @@
+<div class="taskbar">
+    <h1>
+        User
+    </h1>
+    <ul>
+        <li>
+            <a routerLink="/users">
+                <i class="la la-user-friends"></i>
+                Users
+            </a>
+        </li>
+    </ul>
+</div>
+
 <div class="row">
     <div class="col-sm-8 col-md-6 col-lg-4">
-        <h1 class="h2 pt-3">User</h1>
-        <p class="pb-2 mb-3 border-bottom text-muted">Id: {{ model?.id }}</p>
         <ng-template [ngIf]="error">
             <div class="alert alert-danger" role="alert">
                 {{ error }}
@@ -68,9 +80,6 @@
                         </ng-template>
                     </div>
                     <div class="form-group">
-                        <a routerLink="/users" class="btn btn-link pl-0">
-                            Users
-                        </a>
                         <div class="float-right btn-group">
                             <button
                                 type="submit"

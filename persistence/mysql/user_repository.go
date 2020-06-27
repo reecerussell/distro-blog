@@ -173,14 +173,9 @@ func (r *userRepository) Update(ctx context.Context, u *model.User) result.Resul
 		dm.NormalizedEmail,
 	}
 
-	ra, err := r.db.Execute(ctx, query, args...)
+	_, err := r.db.Execute(ctx, query, args...)
 	if err != nil {
 		return result.Failure(err)
-	}
-
-	if ra < 1 {
-		msg := fmt.Sprintf("No user with id '%s' was updated.", dm.ID)
-		return result.Failure(msg).WithStatusCode(http.StatusNotFound)
 	}
 
 	return result.Ok()

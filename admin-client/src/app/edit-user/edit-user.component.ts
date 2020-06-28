@@ -3,7 +3,6 @@ import { Router, ActivatedRoute } from "@angular/router";
 import { ApiService } from "../api.service";
 import { UpdateUser } from "../models/user";
 import { Title } from "@angular/platform-browser";
-import { THIS_EXPR } from "@angular/compiler/src/output/output_ast";
 
 @Component({
     selector: "app-edit-user",

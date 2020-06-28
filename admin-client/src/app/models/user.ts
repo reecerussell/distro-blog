@@ -18,4 +18,13 @@ interface UpdateUser {
     email: string;
 }
 
-export { CreateUser, UserListItem, UpdateUser };
+interface User {
+    id: string;
+    firstname: string;
+    lastname: string;
+    email: string;
+    normalizedEmail: string;
+    audit?: any;
+}
+
+export { CreateUser, UserListItem, UpdateUser, User };

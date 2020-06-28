@@ -1,0 +1,105 @@
+<div class="taskbar">
+    <h1>
+        Information
+    </h1>
+    <ul>
+        <li>
+            <a routerLink="/users/{{ model.id }}">
+                <i class="la la-user-edit"></i>
+                Edit
+            </a>
+        </li>
+        <li>
+            <a routerLink="/users">
+                <i class="la la-user-friends"></i>
+                Users
+            </a>
+        </li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5>Audit Trail</h5>
+            </div>
+            <div class="card-body">
+                <ng-template [ngIf]="error">
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                </ng-template>
+                <ng-template [ngIf]="!loading" [ngIfElse]="loader">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Message</th>
+                                    <th>User</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>User created.</td>
+                                    <td>Reece Russell</td>
+                                    <td>28/06/2020 15:40:20</td>
+                                </tr>
+                                <tr *ngFor="let item; in: model.audit">
+                                    <td>{{ item.message }}</td>
+                                    <td>
+                                        <a
+                                            routerLink="/users/{{
+                                                item.userId
+                                            }}"
+                                            >{{ item.userFullname }}</a
+                                        >
+                                    </td>
+                                    <td>{{ item.date }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </ng-template>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Meta Data</h5>
+            </div>
+            <div class="card-body">
+                <ng-template [ngIf]="!loading" [ngIfElse]="loader">
+                    <p>
+                        <b>Id</b><br />
+                        {{ model.id }}
+                    </p>
+                    <p>
+                        <b>Firstname</b><br />
+                        {{ model.firstname }}
+                    </p>
+                    <p>
+                        <b>Lastname</b><br />
+                        {{ model.lastname }}
+                    </p>
+                    <p>
+                        <b>Email</b><br />
+                        {{ model.email }}
+                    </p>
+                    <p>
+                        <b>Normalized Email</b><br />
+                        {{ model.normalizedEmail }}
+                    </p>
+                </ng-template>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #loader>
+    <div class="spinner-border text-secondary" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+</ng-template>

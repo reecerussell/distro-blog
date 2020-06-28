@@ -10,9 +10,10 @@ import { CreateUserComponent } from './create-user/create-user.component';
 import { UserListComponent } from './user-list/user-list.component';
 import { EditUserComponent } from './edit-user/edit-user.component';
 import { LoginComponent } from './login/login.component';
+import { UserInfoComponent } from './user-info/user-info.component';
 
 @NgModule({
-  declarations: [AppComponent, DashboardComponent, CreateUserComponent, UserListComponent, EditUserComponent, LoginComponent],
+  declarations: [AppComponent, DashboardComponent, CreateUserComponent, UserListComponent, EditUserComponent, LoginComponent, UserInfoComponent],
   imports: [BrowserModule, AppRoutingModule, HttpClientModule, FormsModule],
   providers: [],
   bootstrap: [AppComponent],

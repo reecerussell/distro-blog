@@ -97,7 +97,22 @@
                                         class="btn btn-success"
                                         [disabled]="!isDirty"
                                     >
-                                        Save
+                                        <ng-template
+                                            [ngIf]="loading"
+                                            [ngIfElse]="saveButton"
+                                        >
+                                            <span
+                                                class="spinner-border spinner-border-sm"
+                                                role="status"
+                                                aria-hidden="true"
+                                            ></span>
+                                            <span class="sr-only"
+                                                >Saving...</span
+                                            >
+                                        </ng-template>
+                                        <ng-template #saveButton>
+                                            Save
+                                        </ng-template>
                                     </button>
                                     <button
                                         type="button"
@@ -135,7 +150,19 @@
             >
                 Cancel
             </button>
-            <button type="submit" class="btn btn-danger">Delete</button>
+            <button type="submit" class="btn btn-danger">
+                <ng-template [ngIf]="loading" [ngIfElse]="deleteButton">
+                    <span
+                        class="spinner-border spinner-border-sm"
+                        role="status"
+                        aria-hidden="true"
+                    ></span>
+                    <span class="sr-only">Deleting...</span>
+                </ng-template>
+                <ng-template #deleteButton>
+                    Save
+                </ng-template>
+            </button>
         </p>
     </form>
 </ng-template>

@@ -196,3 +196,41 @@ func (r *userRepository) Delete(ctx context.Context, id string) result.Result {
 
 	return result.Ok()
 }
+
+// GetAudit returns a result with an array of *dto.UserAudit for the user with the given id.
+func (r *userRepository) GetAudit(ctx context.Context, id string) result.Result {
+	const query string = "CALL `get_user_audit`(?);"
+	items, err := r.db.Multiple(ctx, query, userAuditReader, id)
+	if err != nil {
+		return result.Failure(err)
+	}
+
+	dtos := make([]*dto.UserAudit, len(items))
+
+	for i, item := range items {
+		dm := item.(*datamodel.UserAudit)
+		dtos[i] = &dto.UserAudit{
+			Message: dm.Message,
+			Date: dm.Date,
+			UserFullname: dm.UserFullname,
+			UserID: dm.UserID,
+		}
+	}
+
+	return result.Ok().WithValue(dtos)
+}
+
+func userAuditReader(s database.ScannerFunc) (interface{}, error) {
+	var dm datamodel.UserAudit
+	err := s(
+		&dm.UserID,
+		&dm.UserFullname,
+		&dm.Message,
+		&dm.Date,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dm, nil
+}

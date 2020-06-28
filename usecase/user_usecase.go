@@ -2,7 +2,9 @@ package usecase
 
 import (
 	"context"
+	"github.com/reecerussell/distro-blog/libraries/logging"
 	"net/http"
+	"strings"
 
 	"github.com/reecerussell/distro-blog/auth"
 	"github.com/reecerussell/distro-blog/domain/dto"
@@ -17,7 +19,7 @@ import (
 // UserUsecase is a high-level interface used to manage the user domain.
 type UserUsecase interface {
 	List(ctx context.Context) result.Result
-	Get(ctx context.Context, id string) result.Result
+	Get(ctx context.Context, id string, expand ...string) result.Result
 	Create(ctx context.Context, cu *dto.CreateUser) result.Result
 	Update(ctx context.Context, uu *dto.UpdateUser) result.Result
 	Delete(ctx context.Context, id string) result.Result
@@ -53,16 +55,27 @@ func (u *userUsecase) List(ctx context.Context) result.Result {
 }
 
 // Get retrieves a specific user from the database and returns a result with a dto value.
-func (u *userUsecase) Get(ctx context.Context, id string) result.Result {
+func (u *userUsecase) Get(ctx context.Context, id string, expand ...string) result.Result {
 	res := u.repo.Get(ctx, id)
 	if !res.IsOk(){
 		return res
 	}
 
 	_, _, value, _ := res.Deconstruct()
-	user := value.(*model.User)
+	user := value.(*model.User).DTO()
 
-	return result.Ok().WithValue(user.DTO())
+	for _, e := range expand {
+		switch strings.ToLower(e) {
+		case "audit":
+			logging.Debugf("Expanded Audit.\n")
+			success, _, audit, _ := u.repo.GetAudit(ctx, id).Deconstruct()
+			if success {
+				user.Audit = audit.([]*dto.UserAudit)
+			}
+		}
+	}
+
+	return result.Ok().WithValue(user)
 }
 
 // Create creates a new user domain record, ensuring the data is valid.

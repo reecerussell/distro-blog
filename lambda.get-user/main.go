@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"github.com/reecerussell/distro-blog/libraries/logging"
 	"os"
+	"strings"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -24,7 +26,11 @@ func init() {
 func handleGetUser(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	ctx = helper.PopulateContext(ctx, req)
 	id := req.PathParameters["id"]
-	res := users.Get(ctx, id)
+	expand := req.MultiValueQueryStringParameters["expand"]
+
+	logging.Debugf("Expand: %s\n", strings.Join(expand, ", "))
+
+	res := users.Get(ctx, id, expand...)
 
 	return helper.Response(ctx, res, req), nil
 }

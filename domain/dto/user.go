@@ -8,4 +8,6 @@ type User struct {
 	Lastname string `json:"lastname"`
 	Email string `json:"email"`
 	NormalizedEmail string `json:"normalizedEmail"`
+
+	Audit []*UserAudit `json:"audit,omitempty"`
 }

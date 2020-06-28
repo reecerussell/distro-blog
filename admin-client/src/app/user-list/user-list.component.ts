@@ -9,14 +9,30 @@ import { ApiService } from "../api.service";
 export class UserListComponent implements OnInit {
     users: any = null;
     searchTerm: string = "";
+    error: string = null;
+    loading: boolean = false;
 
     constructor(private api: ApiService) {}
 
     async ngOnInit() {
+        await this.loadUsers();
+    }
+
+    async loadUsers(): Promise<void> {
+        if (this.loading) {
+            return;
+        }
+
+        this.loading = true;
+
         const res = await this.api.Users.List();
         if (res.ok) {
             this.users = res.data;
+        } else {
+            this.error = res.error;
         }
+
+        this.loading = false;
     }
 
     getUsers(): any {

@@ -106,7 +106,20 @@
                             type="submit"
                             class="btn btn-success float-right"
                         >
-                            Create
+                            <ng-template
+                                [ngIf]="loading"
+                                [ngIfElse]="createButton"
+                            >
+                                <span
+                                    class="spinner-border spinner-border-sm"
+                                    role="status"
+                                    aria-hidden="true"
+                                ></span>
+                                <span class="sr-only">Loading...</span>
+                            </ng-template>
+                            <ng-template #createButton>
+                                Create
+                            </ng-template>
                         </button>
                     </div>
                 </form>

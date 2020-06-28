@@ -47,21 +47,36 @@
                                             placeholder="Enter your password..."
                                             required
                                         />
+                                        <ng-template [ngIf]="passwordError">
+                                            <div class="invalid-feedback">
+                                                {{ passwordError }}
+                                            </div>
+                                        </ng-template>
                                     </div>
                                     <div class="col-sm-3 mt-3 mt-sm-0">
                                         <button
                                             type="submit"
                                             class="btn btn-block btn-primary"
                                         >
-                                            Login
+                                            <ng-template
+                                                [ngIf]="loading"
+                                                [ngIfElse]="loginButton"
+                                            >
+                                                <span
+                                                    class="spinner-border spinner-border-sm"
+                                                    role="status"
+                                                    aria-hidden="true"
+                                                ></span>
+                                                <span class="sr-only"
+                                                    >Loading...</span
+                                                >
+                                            </ng-template>
+                                            <ng-template #loginButton>
+                                                Login
+                                            </ng-template>
                                         </button>
                                     </div>
                                 </div>
-                                <ng-template [ngIf]="passwordError">
-                                    <div class="invalid-feedback">
-                                        {{ passwordError }}
-                                    </div>
-                                </ng-template>
                             </div>
                         </form>
                     </div>

@@ -18,6 +18,12 @@ import (
 	"github.com/reecerussell/distro-blog/password"
 )
 
+// Common Audit Messages
+const (
+	AuditUserCreated = "USER_CREATED"
+	AuditUserUpdated = "USER_UPDATED"
+)
+
 func init() {
 	domainevents.RegisterEventHandler(&event.AddUserAudit{}, &handler.AddUserAudit{})
 }
@@ -71,7 +77,7 @@ func NewUser(ctx context.Context, data *dto.CreateUser, serv password.Service, n
 		performingUserID = u.id
 	}
 
-	u.AddAudit("User created.", performingUserID)
+	u.AddAudit(AuditUserCreated, performingUserID, nil, u.DTO())
 
 	return u, nil
 }
@@ -99,6 +105,8 @@ func (u *User) Scopes() []*Scope {
 // Update is used to update the user's core values, in a single function,
 // by calling each other function. Update does not update the user's password.
 func (u *User) Update(ctx context.Context, d *dto.UpdateUser, norm normalization.Normalizer) error {
+	beforeUpdate := u.DTO()
+
 	err := u.UpdateFirstname(d.Firstname)
 	if err != nil {
 		return err
@@ -122,7 +130,7 @@ func (u *User) Update(ctx context.Context, d *dto.UpdateUser, norm normalization
 		performingUserID = u.id
 	}
 
-	u.AddAudit("User updated.", performingUserID)
+	u.AddAudit(AuditUserUpdated, performingUserID, beforeUpdate, u.DTO())
 
 	return nil
 }
@@ -252,11 +260,13 @@ func (u *User) DTO() *dto.User {
 
 // AddAudit adds an audit message/log to the user. The userID param
 // is the id of the user who performed the action.
-func (u *User) AddAudit(message, userID string) {
+func (u *User) AddAudit(message, userID string, stateBefore, stateAfter *dto.User) {
 	u.RaiseEvent(&event.AddUserAudit{
 		Message:          message,
 		Date:             time.Now().UTC(),
 		UserID:           u.id,
 		PerformingUserID: userID,
+		Before: stateBefore,
+		After: stateAfter,
 	})
 }

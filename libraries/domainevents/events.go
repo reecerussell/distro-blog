@@ -2,11 +2,12 @@ package domainevents
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
-	"github.com/reecerussell/distro-blog/libraries/result"
 	"reflect"
 	"sync"
+
+	"github.com/reecerussell/distro-blog/libraries/database"
+	"github.com/reecerussell/distro-blog/libraries/result"
 )
 
 var (
@@ -18,7 +19,7 @@ type Event interface{}
 
 // EventHandler is an interface used to implement specific event handlers.
 type EventHandler interface {
-	Invoke(ctx context.Context, tx *sql.Tx, e interface{}) result.Result
+	Invoke(ctx context.Context, tx *database.Transaction, e interface{}) result.Result
 }
 
 // RegisterEventHandler registers a mapping between an event and its handler.
@@ -56,7 +57,7 @@ func (a *Aggregate) RaiseEvent(e Event) {
 
 // DispatchEvents synchronously executes each raise event from the
 // aggregate, with the given transaction.
-func (a *Aggregate) DispatchEvents(ctx context.Context, tx *sql.Tx) result.Result {
+func (a *Aggregate) DispatchEvents(ctx context.Context, tx *database.Transaction) result.Result {
 	mu.Lock()
 	defer mu.Unlock()
 

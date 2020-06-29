@@ -80,7 +80,7 @@ func (u *userUsecase) Get(ctx context.Context, id string, expand ...string) resu
 
 // Create creates a new user domain record, ensuring the data is valid.
 func (u *userUsecase) Create(ctx context.Context, cu *dto.CreateUser) result.Result {
-	usr, err := model.NewUser(cu, u.pwdServ, u.norm)
+	usr, err := model.NewUser(ctx, cu, u.pwdServ, u.norm)
 	if err != nil {
 		return result.Failure(err).WithStatusCode(http.StatusBadRequest)
 	}

@@ -139,9 +139,24 @@ func (r *userRepository) Add(ctx context.Context, u *model.User) result.Result {
 		dm.PasswordHash,
 	}
 
-	_, err := r.db.Execute(ctx, query, args...)
+	tx, err := r.db.Tx(ctx)
+	defer func() {
+		tx.Finish(err)
+	}()
 	if err != nil {
 		return result.Failure(err)
+	}
+
+	err = tx.Execute(ctx, query, args...)
+	if err != nil {
+		return result.Failure(err)
+	}
+
+	var success bool
+	var status int
+	success, status, _, err = u.DispatchEvents(ctx, tx).Deconstruct()
+	if !success {
+		return result.Failure(err).WithStatusCode(status)
 	}
 
 	return result.Ok()
@@ -173,9 +188,24 @@ func (r *userRepository) Update(ctx context.Context, u *model.User) result.Resul
 		dm.NormalizedEmail,
 	}
 
-	_, err := r.db.Execute(ctx, query, args...)
+	tx, err := r.db.Tx(ctx)
+	defer func() {
+		tx.Finish(err)
+	}()
 	if err != nil {
 		return result.Failure(err)
+	}
+
+	err = tx.Execute(ctx, query, args...)
+	if err != nil {
+		return result.Failure(err)
+	}
+
+	var success bool
+	var status int
+	success, status, _, err = u.DispatchEvents(ctx, tx).Deconstruct()
+	if !success {
+		return result.Failure(err).WithStatusCode(status)
 	}
 
 	return result.Ok()

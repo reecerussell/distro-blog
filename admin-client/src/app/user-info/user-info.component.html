@@ -31,30 +31,49 @@
                     </div>
                 </ng-template>
                 <ng-template [ngIf]="!loading" [ngIfElse]="loader">
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Message</th>
-                                    <th>User</th>
-                                    <th>Date</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr *ngFor="let item of model.audit || []">
-                                    <td>{{ item.message }}</td>
-                                    <td>
-                                        <a
-                                            routerLink="/users/{{
-                                                item.userId
-                                            }}"
-                                            >{{ item.userFullname }}</a
-                                        >
-                                    </td>
-                                    <td>{{ item.date }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div *ngFor="let item of model.audit || []">
+                        <h6>
+                            {{ item.message }}
+                        </h6>
+                        <p class="small text-muted">
+                            <a routerLink="/users/{{ item.userId }}">{{
+                                item.userFullname
+                            }}</a>
+                            at {{ item.date }}
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-link float-right"
+                                (click)="
+                                    toggleAuditDetails(
+                                        model.audit.indexOf(item)
+                                    )
+                                "
+                            >
+                                More
+                            </button>
+                        </p>
+                        <ng-template
+                            [ngIf]="openAudits.get(model.audit.indexOf(item))"
+                        >
+                            <hr />
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <h4 class="header">Original</h4>
+                                    <code>
+                                        <pre>{{
+                                            item.state.before | json
+                                        }}</pre>
+                                    </code>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h4 class="header">Changed</h4>
+                                    <code>
+                                        <pre>{{ item.state.after | json }}</pre>
+                                    </code>
+                                </div>
+                            </div>
+                        </ng-template>
+                        <hr />
                     </div>
                 </ng-template>
             </div>

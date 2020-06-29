@@ -68,9 +68,11 @@ func (u *userUsecase) Get(ctx context.Context, id string, expand ...string) resu
 		switch strings.ToLower(e) {
 		case "audit":
 			logging.Debugf("Expanded Audit.\n")
-			success, _, audit, _ := u.repo.GetAudit(ctx, id).Deconstruct()
+			success, _, audit, err := u.repo.GetAudit(ctx, id).Deconstruct()
 			if success {
 				user.Audit = audit.([]*dto.UserAudit)
+			} else {
+				logging.Errorf("An error occurred while getting the user's audit data: %v", err)
 			}
 		}
 	}

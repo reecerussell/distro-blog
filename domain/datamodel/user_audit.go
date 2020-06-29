@@ -1,11 +1,14 @@
 package datamodel
 
-import "time"
+import (
+	"database/sql"
+	"time"
+)
 
 type UserAudit struct {
 	Message string
 	Date time.Time
 	UserID string
 	UserFullname string
-	State string
+	State sql.NullString
 }

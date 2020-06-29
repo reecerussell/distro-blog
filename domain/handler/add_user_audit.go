@@ -12,7 +12,7 @@ import (
 type AddUserAudit struct {}
 
 func (*AddUserAudit) Invoke(ctx context.Context, tx *database.Transaction, e interface{}) result.Result {
-	const query string = "CALL `add_user_audit`(?,?,?,?);"
+	const query string = "CALL `add_user_audit`(?,?,?,?,?);"
 	evt := e.(*event.AddUserAudit)
 	state := map[string]interface{}{
 		"before": evt.Before,
@@ -24,7 +24,7 @@ func (*AddUserAudit) Invoke(ctx context.Context, tx *database.Transaction, e int
 		evt.Date,
 		evt.UserID,
 		evt.PerformingUserID,
-		stateJson,
+		string(stateJson),
 	}
 
 	err := tx.Execute(ctx, query, args...)

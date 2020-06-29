@@ -234,12 +234,18 @@ func (r *userRepository) GetAudit(ctx context.Context, id string) result.Result 
 
 	for i, item := range items {
 		dm := item.(*datamodel.UserAudit)
-		dtos[i] = &dto.UserAudit{
+		dto := &dto.UserAudit{
 			Message: dm.Message,
 			Date: dm.Date,
 			UserFullname: dm.UserFullname,
 			UserID: dm.UserID,
 		}
+
+		if dm.State.Valid {
+			dto.State = &dm.State.String
+		}
+
+		dtos[i] = dto
 	}
 
 	return result.Ok().WithValue(dtos)

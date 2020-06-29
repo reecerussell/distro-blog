@@ -7,5 +7,5 @@ type UserAudit struct {
 	Date time.Time `json:"date"`
 	UserID string `json:"userId"`
 	UserFullname string `json:"userFullname"`
-	State *string `json:"state"`
+	State map[string]interface{} `json:"state"`
 }

@@ -3,6 +3,7 @@ package mysql
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"github.com/reecerussell/distro-blog/domain/datamodel"
 	"github.com/reecerussell/distro-blog/domain/dto"
@@ -242,7 +243,8 @@ func (r *userRepository) GetAudit(ctx context.Context, id string) result.Result 
 		}
 
 		if dm.State.Valid {
-			dto.State = &dm.State.String
+			bytes := []byte(dm.State.String)
+			json.Unmarshal(bytes, &dto.State)
 		}
 
 		dtos[i] = dto

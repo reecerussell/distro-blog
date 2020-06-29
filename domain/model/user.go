@@ -1,8 +1,14 @@
 package model
 
 import (
+	"context"
 	"fmt"
+	"github.com/reecerussell/distro-blog/domain/event"
+	"github.com/reecerussell/distro-blog/domain/handler"
+	"github.com/reecerussell/distro-blog/libraries/contextkey"
+	"github.com/reecerussell/distro-blog/libraries/domainevents"
 	"regexp"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -12,8 +18,14 @@ import (
 	"github.com/reecerussell/distro-blog/password"
 )
 
+func init() {
+	domainevents.RegisterEventHandler(&event.AddUserAudit{}, &handler.AddUserAudit{})
+}
+
 // User is a domain model for user records.
 type User struct {
+	domainevents.Aggregate
+
 	id              string
 	firstname       string
 	lastname        string
@@ -26,7 +38,7 @@ type User struct {
 
 // NewUser returns a new instance of a User domain model, after going
 // through model validation.
-func NewUser(data *dto.CreateUser, serv password.Service, norm normalization.Normalizer) (*User, error) {
+func NewUser(ctx context.Context, data *dto.CreateUser, serv password.Service, norm normalization.Normalizer) (*User, error) {
 	u := &User{
 		id: uuid.New().String(),
 	}
@@ -50,6 +62,16 @@ func NewUser(data *dto.CreateUser, serv password.Service, norm normalization.Nor
 	if err != nil {
 		return nil, err
 	}
+
+	var performingUserID string
+	uid := ctx.Value(contextkey.ContextKey("user_id"))
+	if uid != nil {
+		performingUserID = uid.(string)
+	} else {
+		performingUserID = u.id
+	}
+
+	u.AddAudit("User updated.", performingUserID)
 
 	return u, nil
 }
@@ -76,7 +98,7 @@ func (u *User) Scopes() []*Scope {
 
 // Update is used to update the user's core values, in a single function,
 // by calling each other function. Update does not update the user's password.
-func (u *User) Update(d *dto.UpdateUser, norm normalization.Normalizer) error {
+func (u *User) Update(ctx context.Context, d *dto.UpdateUser, norm normalization.Normalizer) error {
 	err := u.UpdateFirstname(d.Firstname)
 	if err != nil {
 		return err
@@ -91,6 +113,16 @@ func (u *User) Update(d *dto.UpdateUser, norm normalization.Normalizer) error {
 	if err != nil {
 		return err
 	}
+
+	var performingUserID string
+	uid := ctx.Value(contextkey.ContextKey("user_id"))
+	if uid != nil {
+		performingUserID = uid.(string)
+	} else {
+		performingUserID = u.id
+	}
+
+	u.AddAudit("User updated.", performingUserID)
 
 	return nil
 }
@@ -216,4 +248,15 @@ func (u *User) DTO() *dto.User {
 		Email:           u.email,
 		NormalizedEmail: u.normalizedEmail,
 	}
+}
+
+// AddAudit adds an audit message/log to the user. The userID param
+// is the id of the user who performed the action.
+func (u *User) AddAudit(message, userID string) {
+	u.RaiseEvent(&event.AddUserAudit{
+		Message:          message,
+		Date:             time.Now().UTC(),
+		UserID:           u.id,
+		PerformingUserID: userID,
+	})
 }

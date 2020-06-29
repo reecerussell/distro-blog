@@ -107,7 +107,7 @@ func (u *userUsecase) Update(ctx context.Context, uu *dto.UpdateUser) result.Res
 	}
 
 	user := value.(*model.User)
-	err = user.Update(uu, u.norm)
+	err = user.Update(ctx, uu, u.norm)
 	if err != nil {
 		return result.Failure(err).WithStatusCode(http.StatusBadRequest)
 	}

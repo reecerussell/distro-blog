@@ -119,6 +119,8 @@ func generatePolicy(effect, methodArn string, scopes []string) events.APIGateway
 func handleAuthorization(ctx context.Context, req events.APIGatewayCustomAuthorizerRequest) (events.APIGatewayCustomAuthorizerResponse, error) {
 	ctx = context.WithValue(ctx, contextkey.ContextKey("JWT_KEY_ID"), os.Getenv("JWT_KEY_ID"))
 
+	logging.Debugf("Method Arn: %s\n", req.MethodArn)
+
 	scopes := findAllowedScopes(req.MethodArn)
 	parts := strings.Split(req.AuthorizationToken, " ")
 	if len(parts) < 2 || parts[0] != "Bearer" {

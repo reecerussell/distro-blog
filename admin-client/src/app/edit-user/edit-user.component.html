@@ -1,0 +1,168 @@
+<div class="taskbar">
+    <h1>
+        User
+    </h1>
+    <ul>
+        <li>
+            <a routerLink="/users/{{ model.id }}/info">
+                <i class="la la-info-circle"></i>
+                Info
+            </a>
+        </li>
+        <li>
+            <a routerLink="/users">
+                <i class="la la-user-friends"></i>
+                Users
+            </a>
+        </li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-md-8 col-lg-6 col-xl-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">User</h5>
+            </div>
+            <div class="card-body">
+                <ng-template [ngIf]="error">
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                </ng-template>
+                <ng-template [ngIf]="model">
+                    <ng-template [ngIf]="!isDeleteOpen" [ngIfElse]="delete">
+                        <form (submit)="onSubmit()" novalidate>
+                            <div class="form-group">
+                                <label for="firstname">Firstname</label>
+                                <input
+                                    type="text"
+                                    name="firstname"
+                                    id="firstname"
+                                    class="form-control"
+                                    [class.is-invalid]="firstnameError"
+                                    [(ngModel)]="model.firstname"
+                                    (keyup)="validateFirstname()"
+                                    placeholder="Enter the user's firstname..."
+                                    required
+                                />
+                                <ng-template [ngIf]="firstnameError">
+                                    <div class="invalid-feedback">
+                                        {{ firstnameError }}
+                                    </div>
+                                </ng-template>
+                            </div>
+                            <div class="form-group">
+                                <label for="lastname">Lastname</label>
+                                <input
+                                    type="text"
+                                    name="lastname"
+                                    id="lastname"
+                                    class="form-control"
+                                    [class.is-invalid]="lastnameError"
+                                    [(ngModel)]="model.lastname"
+                                    (keyup)="validateLastname()"
+                                    placeholder="Enter the user's lastname..."
+                                    required
+                                />
+                                <ng-template [ngIf]="lastnameError">
+                                    <div class="invalid-feedback">
+                                        {{ lastnameError }}
+                                    </div>
+                                </ng-template>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input
+                                    type="text"
+                                    name="email"
+                                    id="email"
+                                    class="form-control"
+                                    [class.is-invalid]="emailError"
+                                    [(ngModel)]="model.email"
+                                    (keyup)="validateEmail()"
+                                    placeholder="Enter an email..."
+                                    required
+                                />
+                                <ng-template [ngIf]="emailError">
+                                    <div class="invalid-feedback">
+                                        {{ emailError }}
+                                    </div>
+                                </ng-template>
+                            </div>
+                            <div class="form-group">
+                                <div class="float-right btn-group">
+                                    <button
+                                        type="submit"
+                                        class="btn btn-success"
+                                        [disabled]="!isDirty"
+                                    >
+                                        <ng-template
+                                            [ngIf]="loading"
+                                            [ngIfElse]="saveButton"
+                                        >
+                                            <span
+                                                class="spinner-border spinner-border-sm"
+                                                role="status"
+                                                aria-hidden="true"
+                                            ></span>
+                                            <span class="sr-only"
+                                                >Saving...</span
+                                            >
+                                        </ng-template>
+                                        <ng-template #saveButton>
+                                            Save
+                                        </ng-template>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="btn btn-danger"
+                                        (click)="toggleDelete()"
+                                    >
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </ng-template>
+                </ng-template>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #delete>
+    <form (submit)="onDelete()">
+        <h4>Delete</h4>
+        <p>
+            <b>Are you sure?</b>
+        </p>
+        <p>
+            This action is permanent, therefore cannot be reversed. Any data
+            associated with this user will be deleted!
+        </p>
+        <hr />
+        <p class="btn-group float-right">
+            <button
+                type="button"
+                class="btn btn-secondary"
+                (click)="toggleDelete()"
+            >
+                Cancel
+            </button>
+            <button type="submit" class="btn btn-danger">
+                <ng-template [ngIf]="loading" [ngIfElse]="deleteButton">
+                    <span
+                        class="spinner-border spinner-border-sm"
+                        role="status"
+                        aria-hidden="true"
+                    ></span>
+                    <span class="sr-only">Deleting...</span>
+                </ng-template>
+                <ng-template #deleteButton>
+                    Delete
+                </ng-template>
+            </button>
+        </p>
+    </form>
+</ng-template>

@@ -1,8 +1,12 @@
 # Goland
-.idea/
+*.idea/
 
 # Function build/zip directory
 build/*
 
-# UI
-*/node_modules/
+# Angular/Node
+*/node_modules/*
+
+# Temp ignore dev deploys
+.dockerignore
+deploy.dockerfile

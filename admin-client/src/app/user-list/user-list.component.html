@@ -1,0 +1,83 @@
+<div class="taskbar mb-4">
+    <h1>
+        Users
+    </h1>
+    <ul>
+        <li>
+            <a routerLink="/users/create">
+                <i class="la la-user-plus"></i>
+                Create
+            </a>
+        </li>
+    </ul>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="btn-toolbar mb-3 float-none float-md-right">
+            <div class="btn-group mr-2">
+                <input
+                    type="search"
+                    class="form-control form-control-sm border-secondary text-secondary"
+                    [(ngModel)]="searchTerm"
+                    placeholder="Search..."
+                />
+                <button
+                    type="button"
+                    class="btn btn-sm btn-secondary"
+                    (click)="loadUsers()"
+                >
+                    <i class="la la-sync"></i>
+                </button>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-striped table-sm">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <ng-template [ngIf]="loading" [ngIfElse]="tbody">
+                        <tr>
+                            <td colspan="3">
+                                <span
+                                    class="spinner-border spinner-border-sm"
+                                    role="status"
+                                    aria-hidden="true"
+                                ></span>
+                                <span class="sr-only">Loading...</span>
+                            </td>
+                        </tr>
+                    </ng-template>
+                    <ng-template #tbody>
+                        <ng-template
+                            [ngIf]="getUsers().length < 1"
+                            [ngIfElse]="users"
+                        >
+                            <tr>
+                                <td colspan="3">
+                                    <b>No records match!</b>
+                                </td>
+                            </tr>
+                        </ng-template>
+                        <ng-template #users>
+                            <tr *ngFor="let user of getUsers()">
+                                <td>{{ user.name }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>
+                                    <a routerLink="/users/{{ user.id }}"
+                                        >View</a
+                                    >
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </ng-template>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

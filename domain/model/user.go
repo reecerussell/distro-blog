@@ -71,7 +71,7 @@ func NewUser(ctx context.Context, data *dto.CreateUser, serv password.Service, n
 		performingUserID = u.id
 	}
 
-	u.AddAudit("User updated.", performingUserID)
+	u.AddAudit("User created.", performingUserID)
 
 	return u, nil
 }

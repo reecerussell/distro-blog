@@ -3,8 +3,9 @@ package datamodel
 import "time"
 
 type UserAudit struct {
-	Message string `json:"message"`
-	Date time.Time `json:"date"`
-	UserID string `json:"userId"`
-	UserFullname string `json:"userFullname"`
+	Message string
+	Date time.Time
+	UserID string
+	UserFullname string
+	State string
 }

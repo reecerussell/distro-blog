@@ -252,6 +252,7 @@ func userAuditReader(s database.ScannerFunc) (interface{}, error) {
 		&dm.UserFullname,
 		&dm.Message,
 		&dm.Date,
+		&dm.State,
 	)
 	if err != nil {
 		return nil, err

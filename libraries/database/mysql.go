@@ -235,9 +235,14 @@ func (tx *Transaction) Execute(ctx context.Context, query string, args ...interf
 	return nil
 }
 
-// Finish
+// Finish will either commit or rollback the transaction, depending on
+// whether err is nil or not.
 func (tx *Transaction) Finish(err error) {
-
+	if err == nil {
+		tx.itx.Commit()
+	} else {
+		tx.itx.Rollback()
+	}
 }
 
 func (mysql *MySQL) ensureConnected() error {

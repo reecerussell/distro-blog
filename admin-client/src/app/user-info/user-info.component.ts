@@ -36,10 +36,19 @@ export class UserInfoComponent implements OnInit {
 
         this.loading = true;
 
-        const res = await this.api.Users.Get(id);
+        const res = await this.api.Users.Get(id, "audit");
         if (res.ok) {
             this.error = null;
             this.model = res.data as User;
+
+            if (this.model.audit) {
+                this.model.audit = this.model.audit.map((x) => ({
+                    message: x.message,
+                    userId: x.userId,
+                    userFullname: x.userFullname,
+                    date: new Date(x.date).toLocaleString(),
+                }));
+            }
         } else {
             this.error = res.error;
         }

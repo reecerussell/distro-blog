@@ -24,8 +24,17 @@ class UserService {
         return await this.parseResponse(res);
     }
 
-    async Get(id: string): Promise<ApiResponse> {
-        const res = await fetch(this.baseUrl + `/${id}`, {
+    async Get(id: string, ...expand): Promise<ApiResponse> {
+        let queryString = "?";
+        for (let i = 0; i < expand.length; i++) {
+            if (i !== 0) {
+                queryString += "&";
+            }
+
+            queryString += "expand=" + expand[i];
+        }
+
+        const res = await fetch(this.baseUrl + `/${id}` + queryString, {
             method: "GET",
             headers: {
                 Authorization:

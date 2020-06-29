@@ -64,11 +64,11 @@ func (a *Aggregate) DispatchEvents(ctx context.Context, tx *database.Transaction
 	for _, e := range a.raisedEvents {
 		h := handlers[reflect.TypeOf(e)]
 
-		err := h.Invoke(ctx, tx, e)
-		if err != nil {
-			return err
+		res := h.Invoke(ctx, tx, e)
+		if !res.IsOk(){
+			return res
 		}
 	}
 
-	return nil
+	return result.Ok()
 }

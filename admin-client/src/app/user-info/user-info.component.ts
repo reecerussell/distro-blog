@@ -13,6 +13,7 @@ export class UserInfoComponent implements OnInit {
     model: User;
     error: string = null;
     loading: boolean = false;
+    openAudits: Map<number, boolean> = new Map<number, boolean>();
 
     constructor(
         private api: ApiService,
@@ -47,6 +48,7 @@ export class UserInfoComponent implements OnInit {
                     userId: x.userId,
                     userFullname: x.userFullname,
                     date: new Date(x.date).toLocaleString(),
+                    state: x.state,
                 }));
             }
         } else {
@@ -54,5 +56,9 @@ export class UserInfoComponent implements OnInit {
         }
 
         this.loading = false;
+    }
+
+    toggleAuditDetails(id: number) {
+        this.openAudits.set(id, !this.openAudits.get(id));
     }
 }

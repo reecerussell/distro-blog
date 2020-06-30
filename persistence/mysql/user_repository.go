@@ -3,6 +3,7 @@ package mysql
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"github.com/reecerussell/distro-blog/domain/datamodel"
 	"github.com/reecerussell/distro-blog/domain/dto"
@@ -139,9 +140,24 @@ func (r *userRepository) Add(ctx context.Context, u *model.User) result.Result {
 		dm.PasswordHash,
 	}
 
-	_, err := r.db.Execute(ctx, query, args...)
+	tx, err := r.db.Tx(ctx)
+	defer func() {
+		tx.Finish(err)
+	}()
 	if err != nil {
 		return result.Failure(err)
+	}
+
+	err = tx.Execute(ctx, query, args...)
+	if err != nil {
+		return result.Failure(err)
+	}
+
+	var success bool
+	var status int
+	success, status, _, err = u.DispatchEvents(ctx, tx).Deconstruct()
+	if !success {
+		return result.Failure(err).WithStatusCode(status)
 	}
 
 	return result.Ok()
@@ -173,9 +189,24 @@ func (r *userRepository) Update(ctx context.Context, u *model.User) result.Resul
 		dm.NormalizedEmail,
 	}
 
-	_, err := r.db.Execute(ctx, query, args...)
+	tx, err := r.db.Tx(ctx)
+	defer func() {
+		tx.Finish(err)
+	}()
 	if err != nil {
 		return result.Failure(err)
+	}
+
+	err = tx.Execute(ctx, query, args...)
+	if err != nil {
+		return result.Failure(err)
+	}
+
+	var success bool
+	var status int
+	success, status, _, err = u.DispatchEvents(ctx, tx).Deconstruct()
+	if !success {
+		return result.Failure(err).WithStatusCode(status)
 	}
 
 	return result.Ok()
@@ -204,12 +235,19 @@ func (r *userRepository) GetAudit(ctx context.Context, id string) result.Result 
 
 	for i, item := range items {
 		dm := item.(*datamodel.UserAudit)
-		dtos[i] = &dto.UserAudit{
+		dto := &dto.UserAudit{
 			Message: dm.Message,
 			Date: dm.Date,
 			UserFullname: dm.UserFullname,
 			UserID: dm.UserID,
 		}
+
+		if dm.State.Valid {
+			bytes := []byte(dm.State.String)
+			json.Unmarshal(bytes, &dto.State)
+		}
+
+		dtos[i] = dto
 	}
 
 	return result.Ok().WithValue(dtos)
@@ -222,6 +260,7 @@ func userAuditReader(s database.ScannerFunc) (interface{}, error) {
 		&dm.UserFullname,
 		&dm.Message,
 		&dm.Date,
+		&dm.State,
 	)
 	if err != nil {
 		return nil, err

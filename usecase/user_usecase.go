@@ -68,9 +68,11 @@ func (u *userUsecase) Get(ctx context.Context, id string, expand ...string) resu
 		switch strings.ToLower(e) {
 		case "audit":
 			logging.Debugf("Expanded Audit.\n")
-			success, _, audit, _ := u.repo.GetAudit(ctx, id).Deconstruct()
+			success, _, audit, err := u.repo.GetAudit(ctx, id).Deconstruct()
 			if success {
 				user.Audit = audit.([]*dto.UserAudit)
+			} else {
+				logging.Errorf("An error occurred while getting the user's audit data: %v", err)
 			}
 		}
 	}
@@ -80,7 +82,7 @@ func (u *userUsecase) Get(ctx context.Context, id string, expand ...string) resu
 
 // Create creates a new user domain record, ensuring the data is valid.
 func (u *userUsecase) Create(ctx context.Context, cu *dto.CreateUser) result.Result {
-	usr, err := model.NewUser(cu, u.pwdServ, u.norm)
+	usr, err := model.NewUser(ctx, cu, u.pwdServ, u.norm)
 	if err != nil {
 		return result.Failure(err).WithStatusCode(http.StatusBadRequest)
 	}
@@ -107,7 +109,7 @@ func (u *userUsecase) Update(ctx context.Context, uu *dto.UpdateUser) result.Res
 	}
 
 	user := value.(*model.User)
-	err = user.Update(uu, u.norm)
+	err = user.Update(ctx, uu, u.norm)
 	if err != nil {
 		return result.Failure(err).WithStatusCode(http.StatusBadRequest)
 	}

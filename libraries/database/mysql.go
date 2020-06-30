@@ -205,6 +205,46 @@ func (mysql *MySQL) Count(ctx context.Context, query string, args ...interface{}
 	return res.(int64), nil
 }
 
+type Transaction struct {
+	itx *sql.Tx
+}
+
+func (mysql *MySQL) Tx(ctx context.Context) (*Transaction, error) {
+	if err := mysql.ensureConnected(); err != nil {
+		return nil, err
+	}
+
+	tx, _ := mysql.db.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelReadUncommitted})
+	return &Transaction{
+		itx: tx,
+	}, nil
+}
+
+func (tx *Transaction) Execute(ctx context.Context, query string, args ...interface{}) error {
+	stmt, err := tx.itx.PrepareContext(ctx, query)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.ExecContext(ctx, args...)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Finish will either commit or rollback the transaction, depending on
+// whether err is nil or not.
+func (tx *Transaction) Finish(err error) {
+	if err == nil {
+		tx.itx.Commit()
+	} else {
+		tx.itx.Rollback()
+	}
+}
+
 func (mysql *MySQL) ensureConnected() error {
 	if mysql.db == nil {
 		db, err := sql.Open("mysql", mysql.connStr)

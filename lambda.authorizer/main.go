@@ -123,12 +123,9 @@ func handleAuthorization(ctx context.Context, req events.APIGatewayCustomAuthori
 	parts := strings.Split(req.AuthorizationToken, " ")
 	scopes := findAllowedScopes(req.MethodArn)
 
-	success, _, _, err := auth.VerifyWithScopes(ctx, []byte(parts[1]), scopes...).Deconstruct()
+	success := auth.VerifyWithScopes(ctx, []byte(parts[1]), scopes...).IsOk()
 	if !success {
 		pol := generatePolicy("Deny", req.MethodArn, scopes)
-		pol.Context = map[string]interface{} {
-			"error": err.Error(),
-		}
 		return pol, errors.New("Unauthorized")
 	}
 

@@ -179,7 +179,7 @@ func (r *userRepository) CountByEmail(ctx context.Context, u *model.User) result
 
 // Update modifies an existing user record in the database, with the updated domain model.
 func (r *userRepository) Update(ctx context.Context, u *model.User) result.Result {
-	const query string = "CALL `update_user`(?,?,?,?,?);"
+	const query string = "CALL `update_user`(?,?,?,?,?,?);"
 	dm := u.DataModel()
 	args := []interface{}{
 		dm.ID,
@@ -187,6 +187,7 @@ func (r *userRepository) Update(ctx context.Context, u *model.User) result.Resul
 		dm.Lastname,
 		dm.Email,
 		dm.NormalizedEmail,
+		dm.PasswordHash,
 	}
 
 	tx, err := r.db.Tx(ctx)

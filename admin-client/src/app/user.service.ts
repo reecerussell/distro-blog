@@ -54,6 +54,19 @@ export class UserService {
     GetId(): string {
         return getPayload(localStorage.getItem(this.AccessTokenKey))["uid"];
     }
+
+    IsInScope(scopeName: string): boolean {
+        const token = localStorage.getItem(this.AccessTokenKey);
+        const scopes = getPayload(token)["scps"];
+
+        for (let i = 0; i < scopes.length; i++) {
+            if (scopes[i] === scopeName) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
 
 const trigger = (actions: Map<string, any>) => {

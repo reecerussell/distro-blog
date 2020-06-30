@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"github.com/reecerussell/distro-blog/libraries/contextkey"
 	"github.com/reecerussell/distro-blog/libraries/logging"
 	"net/http"
 	"strings"
@@ -23,6 +24,8 @@ type UserUsecase interface {
 	Create(ctx context.Context, cu *dto.CreateUser) result.Result
 	Update(ctx context.Context, uu *dto.UpdateUser) result.Result
 	Delete(ctx context.Context, id string) result.Result
+	ChangePassword(ctx context.Context, d *dto.ChangePassword) result.Result
+	ResetPassword(ctx context.Context, id string) result.Result
 }
 
 // userUsecase is an implementation of the UserUsecase interface.
@@ -131,4 +134,49 @@ func (u *userUsecase) Delete(ctx context.Context, id string) result.Result {
 	}
 
 	return u.repo.Delete(ctx, id)
+}
+
+// ChangePassword is used to change the current user's password.
+func (u *userUsecase) ChangePassword(ctx context.Context, d *dto.ChangePassword) result.Result {
+	uid := ctx.Value(contextkey.ContextKey("user_id"))
+	if uid == nil {
+		return result.Failure("User must be logged in to change password.").
+			WithStatusCode(http.StatusUnauthorized)
+	}
+
+	success, status, value, err := u.repo.Get(ctx, uid.(string)).Deconstruct()
+	if !success{
+		return result.Failure(err).WithStatusCode(status)
+	}
+
+	user := value.(*model.User)
+	success, status, _, err = user.ChangePassword(ctx, d, u.pwdServ).Deconstruct()
+	if !success{
+		return result.Failure(err).WithStatusCode(status)
+	}
+
+	success, status, _, err = u.repo.Update(ctx, user).Deconstruct()
+	if !success {
+		return result.Failure(err).WithStatusCode(status)
+	}
+
+	return result.Ok()
+}
+
+// ResetPassword resets the password for the user with the given id.
+func (u *userUsecase) ResetPassword(ctx context.Context, id string) result.Result {
+	success, status, value, err := u.repo.Get(ctx, id).Deconstruct()
+	if !success{
+		return result.Failure(err).WithStatusCode(status)
+	}
+
+	user := value.(*model.User)
+	pwd := user.ResetPassword(ctx, u.pwdServ)
+
+	success, status, _, err = u.repo.Update(ctx, user).Deconstruct()
+	if !success {
+		return result.Failure(err).WithStatusCode(status)
+	}
+
+	return result.Ok().WithValue(pwd)
 }

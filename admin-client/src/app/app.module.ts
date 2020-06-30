@@ -11,6 +11,9 @@ import { UserListComponent } from "./user-list/user-list.component";
 import { EditUserComponent } from "./edit-user/edit-user.component";
 import { LoginComponent } from "./login/login.component";
 import { UserInfoComponent } from "./user-info/user-info.component";
+import { ScopedComponent } from './scoped/scoped.component';
+import { ChangePasswordComponent } from './change-password/change-password.component';
+import { ResetPasswordComponent } from './reset-password/reset-password.component';
 
 @NgModule({
     declarations: [
@@ -21,6 +24,9 @@ import { UserInfoComponent } from "./user-info/user-info.component";
         EditUserComponent,
         LoginComponent,
         UserInfoComponent,
+        ScopedComponent,
+        ChangePasswordComponent,
+        ResetPasswordComponent,
     ],
     imports: [BrowserModule, AppRoutingModule, HttpClientModule, FormsModule],
     providers: [],

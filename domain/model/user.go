@@ -7,6 +7,9 @@ import (
 	"github.com/reecerussell/distro-blog/domain/handler"
 	"github.com/reecerussell/distro-blog/libraries/contextkey"
 	"github.com/reecerussell/distro-blog/libraries/domainevents"
+	"github.com/reecerussell/distro-blog/libraries/result"
+	"math/rand"
+	"net/http"
 	"regexp"
 	"time"
 
@@ -22,6 +25,8 @@ import (
 const (
 	AuditUserCreated = "USER_CREATED"
 	AuditUserUpdated = "USER_UPDATED"
+	AuditUserPasswordReset = "USER_PASSWORD_RESET"
+	AuditUserPasswordChanged = "USER_PASSWORD_CHANGED"
 )
 
 func init() {
@@ -122,15 +127,7 @@ func (u *User) Update(ctx context.Context, d *dto.UpdateUser, norm normalization
 		return err
 	}
 
-	var performingUserID string
-	uid := ctx.Value(contextkey.ContextKey("user_id"))
-	if uid != nil {
-		performingUserID = uid.(string)
-	} else {
-		performingUserID = u.id
-	}
-
-	u.AddAudit(AuditUserUpdated, performingUserID, beforeUpdate, u.DTO())
+	u.AddAudit(AuditUserUpdated, u.getPerformingUserID(ctx), beforeUpdate, u.DTO())
 
 	return nil
 }
@@ -193,6 +190,25 @@ func (u *User) UpdateEmail(email string, normalizer normalization.Normalizer) er
 	return nil
 }
 
+// ChangePassword updates the user's password, ensuring the dto contains
+// the user's current password.
+func (u *User) ChangePassword(ctx context.Context, d *dto.ChangePassword, svc password.Service) result.Result {
+	err := u.VerifyPassword(d.CurrentPassword, svc)
+	if err != nil {
+		msg := "Current password is invalid."
+		return result.Failure(msg).WithStatusCode(http.StatusBadRequest)
+	}
+
+	err = u.setPassword(d.NewPassword, svc)
+	if err != nil {
+		return result.Failure(err).WithStatusCode(http.StatusBadRequest)
+	}
+
+	u.AddAudit(AuditUserPasswordChanged, u.getPerformingUserID(ctx), nil, nil)
+
+	return result.Ok()
+}
+
 // Sets the user's password after validating and hashing it.
 func (u *User) setPassword(password string, serv password.Service) error {
 	err := serv.Validate(password)
@@ -203,6 +219,34 @@ func (u *User) setPassword(password string, serv password.Service) error {
 	u.passwordHash = serv.Hash(password)
 
 	return nil
+}
+
+// ResetPassword is used to reset the user's password with a randomly generated string.
+// A string will be generated then set as the user's password. The new password will be returned.
+func (u *User) ResetPassword(ctx context.Context, scv password.Service) string {
+	chars := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#*&!?£$"
+	rnd := rand.New(rand.NewSource(time.Now().UnixNano()))
+	b := make([]byte, 10)
+
+	for i := range b {
+		b[i] = chars[rnd.Intn(len(chars))]
+	}
+
+	pwd := string(b)
+	u.passwordHash = scv.Hash(pwd)
+
+	u.AddAudit(AuditUserPasswordReset, u.getPerformingUserID(ctx), nil, nil)
+
+	return pwd
+}
+
+func (u *User) getPerformingUserID(ctx context.Context) string {
+	uid := ctx.Value(contextkey.ContextKey("user_id"))
+	if uid != nil {
+		return uid.(string)
+	} else {
+		return u.id
+	}
 }
 
 func (u *User) VerifyPassword(password string, serv password.Service) error {

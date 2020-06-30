@@ -75,7 +75,7 @@ func findAllowedScopes(methodArn string) []string {
 	var allowed []string
 
 	for suf, scps := range config.Scopes {
-		suf = strings.ReplaceAll(suf, "*", "(.+)")
+		suf = strings.ReplaceAll(suf, "*", "([^/]+)")
 		arn := methodArn[strings.Index(methodArn, "/"):]
 
 		re := regexp.MustCompile(fmt.Sprintf("%s$", suf))
@@ -120,11 +120,8 @@ func handleAuthorization(ctx context.Context, req events.APIGatewayCustomAuthori
 
 	logging.Debugf("Method Arn: %s\n", req.MethodArn)
 
-	scopes := findAllowedScopes(req.MethodArn)
 	parts := strings.Split(req.AuthorizationToken, " ")
-	if len(parts) < 2 || parts[0] != "Bearer" {
-		return generatePolicy("Deny", req.MethodArn, scopes), errors.New("Unauthorized")
-	}
+	scopes := findAllowedScopes(req.MethodArn)
 
 	success, _, _, err := auth.VerifyWithScopes(ctx, []byte(parts[1]), scopes...).Deconstruct()
 	if !success {

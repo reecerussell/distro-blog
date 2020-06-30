@@ -7,7 +7,7 @@ scopes:
         - "users:write"
     "/POST/users":
         - "users:write"
-    "/PUT/users":
+    "/PUT/users/*":
         - "users:write"
     "/DELETE/users/*":
         - "users:write"
@@ -19,28 +19,24 @@ scopes:
         - "users:write"
     "/POST/users/password":
         - "users:write"
-    "/OPTIONS/users/password":
-        - "users:write"
     "/POST/users/password/reset/*":
-        - "users:write"
-    "/OPTIONS/users/password/reset/*":
         - "users:write"
 
 scope_policies:
     "users:read":
         - "/GET/users"
         - "/GET/users/*"
-        - "/OPTIONS/users"
-        - "/OPTIONS/users/*"
     "users:write":
         - "/GET/users"
         - "/GET/users/*"
         - "/POST/users"
-        - "/PUT/users"
+        - "/PUT/users/*"
         - "/DELETE/users/*"
-        - "/OPTIONS/users"
-        - "/OPTIONS/users/*"
         - "/POST/users/password"
-        - "/OPTIONS/users/password"
         - "/POST/users/password/reset/*"
-        - "/OPTIONS/users/password/reset/*"
+    "users:default":
+        - "/GET/users/{{user_id}}"
+        - "/POST/users/password"
+        - "/POST/users/password/reset/{{user_id}}"
+        - "/PUT/users/{{user_id}}"
+        - "/DELETE/users/{{user_id}}"

@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, Input } from "@angular/core";
 import { UserService } from "../user.service";
 
 @Component({
@@ -9,9 +9,12 @@ import { UserService } from "../user.service";
 export class ScopedComponent implements OnInit {
     display: boolean = false;
 
-    constructor(public scope: string, private user: UserService) {
-        this.display = user.IsInScope(scope);
-    }
+    @Input()
+    scope: string;
 
-    ngOnInit(): void {}
+    constructor(private user: UserService) {}
+
+    ngOnInit(): void {
+        this.display = this.user.IsInScope(this.scope);
+    }
 }

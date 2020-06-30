@@ -129,6 +129,11 @@
             </div>
         </div>
     </div>
+    <div class="col-md-8 col-lg-6 col-xl-4">
+        <ng-template [ngIf]="isCurrentUser">
+            <app-change-password></app-change-password>
+        </ng-template>
+    </div>
 </div>
 
 <ng-template #delete>

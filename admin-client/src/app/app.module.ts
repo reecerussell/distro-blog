@@ -12,6 +12,7 @@ import { EditUserComponent } from "./edit-user/edit-user.component";
 import { LoginComponent } from "./login/login.component";
 import { UserInfoComponent } from "./user-info/user-info.component";
 import { ScopedComponent } from './scoped/scoped.component';
+import { ChangePasswordComponent } from './change-password/change-password.component';
 
 @NgModule({
     declarations: [
@@ -23,6 +24,7 @@ import { ScopedComponent } from './scoped/scoped.component';
         LoginComponent,
         UserInfoComponent,
         ScopedComponent,
+        ChangePasswordComponent,
     ],
     imports: [BrowserModule, AppRoutingModule, HttpClientModule, FormsModule],
     providers: [],

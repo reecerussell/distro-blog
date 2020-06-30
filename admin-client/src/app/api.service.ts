@@ -21,7 +21,7 @@ class UserService {
                     localStorage.getItem("distro_blog:access_token"),
             },
         });
-        return await this.parseResponse(res);
+        return await parseResponse(res);
     }
 
     async Get(id: string, ...expand): Promise<ApiResponse> {
@@ -42,7 +42,7 @@ class UserService {
                     localStorage.getItem("distro_blog:access_token"),
             },
         });
-        return await this.parseResponse(res);
+        return await parseResponse(res);
     }
 
     async Create(data: CreateUser): Promise<ApiResponse> {
@@ -57,7 +57,7 @@ class UserService {
             body: JSON.stringify(data),
         });
 
-        return await this.parseResponse(res);
+        return await parseResponse(res);
     }
 
     async Update(data: UpdateUser): Promise<ApiResponse> {
@@ -72,7 +72,7 @@ class UserService {
             body: JSON.stringify(data),
         });
 
-        return await this.parseResponse(res);
+        return await parseResponse(res);
     }
 
     async Delete(id: string): Promise<ApiResponse> {
@@ -84,27 +84,61 @@ class UserService {
                     localStorage.getItem("distro_blog:access_token"),
             },
         });
-        return await this.parseResponse(res);
+        return await parseResponse(res);
     }
 
-    async parseResponse(res: Response): Promise<ApiResponse> {
-        if (res.status === 200) {
-            const { data } = await res.json();
-            return {
-                ok: true,
-                error: null,
-                data: data,
-            };
-        }
+    async ChangePassword(
+        currentPassword: string,
+        newPassword: string
+    ): Promise<ApiResponse> {
+        const res = await fetch(this.baseUrl + "/password", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization:
+                    "Bearer " +
+                    localStorage.getItem("distro_blog:access_token"),
+            },
+            body: JSON.stringify({
+                currentPassword,
+                newPassword,
+            }),
+        });
 
-        const { error } = await res.json();
-        return {
-            ok: false,
-            error: error,
-            data: null,
-        };
+        return await parseResponse(res);
+    }
+
+    async ResetPassword(id: string): Promise<ApiResponse> {
+        const res = await fetch(this.baseUrl + `/password/reset/${id}`, {
+            method: "POST",
+            headers: {
+                Authorization:
+                    "Bearer " +
+                    localStorage.getItem("distro_blog:access_token"),
+            },
+        });
+
+        return await parseResponse(res);
     }
 }
+
+const parseResponse = async (res: Response): Promise<ApiResponse> => {
+    if (res.status === 200) {
+        const { data } = await res.json();
+        return {
+            ok: true,
+            error: null,
+            data: data,
+        };
+    }
+
+    const { error } = await res.json();
+    return {
+        ok: false,
+        error: error,
+        data: null,
+    };
+};
 
 @Injectable({
     providedIn: "root",
@@ -127,20 +161,6 @@ export class ApiService {
             body: JSON.stringify({ email, password }),
         });
 
-        if (res.status === 200) {
-            const { data } = await res.json();
-            return {
-                ok: true,
-                error: null,
-                data: data,
-            };
-        }
-
-        const { error } = await res.json();
-        return {
-            ok: false,
-            error: error,
-            data: null,
-        };
+        return parseResponse(res);
     }
 }

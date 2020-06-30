@@ -3,6 +3,7 @@ import { Router, ActivatedRoute } from "@angular/router";
 import { ApiService } from "../api.service";
 import { UpdateUser } from "../models/user";
 import { Title } from "@angular/platform-browser";
+import { UserService } from "../user.service";
 
 @Component({
     selector: "app-edit-user",
@@ -20,12 +21,14 @@ export class EditUserComponent implements OnInit {
 
     isDeleteOpen: boolean = false;
     isDirty: boolean = false;
+    isCurrentUser: boolean = false;
 
     constructor(
         private api: ApiService,
         private router: Router,
         private titleService: Title,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        private user: UserService
     ) {}
 
     async ngOnInit() {
@@ -41,6 +44,7 @@ export class EditUserComponent implements OnInit {
         if (res.ok) {
             this.error = null;
             this.model = res.data as UpdateUser;
+            this.isCurrentUser = this.model.id === this.user.GetId();
         } else {
             this.error = res.error;
         }

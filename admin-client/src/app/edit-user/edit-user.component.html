@@ -130,8 +130,11 @@
         </div>
     </div>
     <div class="col-md-8 col-lg-6 col-xl-4">
-        <ng-template [ngIf]="isCurrentUser">
+        <ng-template [ngIf]="isCurrentUser" [ngIfElse]="notCurrentUserContent">
             <app-change-password></app-change-password>
+        </ng-template>
+        <ng-template #notCurrentUserContent>
+            <app-reset-password [userId]="model.id"></app-reset-password>
         </ng-template>
     </div>
 </div>

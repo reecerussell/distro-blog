@@ -13,6 +13,7 @@ import { LoginComponent } from "./login/login.component";
 import { UserInfoComponent } from "./user-info/user-info.component";
 import { ScopedComponent } from './scoped/scoped.component';
 import { ChangePasswordComponent } from './change-password/change-password.component';
+import { ResetPasswordComponent } from './reset-password/reset-password.component';
 
 @NgModule({
     declarations: [
@@ -25,6 +26,7 @@ import { ChangePasswordComponent } from './change-password/change-password.compo
         UserInfoComponent,
         ScopedComponent,
         ChangePasswordComponent,
+        ResetPasswordComponent,
     ],
     imports: [BrowserModule, AppRoutingModule, HttpClientModule, FormsModule],
     providers: [],

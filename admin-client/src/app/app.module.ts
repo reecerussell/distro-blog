@@ -11,6 +11,7 @@ import { UserListComponent } from "./user-list/user-list.component";
 import { EditUserComponent } from "./edit-user/edit-user.component";
 import { LoginComponent } from "./login/login.component";
 import { UserInfoComponent } from "./user-info/user-info.component";
+import { ScopedComponent } from './scoped/scoped.component';
 
 @NgModule({
     declarations: [
@@ -21,6 +22,7 @@ import { UserInfoComponent } from "./user-info/user-info.component";
         EditUserComponent,
         LoginComponent,
         UserInfoComponent,
+        ScopedComponent,
     ],
     imports: [BrowserModule, AppRoutingModule, HttpClientModule, FormsModule],
     providers: [],

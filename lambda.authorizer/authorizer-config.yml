@@ -17,17 +17,13 @@ scopes:
     "/OPTIONS/users/*":
         - "users:read"
         - "users:write"
-    "/POST/users/*/password":
-        - "users:read"
+    "/POST/users/password":
         - "users:write"
-    "/OPTIONS/users/*/password":
-        - "users:read"
+    "/OPTIONS/users/password":
         - "users:write"
-    "/POST/users/*/password/reset":
-        - "users:read"
+    "/POST/users/password/reset/*":
         - "users:write"
-    "/OPTIONS/users/*/password/reset":
-        - "users:read"
+    "/OPTIONS/users/password/reset/*":
         - "users:write"
 
 scope_policies:
@@ -44,7 +40,7 @@ scope_policies:
         - "/DELETE/users/*"
         - "/OPTIONS/users"
         - "/OPTIONS/users/*"
-        - "/POST/users/*/password"
-        - "/OPTIONS/users/*/password"
-        - "/POST/users/*/password/reset"
-        - "/OPTIONS/users/*/password/reset"
+        - "/POST/users/password"
+        - "/OPTIONS/users/password"
+        - "/POST/users/password/reset/*"
+        - "/OPTIONS/users/password/reset/*"

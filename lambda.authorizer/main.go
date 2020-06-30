@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"net/http"
 	"os"
 	"regexp"
 	"strings"
@@ -101,7 +100,7 @@ func findAllowedScopes(methodArn string) []string {
 }
 
 func generatePolicy(effect, methodArn string, scopes []string) events.APIGatewayCustomAuthorizerResponse {
-		return events.APIGatewayCustomAuthorizerResponse{
+	return events.APIGatewayCustomAuthorizerResponse{
 		PrincipalID: "user",
 		PolicyDocument: events.APIGatewayCustomAuthorizerPolicy{
 			Version: "2012-10-17",
@@ -127,17 +126,13 @@ func handleAuthorization(ctx context.Context, req events.APIGatewayCustomAuthori
 		return generatePolicy("Deny", req.MethodArn, scopes), errors.New("Unauthorized")
 	}
 
-	success, status, _, err := auth.VerifyWithScopes(ctx, []byte(parts[1]), scopes...).Deconstruct()
+	success, _, _, err := auth.VerifyWithScopes(ctx, []byte(parts[1]), scopes...).Deconstruct()
 	if !success {
 		pol := generatePolicy("Deny", req.MethodArn, scopes)
-
-		if status == http.StatusForbidden {
-			err = errors.New("Forbidden")
-		} else {
-			err = errors.New("Unauthorized")
+		pol.Context = map[string]interface{} {
+			"error": err.Error(),
 		}
-
-		return pol, err
+		return pol, errors.New("Unauthorized")
 	}
 
 	return generatePolicy("Allow", req.MethodArn, scopes), nil

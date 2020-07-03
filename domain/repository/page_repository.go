@@ -2,7 +2,7 @@ package repository
 
 import (
 	"context"
-	
+
 	"github.com/reecerussell/distro-blog/domain/model"
 	"github.com/reecerussell/distro-blog/libraries/result"
 )
@@ -13,7 +13,8 @@ type PageRepository interface {
 	Get(ctx context.Context, id string) result.Result
 	ListPages(ctx context.Context) result.Result
 	ListBlogs(ctx context.Context) result.Result
-	Create(ctx context.Context, b *model.Page) result.Result
-	Update(ctx context.Context, b *model.Page) result.Result
+	Create(ctx context.Context, p *model.Page) result.Result
+	Update(ctx context.Context, p *model.Page) result.Result
 	Delete(ctx context.Context, id string) result.Result
+	GetAudit(ctx context.Context, id string) result.Result
 }

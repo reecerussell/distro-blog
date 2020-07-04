@@ -6,6 +6,7 @@ import { UserListComponent } from "./user-list/user-list.component";
 import { EditUserComponent } from "./edit-user/edit-user.component";
 import { UserInfoComponent } from "./user-info/user-info.component";
 import { PageListComponent } from "./page-list/page-list.component";
+import { CreatePageComponent } from "./create-page/create-page.component";
 
 const routes: Routes = [
     {
@@ -31,6 +32,10 @@ const routes: Routes = [
     {
         path: "pages",
         component: PageListComponent,
+    },
+    {
+        path: "pages/create",
+        component: CreatePageComponent,
     },
 ];
 

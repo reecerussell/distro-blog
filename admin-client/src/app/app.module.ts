@@ -2,6 +2,7 @@ import { BrowserModule } from "@angular/platform-browser";
 import { NgModule } from "@angular/core";
 import { HttpClientModule } from "@angular/common/http";
 import { FormsModule } from "@angular/forms";
+import { CKEditorModule } from "@ckeditor/ckeditor5-angular";
 
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
@@ -14,7 +15,8 @@ import { UserInfoComponent } from "./user-info/user-info.component";
 import { ScopedComponent } from "./scoped/scoped.component";
 import { ChangePasswordComponent } from "./change-password/change-password.component";
 import { ResetPasswordComponent } from "./reset-password/reset-password.component";
-import { PageListComponent } from './page-list/page-list.component';
+import { PageListComponent } from "./page-list/page-list.component";
+import { CreatePageComponent } from "./create-page/create-page.component";
 
 @NgModule({
     declarations: [
@@ -29,8 +31,15 @@ import { PageListComponent } from './page-list/page-list.component';
         ChangePasswordComponent,
         ResetPasswordComponent,
         PageListComponent,
+        CreatePageComponent,
     ],
-    imports: [BrowserModule, AppRoutingModule, HttpClientModule, FormsModule],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        HttpClientModule,
+        FormsModule,
+        CKEditorModule,
+    ],
     providers: [],
     bootstrap: [AppComponent],
 })

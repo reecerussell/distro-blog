@@ -1,0 +1,110 @@
+<div class="taskbar">
+    <h1>
+        Edit
+    </h1>
+    <ul>
+        <li>
+            <a routerLink="/pages/{{ model.id }}/info">
+                <i class="la la-info"></i>
+                Info
+            </a>
+        </li>
+        <li>
+            <a routerLink="/pages">
+                <i class="la la-folder"></i>
+                Pages
+            </a>
+        </li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-xl-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Page</h5>
+            </div>
+            <div class="card-body">
+                <form (submit)="onSubmit()" novalidate>
+                    <ng-template [ngIf]="error">
+                        <div class="alert alert-danger" role="alert">
+                            {{ error }}
+                        </div>
+                    </ng-template>
+                    <div class="row">
+                        <div class="col-xl-6">
+                            <div class="form-group">
+                                <label for="title">Title</label>
+                                <input
+                                    type="text"
+                                    name="title"
+                                    id="title"
+                                    class="form-control"
+                                    [class.is-invalid]="titleError"
+                                    [(ngModel)]="model.title"
+                                    (keyup)="validateTitle()"
+                                    placeholder="Enter a title..."
+                                    required
+                                />
+                                <ng-template [ngIf]="titleError">
+                                    <div class="invalid-feedback">
+                                        {{ titleError }}
+                                    </div>
+                                </ng-template>
+                            </div>
+                        </div>
+                        <div class="col-xl-6">
+                            <div class="form-group">
+                                <label for="description">Description</label>
+                                <textarea
+                                    name="description"
+                                    id="description"
+                                    class="form-control"
+                                    [class.is-invalid]="descriptionError"
+                                    [(ngModel)]="model.description"
+                                    (keyup)="validateDescription()"
+                                    placeholder="Enter a description..."
+                                    required
+                                ></textarea>
+                                <ng-template [ngIf]="descriptionError">
+                                    <div class="invalid-feedback">
+                                        {{ descriptionError }}
+                                    </div>
+                                </ng-template>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="content">Content</label>
+                        <ckeditor
+                            [editor]="contentEditor"
+                            [(ngModel)]="model.content"
+                            name="content"
+                        ></ckeditor>
+                    </div>
+                    <div class="form-group">
+                        <button
+                            type="submit"
+                            class="btn btn-success float-right"
+                        >
+                            <ng-template
+                                [ngIf]="loading"
+                                [ngIfElse]="createButton"
+                            >
+                                <span
+                                    class="spinner-border spinner-border-sm"
+                                    role="status"
+                                    aria-hidden="true"
+                                ></span>
+                                <span class="sr-only">Loading...</span>
+                            </ng-template>
+                            <ng-template #createButton>
+                                Create
+                            </ng-template>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

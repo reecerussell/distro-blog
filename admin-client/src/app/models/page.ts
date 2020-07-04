@@ -4,4 +4,11 @@ interface CreatePage {
     content: string;
 }
 
-export { CreatePage };
+interface UpdatePage {
+    id: string;
+    title: string;
+    description: string;
+    content: string;
+}
+
+export { CreatePage, UpdatePage };

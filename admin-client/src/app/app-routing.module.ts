@@ -7,6 +7,7 @@ import { EditUserComponent } from "./edit-user/edit-user.component";
 import { UserInfoComponent } from "./user-info/user-info.component";
 import { PageListComponent } from "./page-list/page-list.component";
 import { CreatePageComponent } from "./create-page/create-page.component";
+import { EditPageComponent } from "./edit-page/edit-page.component";
 
 const routes: Routes = [
     {
@@ -36,6 +37,10 @@ const routes: Routes = [
     {
         path: "pages/create",
         component: CreatePageComponent,
+    },
+    {
+        path: "pages/:id",
+        component: EditPageComponent,
     },
 ];
 

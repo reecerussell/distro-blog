@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { CreateUser, UpdateUser } from "./models/user";
-import { CreatePage } from "./models/page";
+import { CreatePage, UpdatePage } from "./models/page";
 
 interface ApiResponse {
     ok: boolean;
@@ -144,6 +144,30 @@ class PageService {
     async Create(data: CreatePage): Promise<ApiResponse> {
         const res = await fetch(this.baseUrl, {
             method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: getAuthHeader(),
+            },
+            body: JSON.stringify(data),
+        });
+
+        return await parseResponse(res);
+    }
+
+    async Get(id: string): Promise<ApiResponse> {
+        const res = await fetch(this.baseUrl + `/${id}`, {
+            method: "GET",
+            headers: {
+                Authorization: getAuthHeader(),
+            },
+        });
+
+        return await parseResponse(res);
+    }
+
+    async Update(data: UpdatePage): Promise<ApiResponse> {
+        const res = await fetch(this.baseUrl, {
+            method: "PUT",
             headers: {
                 "Content-Type": "application/json",
                 Authorization: getAuthHeader(),

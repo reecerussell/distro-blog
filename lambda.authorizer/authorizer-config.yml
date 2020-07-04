@@ -21,6 +21,27 @@ scopes:
         - "users:write"
     "/POST/users/password/reset/*":
         - "users:write"
+    "/GET/blogs":
+        - "pages:read"
+        - "pages:write"
+    "/POST/blogs":
+        - "pages:write"
+    "/GET/pages":
+        - "pages:read"
+        - "pages:write"
+    "/POST/pages":
+        - "pages:write"
+    "/PUT/pages":
+        - "pages:write"
+    "/GET/pages/*":
+        - "pages:read"
+        - "pages:write"
+    "/DELETE/pages/*":
+        - "pages:write"
+    "/POST/pages/*/activate":
+        - "pages:write"
+    "/POST/pages/*/deactivate":
+        - "pages:write"
 
 scope_policies:
     "users:read":
@@ -40,3 +61,16 @@ scope_policies:
         - "/POST/users/password/reset/{{user_id}}"
         - "/PUT/users/{{user_id}}"
         - "/DELETE/users/{{user_id}}"
+    "pages:read":
+        - "/GET/pages"
+        - "/GET/blogs"
+        - "/GET/pages/*"
+    "pages:write":
+        - "/GET/pages"
+        - "/GET/blogs"
+        - "/GET/pages/*"
+        - "/POST/pages"
+        - "/PUT/pages"
+        - "/DELETE/pages/*"
+        - "/POST/pages/*/activate"
+        - "/POST/pages/*/deactivate"

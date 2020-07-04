@@ -11,9 +11,10 @@ import { UserListComponent } from "./user-list/user-list.component";
 import { EditUserComponent } from "./edit-user/edit-user.component";
 import { LoginComponent } from "./login/login.component";
 import { UserInfoComponent } from "./user-info/user-info.component";
-import { ScopedComponent } from './scoped/scoped.component';
-import { ChangePasswordComponent } from './change-password/change-password.component';
-import { ResetPasswordComponent } from './reset-password/reset-password.component';
+import { ScopedComponent } from "./scoped/scoped.component";
+import { ChangePasswordComponent } from "./change-password/change-password.component";
+import { ResetPasswordComponent } from "./reset-password/reset-password.component";
+import { PageListComponent } from './page-list/page-list.component';
 
 @NgModule({
     declarations: [
@@ -27,6 +28,7 @@ import { ResetPasswordComponent } from './reset-password/reset-password.componen
         ScopedComponent,
         ChangePasswordComponent,
         ResetPasswordComponent,
+        PageListComponent,
     ],
     imports: [BrowserModule, AppRoutingModule, HttpClientModule, FormsModule],
     providers: [],

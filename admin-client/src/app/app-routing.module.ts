@@ -5,6 +5,7 @@ import { CreateUserComponent } from "./create-user/create-user.component";
 import { UserListComponent } from "./user-list/user-list.component";
 import { EditUserComponent } from "./edit-user/edit-user.component";
 import { UserInfoComponent } from "./user-info/user-info.component";
+import { PageListComponent } from "./page-list/page-list.component";
 
 const routes: Routes = [
     {
@@ -26,6 +27,10 @@ const routes: Routes = [
     {
         path: "users/:id/info",
         component: UserInfoComponent,
+    },
+    {
+        path: "pages",
+        component: PageListComponent,
     },
 ];
 

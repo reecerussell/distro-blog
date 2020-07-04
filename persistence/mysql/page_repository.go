@@ -33,12 +33,12 @@ func NewPageRepository(db *database.MySQL) repository.PageRepository {
 func (r *pageRepository) Get(ctx context.Context, id string) result.Result {
 	const query string = "CALL `get_page`(?);"
 	dm, err := r.db.Read(ctx, query, pageReader, id)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return result.Failure(errMsgPageNotFound).WithStatusCode(http.StatusNotFound)
-		}
-
+	if err != nil && err != sql.ErrNoRows {
 		return result.Failure(err)
+	}
+
+	if err == sql.ErrNoRows || dm == nil {
+		return result.Failure(errMsgPageNotFound).WithStatusCode(http.StatusNotFound)
 	}
 
 	p := model.PageFromDataModel(dm.(*datamodel.Page))

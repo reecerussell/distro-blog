@@ -136,6 +136,8 @@ func (p *Page) UpdateTitle(title string) error {
 		return fmt.Errorf("title cannot be greater than 255 characters long")
 	}
 
+	p.title = title
+
 	return nil
 }
 
@@ -153,6 +155,8 @@ func (p *Page) UpdateDescription(description string) error {
 	case l > 255:
 		return fmt.Errorf("description cannot be greater than 255 characters long")
 	}
+
+	p.description = description
 
 	return nil
 }

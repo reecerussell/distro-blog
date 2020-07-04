@@ -6,7 +6,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	
+
 	"github.com/reecerussell/distro-blog/libraries/database"
 	"github.com/reecerussell/distro-blog/libraries/helper"
 	"github.com/reecerussell/distro-blog/persistence"

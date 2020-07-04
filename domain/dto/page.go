@@ -8,4 +8,6 @@ type Page struct {
 	Content *string `json:"content"`
 	IsBlog bool `json:"isBlog"`
 	IsActive bool `json:"isActive"`
+
+	Audit []*PageAudit `json:"audit,omitempty"`
 }

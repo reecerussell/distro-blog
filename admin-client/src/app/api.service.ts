@@ -7,6 +7,9 @@ interface ApiResponse {
     data: any;
 }
 
+const getAuthHeader = () =>
+    "Bearer " + localStorage.getItem("distro_blog:access_token");
+
 class UserService {
     constructor(private baseUrl: string) {
         this.baseUrl = baseUrl + "users";
@@ -122,6 +125,22 @@ class UserService {
     }
 }
 
+class PageService {
+    constructor(private baseUrl: string) {
+        this.baseUrl = baseUrl + "pages";
+    }
+
+    async List(): Promise<ApiResponse> {
+        const res = await fetch(this.baseUrl, {
+            method: "GET",
+            headers: {
+                Authorization: getAuthHeader(),
+            },
+        });
+        return await parseResponse(res);
+    }
+}
+
 const parseResponse = async (res: Response): Promise<ApiResponse> => {
     if (res.status === 200) {
         const { data } = await res.json();
@@ -148,9 +167,11 @@ export class ApiService {
 
     constructor() {
         this.Users = new UserService(this.baseUrl);
+        this.Pages = new PageService(this.baseUrl);
     }
 
     public Users: UserService;
+    public Pages: PageService;
 
     async Login(email: string, password: string): Promise<ApiResponse> {
         const res = await fetch(this.baseUrl + "token", {

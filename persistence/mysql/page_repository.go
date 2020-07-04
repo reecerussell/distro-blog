@@ -172,7 +172,7 @@ func (r *pageRepository) Delete(ctx context.Context, id string) result.Result {
 
 func (r *pageRepository) GetAudit(ctx context.Context, id string) result.Result {
 	const query string = "CALL `get_page_audit`(?);"
-	items, err := r.db.Multiple(ctx, query, userAuditReader, id)
+	items, err := r.db.Multiple(ctx, query, pageAuditReader, id)
 	if err != nil {
 		logging.Error(err)
 		return result.Failure(errMsgPageAuditDbError)

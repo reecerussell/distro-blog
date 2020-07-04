@@ -4,7 +4,7 @@ package dto
 // hold data required to update a page record.
 type UpdatePage struct {
 	ID string `json:"id"`
-	Title string `json:"name"`
+	Title string `json:"title"`
 	Description string `json:"description"`
 	Content *string `json:"content"`
 }

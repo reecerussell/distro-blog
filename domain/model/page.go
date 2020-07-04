@@ -83,6 +83,11 @@ func NewBlogPage(ctx context.Context, d *dto.CreatePage) (*Page, error) {
 	return p, nil
 }
 
+// GetID returns the page's id.
+func (p *Page) GetID() string {
+	return p.id
+}
+
 // Update updates the page's data, including; title, description and content.
 func (p *Page) Update(ctx context.Context, d *dto.UpdatePage) error {
 	err := p.updateContent(d.Title, d.Description, d.Content)

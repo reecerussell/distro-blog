@@ -1,1 +1,33 @@
-<p>page-list works!</p>
+<div class="taskbar mb-4">
+    <h1>
+        Pages
+    </h1>
+    <ul>
+        <li>
+            <a routerLink="/pages/create">
+                <i class="la la-folder-plus"></i>
+                Create
+            </a>
+        </li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-3" *ngFor="let page of getPages()">
+        <div class="card">
+            <div class="card-header">
+                <h4>{{ page.title }}</h4>
+            </div>
+            <div class="card-body">
+                {{ page.description }}
+            </div>
+            <div class="card-footer">
+                <a
+                    class="btn btn-primary btn-sm btn-block"
+                    routerLink="/pages/{{ page.id }}"
+                    >View</a
+                >
+            </div>
+        </div>
+    </div>
+</div>

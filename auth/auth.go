@@ -48,7 +48,8 @@ const (
 const (
 	ScopeUserRead = "users:read"
 	ScopeUserWrite = "users:write"
-	ScopeUserDefault = "users:default"
+	ScopePageRead = "pages:read"
+	ScopePageWrite = "pages:write"
 )
 
 // Service is used to handle authentication and authorization of users

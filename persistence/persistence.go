@@ -15,3 +15,13 @@ func NewUserRepository(db interface{}) repository.UserRepository {
 		panic("unsupported database type")
 	}
 }
+
+// NewPageRepository returns an instance of PageRepository for the given database type.
+func NewPageRepository(db interface{}) repository.PageRepository {
+	switch db.(type) {
+	case *database.MySQL:
+		return mysql.NewPageRepository(db.(*database.MySQL))
+	default:
+		panic("unsupported database type")
+	}
+}

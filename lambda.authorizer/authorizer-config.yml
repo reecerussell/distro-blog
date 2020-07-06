@@ -7,7 +7,7 @@ scopes:
         - "users:write"
     "/POST/users":
         - "users:write"
-    "/PUT/users/*":
+    "/PUT/users":
         - "users:write"
     "/DELETE/users/*":
         - "users:write"
@@ -51,7 +51,7 @@ scope_policies:
         - "/GET/users"
         - "/GET/users/*"
         - "/POST/users"
-        - "/PUT/users/*"
+        - "/PUT/users"
         - "/DELETE/users/*"
         - "/POST/users/password"
         - "/POST/users/password/reset/*"

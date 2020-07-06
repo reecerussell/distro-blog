@@ -4,7 +4,7 @@
     </h1>
     <ul>
         <li>
-            <a routerLink="/users/{{ model.id }}/info">
+            <a routerLink="/users/{{ model?.id }}/info">
                 <i class="la la-info-circle"></i>
                 Info
             </a>
@@ -134,7 +134,7 @@
             <app-change-password></app-change-password>
         </ng-template>
         <ng-template #notCurrentUserContent>
-            <app-reset-password [userId]="model.id"></app-reset-password>
+            <app-reset-password [userId]="model?.id"></app-reset-password>
         </ng-template>
     </div>
 </div>

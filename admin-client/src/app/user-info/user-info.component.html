@@ -4,7 +4,7 @@
     </h1>
     <ul>
         <li>
-            <a routerLink="/users/{{ model.id }}">
+            <a routerLink="/users/{{ model?.id }}">
                 <i class="la la-user-edit"></i>
                 Edit
             </a>
@@ -88,23 +88,23 @@
                 <ng-template [ngIf]="!loading" [ngIfElse]="loader">
                     <p>
                         <b>Id</b><br />
-                        {{ model.id }}
+                        {{ model?.id }}
                     </p>
                     <p>
                         <b>Firstname</b><br />
-                        {{ model.firstname }}
+                        {{ model?.firstname }}
                     </p>
                     <p>
                         <b>Lastname</b><br />
-                        {{ model.lastname }}
+                        {{ model?.lastname }}
                     </p>
                     <p>
                         <b>Email</b><br />
-                        {{ model.email }}
+                        {{ model?.email }}
                     </p>
                     <p>
                         <b>Normalized Email</b><br />
-                        {{ model.normalizedEmail }}
+                        {{ model?.normalizedEmail }}
                     </p>
                 </ng-template>
             </div>

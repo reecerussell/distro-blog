@@ -11,4 +11,21 @@ interface UpdatePage {
     content: string;
 }
 
-export { CreatePage, UpdatePage };
+interface Page {
+    id: string;
+    title: string;
+    description: string;
+    content: string;
+    isBlog: boolean;
+    isActive: boolean;
+    audit?: PageAudit[];
+}
+
+interface PageAudit {
+    UserFullname: string;
+    UserId: string;
+    Date: Date;
+    Message: string;
+}
+
+export { CreatePage, UpdatePage, Page, PageAudit };

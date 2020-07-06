@@ -1,0 +1,77 @@
+<div class="taskbar">
+    <h1>
+        Info
+    </h1>
+    <ul>
+        <li>
+            <a routerLink="/pages/{{ model?.id }}">
+                <i class="la la-folder"></i>
+                Content
+            </a>
+        </li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5>Audit Trail</h5>
+            </div>
+            <div class="card-body">
+                <ng-template [ngIf]="error">
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                </ng-template>
+                <ng-template [ngIf]="!loading" [ngIfElse]="loader">
+                    <div *ngFor="let item of model.audit || []">
+                        <h6 class="{{ getMessageColorClass(item.message) }}">
+                            {{ getAuditMessage(item.message) }}
+                        </h6>
+                        <p class="small text-muted">
+                            <a routerLink="/users/{{ item.userId }}">{{
+                                item.userFullname
+                            }}</a>
+                            at {{ item.date.toLocaleString() }}
+                        </p>
+                        <hr />
+                    </div>
+                </ng-template>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Meta Data</h5>
+            </div>
+            <div class="card-body">
+                <ng-template [ngIf]="!loading || model" [ngIfElse]="loader">
+                    <p>
+                        <b>Id</b><br />
+                        {{ model.id }}
+                    </p>
+                    <p>
+                        <b>Title</b><br />
+                        {{ model.title }}
+                    </p>
+                    <p>
+                        <b>Description</b><br />
+                        {{ model.description }}
+                    </p>
+                    <p>
+                        <b>Is Active</b><br />
+                        {{ model.isActive ? "Yes" : "No" }}
+                    </p>
+                </ng-template>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #loader>
+    <div class="spinner-border text-secondary" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+</ng-template>

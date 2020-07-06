@@ -8,6 +8,7 @@ import { UserInfoComponent } from "./user-info/user-info.component";
 import { PageListComponent } from "./page-list/page-list.component";
 import { CreatePageComponent } from "./create-page/create-page.component";
 import { EditPageComponent } from "./edit-page/edit-page.component";
+import { PageInfoComponent } from "./page-info/page-info.component";
 
 const routes: Routes = [
     {
@@ -41,6 +42,10 @@ const routes: Routes = [
     {
         path: "pages/:id",
         component: EditPageComponent,
+    },
+    {
+        path: "pages/:id/info",
+        component: PageInfoComponent,
     },
 ];
 

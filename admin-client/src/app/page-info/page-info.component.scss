@@ -1,0 +1,17 @@
+@import "../../variables";
+
+.message-created {
+    color: $info;
+}
+
+.message-updated {
+    color: $primary;
+}
+
+.message-activated {
+    color: $success;
+}
+
+.message-deactivated {
+    color: $warning;
+}

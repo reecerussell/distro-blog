@@ -18,6 +18,7 @@ import { ResetPasswordComponent } from "./reset-password/reset-password.componen
 import { PageListComponent } from "./page-list/page-list.component";
 import { CreatePageComponent } from "./create-page/create-page.component";
 import { EditPageComponent } from './edit-page/edit-page.component';
+import { PageInfoComponent } from './page-info/page-info.component';
 
 @NgModule({
     declarations: [
@@ -34,6 +35,7 @@ import { EditPageComponent } from './edit-page/edit-page.component';
         PageListComponent,
         CreatePageComponent,
         EditPageComponent,
+        PageInfoComponent,
     ],
     imports: [
         BrowserModule,

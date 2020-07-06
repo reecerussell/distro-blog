@@ -10,9 +10,13 @@
             </a>
         </li>
         <li>
-            <a routerLink="/pages">
+            <a
+                routerLink="{{
+                    model ? (model.isBlog ? '/blogs' : '/pages') : null
+                }}"
+            >
                 <i class="la la-folder"></i>
-                Pages
+                {{ model ? (model.isBlog ? "Blogs" : "Pages") : null }}
             </a>
         </li>
     </ul>
@@ -22,7 +26,9 @@
     <div class="col-xl-8">
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0">Page</h5>
+                <h5 class="mb-0">
+                    {{ model ? (model.isBlog ? "Blog" : "Page") : null }}
+                </h5>
             </div>
             <div class="card-body">
                 <ng-template [ngIf]="!model" [ngIfElse]="form">
@@ -98,7 +104,7 @@
                             >
                                 <ng-template
                                     [ngIf]="loading"
-                                    [ngIfElse]="createButton"
+                                    [ngIfElse]="saveButton"
                                 >
                                     <span
                                         class="spinner-border spinner-border-sm"
@@ -107,8 +113,8 @@
                                     ></span>
                                     <span class="sr-only">Loading...</span>
                                 </ng-template>
-                                <ng-template #createButton>
-                                    Create
+                                <ng-template #saveButton>
+                                    Save
                                 </ng-template>
                             </button>
                         </div>

@@ -1,10 +1,9 @@
-import { Component, OnInit, AfterViewInit, ViewChild } from "@angular/core";
-import { UpdatePage } from "../models/page";
+import { Component, OnInit } from "@angular/core";
+import { Page } from "../models/page";
 import { ApiService } from "../api.service";
-import { Router, ActivatedRoute } from "@angular/router";
+import { ActivatedRoute } from "@angular/router";
 import { Title } from "@angular/platform-browser";
 import * as ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import { NgForm } from "@angular/forms";
 
 @Component({
     selector: "app-edit-page",
@@ -12,9 +11,8 @@ import { NgForm } from "@angular/forms";
     styleUrls: ["./edit-page.component.scss"],
 })
 export class EditPageComponent implements OnInit {
-    public model: UpdatePage;
-    public contentEditor = ClassicEditor;
-
+    model: Page;
+    contentEditor = ClassicEditor;
     error: string = null;
     loading: boolean = false;
 
@@ -39,7 +37,11 @@ export class EditPageComponent implements OnInit {
         const res = await this.api.Pages.Get(id);
         if (res.ok) {
             this.error = null;
-            this.model = res.data as UpdatePage;
+            this.model = res.data as Page;
+
+            if (this.model.isBlog) {
+                this.titleService.setTitle("Edit Blog - Distro Blog Admin");
+            }
         } else {
             this.error = res.error;
         }

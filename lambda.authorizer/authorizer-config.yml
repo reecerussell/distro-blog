@@ -55,12 +55,6 @@ scope_policies:
         - "/DELETE/users/*"
         - "/POST/users/password"
         - "/POST/users/password/reset/*"
-    "users:default":
-        - "/GET/users/{{user_id}}"
-        - "/POST/users/password"
-        - "/POST/users/password/reset/{{user_id}}"
-        - "/PUT/users/{{user_id}}"
-        - "/DELETE/users/{{user_id}}"
     "pages:read":
         - "/GET/pages"
         - "/GET/blogs"

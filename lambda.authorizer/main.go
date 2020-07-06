@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -120,16 +122,51 @@ func handleAuthorization(ctx context.Context, req events.APIGatewayCustomAuthori
 
 	logging.Debugf("Method Arn: %s\n", req.MethodArn)
 
-	parts := strings.Split(req.AuthorizationToken, " ")
+	token, tokenScopes := scanToken(req.AuthorizationToken)
 	scopes := findAllowedScopes(req.MethodArn)
 
-	success := auth.VerifyWithScopes(ctx, []byte(parts[1]), scopes...).IsOk()
+	success := auth.VerifyWithScopes(ctx, token, scopes...).IsOk()
 	if !success {
-		pol := generatePolicy("Deny", req.MethodArn, scopes)
+		pol := generatePolicy("Deny", req.MethodArn, tokenScopes)
 		return pol, errors.New("Unauthorized")
 	}
 
-	return generatePolicy("Allow", req.MethodArn, scopes), nil
+	return generatePolicy("Allow", req.MethodArn, tokenScopes), nil
+}
+
+func scanToken(token string) ([]byte, []string) {
+	parts := strings.Split(token, " ")
+	if len(parts) != 2 || parts[0] != "Bearer" {
+		errMsg := fmt.Sprintf("Token was in an invalid format. Use authorizer token regex to ensure token format.")
+		logging.Errorf("%s\n", errMsg)
+		panic(errMsg)
+	}
+
+	tokenParts := strings.Split(parts[1], ".")
+	if len(tokenParts) != 3 {
+		errMsg := fmt.Sprintf("Token data was in an invalid format. Expected a header, payload and signature.")
+		logging.Errorf("%s\n", errMsg)
+		panic(errMsg)
+	}
+
+	data, err := base64.StdEncoding.DecodeString(tokenParts[1])
+	if err != nil {
+		err = fmt.Errorf("failed to decode payload: %v", err)
+		logging.Error(err)
+		panic(err)
+	}
+
+	var payload map[string]interface{}
+	json.Unmarshal(data, &payload)
+
+	var scopes []string
+	if scps, ok := payload["scp"]; ok {
+		for _, s := range scps.([]interface{}) {
+			scopes = append(scopes, s.(string))
+		}
+	}
+
+	return []byte(parts[1]), scopes
 }
 
 type Config struct {

@@ -215,7 +215,7 @@ func (p *Page) Activate(ctx context.Context) error {
 func (p *Page) UpdateImage(ctx context.Context, i *Image) {
 	if p.imageID != nil {
 		p.RaiseEvent(&event.RemovePageImage{
-			PageID: p.id,
+			ImageID: *p.imageID,
 		})
 	}
 

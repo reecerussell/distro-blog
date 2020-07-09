@@ -272,6 +272,17 @@ func (p *Page) DataModel() *datamodel.Page {
 		}
 	}
 
+	if p.imageID == nil {
+		dm.ImageID = sql.NullString{
+			Valid: false,
+		}
+	} else {
+		dm.ImageID = sql.NullString{
+			Valid: true,
+			String: *p.imageID,
+		}
+	}
+
 	return dm
 }
 
@@ -288,6 +299,10 @@ func PageFromDataModel(d *datamodel.Page) *Page {
 
 	if d.Content.Valid {
 		p.content = &d.Content.String
+	}
+
+	if d.ImageID.Valid {
+		p.imageID = &d.ImageID.String
 	}
 
 	return p

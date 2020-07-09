@@ -57,18 +57,31 @@ func handleUpdate(ctx context.Context, req events.APIGatewayProxyRequest) (event
 			return helper.Response(ctx, br, req), nil
 		}
 
-		pageJSON, ok := data.Get("page")
+		var ok bool
+		d.ID, ok = data.Get("id")
 		if !ok {
-			msg := "missing page data"
+			msg := "missing 'id' in request"
 			br := result.Failure(msg).WithStatusCode(http.StatusBadRequest)
 			return helper.Response(ctx, br, req), nil
 		}
 
-		err = json.Unmarshal([]byte(pageJSON), &d)
-		if err != nil {
-			msg := "failed to read page data"
+		d.Title, ok = data.Get("title")
+		if !ok {
+			msg := "missing 'title' in request"
 			br := result.Failure(msg).WithStatusCode(http.StatusBadRequest)
 			return helper.Response(ctx, br, req), nil
+		}
+
+		d.Description, ok = data.Get("description")
+		if !ok {
+			msg := "missing 'description' in request"
+			br := result.Failure(msg).WithStatusCode(http.StatusBadRequest)
+			return helper.Response(ctx, br, req), nil
+		}
+
+		content, ok := data.Get("content")
+		if ok {
+			d.Content = &content
 		}
 
 		file, ok := data.File("image")

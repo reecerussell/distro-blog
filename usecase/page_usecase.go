@@ -18,7 +18,7 @@ type PageUsecase interface {
 	ListPages(ctx context.Context) result.Result
 	ListBlogs(ctx context.Context) result.Result
 	Get(ctx context.Context, id string, expand ...string) result.Result
-	Update(ctx context.Context, d *dto.UpdatePage) result.Result
+	Update(ctx context.Context, d *dto.UpdatePage, imageData []byte) result.Result
 	Activate(ctx context.Context, id string) result.Result
 	Deactivate(ctx context.Context, id string) result.Result
 	Delete(ctx context.Context, id string) result.Result
@@ -26,11 +26,13 @@ type PageUsecase interface {
 
 type pageUsecase struct {
 	repo repository.PageRepository
+	media MediaUsecase
 }
 
-func NewPageUsecase(repo repository.PageRepository) PageUsecase {
+func NewPageUsecase(repo repository.PageRepository, media MediaUsecase) PageUsecase {
 	return &pageUsecase{
 		repo: repo,
+		media: media,
 	}
 }
 
@@ -99,7 +101,7 @@ func (u *pageUsecase) Get(ctx context.Context, id string, expand ...string) resu
 	return result.Ok().WithValue(p)
 }
 
-func (u *pageUsecase) Update(ctx context.Context, d *dto.UpdatePage) result.Result {
+func (u *pageUsecase) Update(ctx context.Context, d *dto.UpdatePage, imageData []byte) result.Result {
 	res := u.repo.Get(ctx, d.ID)
 	if !res.IsOk(){
 		return res
@@ -114,6 +116,15 @@ func (u *pageUsecase) Update(ctx context.Context, d *dto.UpdatePage) result.Resu
 	err = p.Update(ctx, d)
 	if err != nil {
 		return result.Failure(err).WithStatusCode(http.StatusBadRequest)
+	}
+
+	if imageData != nil {
+		success, status, value, err := u.media.Upload(imageData).Deconstruct()
+		if !success {
+			return result.Failure(err).WithStatusCode(status)
+		}
+
+		p.UpdateImage(ctx, value.(*model.Image))
 	}
 
 	res = u.repo.Update(ctx, p)

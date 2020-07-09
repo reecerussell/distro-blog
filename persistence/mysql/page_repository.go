@@ -54,6 +54,7 @@ func pageReader(s database.ScannerFunc) (interface{}, error) {
 		&dm.Content,
 		&dm.IsBlog,
 		&dm.IsActive,
+		&dm.ImageID,
 	)
 	if err != nil {
 		return nil, err
@@ -125,6 +126,7 @@ func (r *pageRepository) Update(ctx context.Context, p *model.Page) result.Resul
 		dm.Description,
 		dm.Content,
 		dm.IsActive,
+		dm.ImageID,
 	}
 
 	return r.executePage(ctx, p, query, args)

@@ -25,3 +25,23 @@ func NewPageRepository(db interface{}) repository.PageRepository {
 		panic("unsupported database type")
 	}
 }
+
+// NewImageRepository returns and instance of ImageRepository for the given database type.
+func NewImageRepository(db interface{}) repository.ImageRepository {
+	switch db.(type) {
+	case *database.MySQL:
+		return mysql.NewImageRepository(db.(*database.MySQL))
+	default:
+		panic("unsupported database type")
+	}
+}
+
+// NewImageTypeRepository returns and instance of ImageTypeRepository for the given database type.
+func NewImageTypeRepository(db interface{}) repository.ImageTypeRepository {
+	switch db.(type) {
+	case *database.MySQL:
+		return mysql.NewImageTypeRepository(db.(*database.MySQL))
+	default:
+		panic("unsupported database type")
+	}
+}

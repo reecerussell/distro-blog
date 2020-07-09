@@ -8,5 +8,7 @@ import (
 )
 
 type ImageRepository interface {
+	Get(ctx context.Context, id string) result.Result
 	Add(ctx context.Context, i *model.Image) result.Result
+	Delete(ctx context.Context, id string) result.Result
 }

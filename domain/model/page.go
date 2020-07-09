@@ -91,6 +91,11 @@ func (p *Page) GetID() string {
 	return p.id
 }
 
+// GetImageId return's the page's image id.
+func (p *Page) GetImageID() *string {
+	return p.imageID
+}
+
 // Update updates the page's data, including; title, description and content.
 func (p *Page) Update(ctx context.Context, d *dto.UpdatePage) error {
 	err := p.updateContent(d.Title, d.Description, d.Content)

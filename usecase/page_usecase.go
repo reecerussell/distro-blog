@@ -119,7 +119,7 @@ func (u *pageUsecase) Update(ctx context.Context, d *dto.UpdatePage, imageData [
 	}
 
 	if imageData != nil {
-		success, status, value, err := u.media.Upload(imageData).Deconstruct()
+		success, status, value, err := u.media.Upload(ctx, imageData).Deconstruct()
 		if !success {
 			return result.Failure(err).WithStatusCode(status)
 		}
@@ -186,5 +186,19 @@ func (u *pageUsecase) Deactivate(ctx context.Context, id string) result.Result {
 }
 
 func (u *pageUsecase) Delete(ctx context.Context, id string) result.Result {
+	res := u.repo.Get(ctx, id)
+	success, status, value, err := res.Deconstruct()
+	if !success {
+		return result.Failure(err).WithStatusCode(status)
+	}
+
+	p := value.(*model.Page)
+	if imgID := p.GetImageID(); imgID != nil {
+		res = u.media.Delete(ctx, *imgID)
+		if !res.IsOk() {
+			return res
+		}
+	}
+
 	return u.repo.Delete(ctx, id)
 }

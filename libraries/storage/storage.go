@@ -77,3 +77,24 @@ func (s *Service) Get(key string) ([]byte, error) {
 	return buf, nil
 }
 
+// Delete attempts to delete a specific object from S3.
+func (s *Service) Delete(key string) error {
+	svc := s3.New(s.sess)
+	_, err := svc.DeleteObject(&s3.DeleteObjectInput{
+		Key: aws.String(key),
+		Bucket: aws.String(s.bucketName),
+	})
+	if err != nil {
+		return fmt.Errorf("unable to delete object from s3: %v", err)
+	}
+
+	err = svc.WaitUntilObjectExists(&s3.HeadObjectInput{
+		Key: aws.String(key),
+		Bucket: aws.String(s.bucketName),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to delete object from s3: %v", err)
+	}
+
+	return nil
+}

@@ -42,3 +42,16 @@ func (i *Image) DataModel() *datamodel.Image {
 
 	return dm
 }
+
+func ImageFromDataModel(d *datamodel.Image) *Image {
+	i := &Image {
+		id: d.ID,
+		typeID: d.TypeID,
+	}
+
+	if d.AlternativeText.Valid {
+		i.alternativeText = &d.AlternativeText.String
+	}
+
+	return i
+}

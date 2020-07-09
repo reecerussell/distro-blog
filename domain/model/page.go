@@ -20,6 +20,7 @@ import (
 
 func init() {
 	domainevents.RegisterEventHandler(&event.AddPageAudit{}, &handler.AddPageAudit{})
+	domainevents.RegisterEventHandler(&event.RemovePageImage{}, &handler.RemovePageImage{})
 }
 
 const (
@@ -27,6 +28,7 @@ const (
 	AuditPageUpdated = "PAGE_UPDATED"
 	AuditPageDeactivated = "PAGE_DEACTIVATED"
 	AuditPageActivated = "PAGE_ACTIVATED"
+	AuditPageImageUpdated = "PAGE_IMAGE_UPDATED"
 )
 
 // These tags are tags which are not allowed to be used
@@ -40,6 +42,7 @@ type Page struct {
 	id string
 	title string
 	description string
+	imageID *string
 	content *string
 	isBlog bool
 	isActive bool
@@ -207,6 +210,23 @@ func (p *Page) Activate(ctx context.Context) error {
 	p.addAudit(ctx, AuditPageActivated)
 
 	return nil
+}
+
+func (p *Page) UpdateImage(ctx context.Context, i *Image) {
+	if p.imageID != nil {
+		p.RaiseEvent(&event.RemovePageImage{
+			PageID: p.id,
+		})
+	}
+
+	if i == nil {
+		p.imageID = nil
+	} else {
+		id := i.GetID()
+		p.imageID = &id
+	}
+
+	p.addAudit(ctx, AuditPageImageUpdated)
 }
 
 // addAudit raises an audit domain event for the page.

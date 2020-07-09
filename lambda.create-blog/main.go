@@ -21,7 +21,7 @@ var pages usecase.PageUsecase
 func init() {
 	db := database.NewMySQL(os.Getenv("CONN_STRING"))
 	repo := persistence.NewPageRepository(db)
-	pages = usecase.NewPageUsecase(repo)
+	pages = usecase.NewPageUsecase(repo, nil)
 }
 
 // handleCreate handles incoming API Gateway requests to create a new blog.

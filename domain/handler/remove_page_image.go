@@ -11,10 +11,10 @@ import (
 type RemovePageImage struct {}
 
 func (*RemovePageImage) Invoke(ctx context.Context, tx *database.Transaction, e interface{}) result.Result {
-	const query string = "CALL `remove_page_image`(?);"
+	const query string = "CALL `delete_image`(?);"
 	evt := e.(*event.RemovePageImage)
 
-	err := tx.Execute(ctx, query, evt.PageID)
+	err := tx.Execute(ctx, query, evt.ImageID)
 	if err != nil {
 		return result.Failure(err)
 	}

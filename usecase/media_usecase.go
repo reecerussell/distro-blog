@@ -18,6 +18,8 @@ type MediaUsecase interface {
 	// Upload puts the data into storage, and returns a result
 	// with the value set as the id of the newly inserted database record.
 	Upload(ctx context.Context, data []byte) result.Result
+
+	Delete(ctx context.Context, id string) result.Result
 }
 
 func NewMediaUsecase(ir repository.ImageRepository, itr repository.ImageTypeRepository) (MediaUsecase, error) {
@@ -66,4 +68,18 @@ func (u *mediaUsecase) Upload(ctx context.Context, data []byte) result.Result {
 	}
 
 	return result.Ok().WithValue(img)
+}
+
+func (u *mediaUsecase) Delete(ctx context.Context, id string) result.Result {
+	res := u.ir.Delete(ctx, id)
+	if !res.IsOk() {
+		return res
+	}
+
+	err := u.stg.Delete(id)
+	if err != nil {
+		return result.Failure(err)
+	}
+
+	return result.Ok()
 }

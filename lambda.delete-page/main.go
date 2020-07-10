@@ -18,7 +18,15 @@ var pages usecase.PageUsecase
 func init() {
 	db := database.NewMySQL(os.Getenv("CONN_STRING"))
 	repo := persistence.NewPageRepository(db)
-	pages = usecase.NewPageUsecase(repo, nil)
+
+	ir := persistence.NewImageRepository(db)
+	itr := persistence.NewImageTypeRepository(db)
+	media, err := usecase.NewMediaUsecase(ir, itr)
+	if err != nil {
+		panic(err)
+	}
+
+	pages = usecase.NewPageUsecase(repo, media)
 }
 
 // handleDelete handles incoming API Gateway requests to delete pages.

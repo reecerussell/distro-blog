@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"net/http"
 
@@ -9,9 +10,12 @@ import (
 	"github.com/reecerussell/distro-blog/domain/model"
 	"github.com/reecerussell/distro-blog/domain/repository"
 	"github.com/reecerussell/distro-blog/libraries/database"
+	"github.com/reecerussell/distro-blog/libraries/logging"
 	"github.com/reecerussell/distro-blog/libraries/normalization"
 	"github.com/reecerussell/distro-blog/libraries/result"
 )
+
+var errMsgImageTypeServerError = "IMAGE_TYPE_SERVER_ERROR"
 
 type imageTypeRepository struct {
 	db *database.MySQL
@@ -27,12 +31,15 @@ func NewImageTypeRepository(db *database.MySQL) repository.ImageTypeRepository {
 
 func (r *imageTypeRepository) GetByName(ctx context.Context, name string) result.Result{
 	const query string = "CALL `get_image_type_by_name`(?);"
-	name = r.norm.Normalize(name)
-
-	dm, err := r.db.Read(ctx, query, imageTypeReader, name)
+	dm, err := r.db.Read(ctx, query, imageTypeReader, r.norm.Normalize(name))
 	if err != nil {
-		msg := fmt.Sprintf("no image type exists with name '%s'", name)
-		return result.Failure(msg).WithStatusCode(http.StatusNotFound)
+		if err == sql.ErrNoRows {
+			msg := fmt.Sprintf("no image type exists with name '%s'", name)
+			return result.Failure(msg).WithStatusCode(http.StatusNotFound)
+		}
+
+		logging.Error(err)
+		return result.Failure(errMsgImageTypeServerError)
 	}
 
 	it := model.ImageTypeFromDataModel(dm.(*datamodel.ImageType))

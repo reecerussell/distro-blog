@@ -102,34 +102,38 @@ func (u *pageUsecase) Get(ctx context.Context, id string, expand ...string) resu
 }
 
 func (u *pageUsecase) Update(ctx context.Context, d *dto.UpdatePage, imageData []byte) result.Result {
-	res := u.repo.Get(ctx, d.ID)
-	if !res.IsOk(){
-		return res
-	}
-
-	success, status, value, err := res.Deconstruct()
+	logging.Debugf("Attempting to update page...\n")
+	logging.Debugf("Fetching page...\n")
+	success, status, value, err := u.repo.Get(ctx, d.ID).Deconstruct()
 	if !success {
+		logging.Errorf("Failed to fetch user: %v\n", err)
 		return result.Failure(err).WithStatusCode(status)
 	}
 
+	logging.Debugf("Updating page model...\n")
 	p := value.(*model.Page)
 	err = p.Update(ctx, d)
 	if err != nil {
+		logging.Errorf("Failed to update page model: %v\n",err)
 		return result.Failure(err).WithStatusCode(http.StatusBadRequest)
 	}
 
 	if imageData != nil {
+		logging.Debugf("Updating page image...\n")
 		success, status, value, err := u.media.Upload(ctx, imageData).Deconstruct()
 		if !success {
+			logging.Errorf("Failed to update page image: %v\n", err)
 			return result.Failure(err).WithStatusCode(status)
 		}
 
 		p.UpdateImage(ctx, value.(*model.Image))
 	}
 
-	res = u.repo.Update(ctx, p)
-	if !res.IsOk() {
-		return res
+	logging.Debugf("Saving changes...\n")
+	success, status, _, err = u.repo.Update(ctx, p).Deconstruct()
+	if !success {
+		logging.Debugf("Failed to save changes: %v\n", err)
+		return result.Failure(err).WithStatusCode(status)
 	}
 
 	return result.Ok()

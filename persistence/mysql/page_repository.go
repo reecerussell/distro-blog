@@ -118,7 +118,7 @@ func (r *pageRepository) Create(ctx context.Context, p *model.Page) result.Resul
 }
 
 func (r *pageRepository) Update(ctx context.Context, p *model.Page) result.Result {
-	const query string = "CALL `update_page`(?,?,?,?,?);"
+	const query string = "CALL `update_page`(?,?,?,?,?,?);"
 	dm := p.DataModel()
 	args := []interface{}{
 		dm.ID,

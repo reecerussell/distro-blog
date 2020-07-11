@@ -20,7 +20,7 @@ import (
 
 func init() {
 	domainevents.RegisterEventHandler(&event.AddPageAudit{}, &handler.AddPageAudit{})
-	domainevents.RegisterEventHandler(&event.RemovePageImage{}, &handler.RemovePageImage{})
+	domainevents.RegisterEventHandler(&event.RemovePageImage{}, handler.NewRemovePageImageHandler())
 }
 
 const (

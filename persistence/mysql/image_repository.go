@@ -93,13 +93,13 @@ func (r *imageRepository) Delete(ctx context.Context, id string) result.Result {
 func (r *imageRepository) GetType(ctx context.Context, id string) result.Result {
 	const query string = "CALL `get_image_type`(?);"
 	imageType, err := r.db.Read(ctx, query, getTypeReader, id)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return result.Failure(errMsgImageNotFound).WithStatusCode(http.StatusNotFound)
-		}
-
+	if err != nil && err != sql.ErrNoRows {
 		logging.Error(err)
 		return result.Failure(errMsgImageDbError)
+	}
+
+	if imageType == nil || err == sql.ErrNoRows {
+		return result.Failure(errMsgImageNotFound).WithStatusCode(http.StatusNotFound)
 	}
 
 	return result.Ok().WithValue(imageType)

@@ -2,9 +2,13 @@ package usecase
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
+	"github.com/aws/aws-lambda-go/events"
+	"github.com/reecerussell/distro-blog/libraries/logging"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/reecerussell/distro-blog/domain/model"
 	"github.com/reecerussell/distro-blog/domain/repository"
@@ -20,6 +24,7 @@ type MediaUsecase interface {
 	Upload(ctx context.Context, data []byte) result.Result
 
 	Delete(ctx context.Context, id string) result.Result
+	DownloadForLambda(ctx context.Context, id string) events.APIGatewayProxyResponse
 }
 
 func NewMediaUsecase(ir repository.ImageRepository, itr repository.ImageTypeRepository) (MediaUsecase, error) {
@@ -82,4 +87,28 @@ func (u *mediaUsecase) Delete(ctx context.Context, id string) result.Result {
 	}
 
 	return result.Ok()
+}
+
+func (u *mediaUsecase) DownloadForLambda(ctx context.Context, id string) events.APIGatewayProxyResponse {
+	success, status, imageType, err := u.ir.GetType(ctx, id).Deconstruct()
+	if !success {
+		logging.Errorf("Failed to get image type: %v\n", err)
+		return events.APIGatewayProxyResponse{StatusCode: status}
+	}
+
+	data, err := u.stg.Get(id)
+	if err != nil {
+		logging.Errorf("Failed to download image: %v\n", err)
+		return events.APIGatewayProxyResponse{StatusCode: http.StatusInternalServerError}
+	}
+
+	return events.APIGatewayProxyResponse{
+		Headers: map[string]string{
+			"Content-Type": strings.ToLower(imageType.(string)),
+			"Cache-Control": "max-age=604800",
+		},
+		StatusCode: http.StatusOK,
+		Body: base64.StdEncoding.EncodeToString(data),
+		IsBase64Encoded: true,
+	}
 }

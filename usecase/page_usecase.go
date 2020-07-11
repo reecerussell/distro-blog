@@ -190,19 +190,31 @@ func (u *pageUsecase) Deactivate(ctx context.Context, id string) result.Result {
 }
 
 func (u *pageUsecase) Delete(ctx context.Context, id string) result.Result {
+	logging.Debugf("Attempting to delete page...\n")
+	logging.Debugf("Getting page...\n")
 	res := u.repo.Get(ctx, id)
 	success, status, value, err := res.Deconstruct()
 	if !success {
+		logging.Errorf("Failed to get page: %v\n", err)
 		return result.Failure(err).WithStatusCode(status)
 	}
 
 	p := value.(*model.Page)
 	if imgID := p.GetImageID(); imgID != nil {
-		res = u.media.Delete(ctx, *imgID)
-		if !res.IsOk() {
-			return res
+		logging.Debugf("Deleting page image...\n")
+		success, status, _, err = u.media.Delete(ctx, *imgID).Deconstruct()
+		if !success {
+			logging.Errorf("Failed to delete image: %v\n", err)
+			return result.Failure(err).WithStatusCode(status)
 		}
 	}
 
-	return u.repo.Delete(ctx, id)
+	logging.Debugf("Deleting page...\n")
+	success, status, _, err = u.repo.Delete(ctx, id).Deconstruct()
+	if !success {
+		logging.Errorf("Failed to delete page: %v\n", err)
+		return result.Failure(err).WithStatusCode(status)
+	}
+	
+	return result.Ok()
 }

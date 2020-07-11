@@ -88,13 +88,5 @@ func (s *Service) Delete(key string) error {
 		return fmt.Errorf("unable to delete object from s3: %v", err)
 	}
 
-	err = svc.WaitUntilObjectExists(&s3.HeadObjectInput{
-		Key: aws.String(key),
-		Bucket: aws.String(s.bucketName),
-	})
-	if err != nil {
-		return fmt.Errorf("failed to delete object from s3: %v", err)
-	}
-
 	return nil
 }

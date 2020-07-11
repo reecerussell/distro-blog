@@ -34,7 +34,8 @@ func (r *pageRepository) Get(ctx context.Context, id string) result.Result {
 	const query string = "CALL `get_page`(?);"
 	dm, err := r.db.Read(ctx, query, pageReader, id)
 	if err != nil && err != sql.ErrNoRows {
-		return result.Failure(err)
+		logging.Error(err)
+		return result.Failure(errMsgPageDbError)
 	}
 
 	if err == sql.ErrNoRows || dm == nil {

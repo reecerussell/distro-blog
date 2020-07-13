@@ -18,6 +18,7 @@ interface Page {
     content: string;
     isBlog: boolean;
     isActive: boolean;
+    imageId?: string;
     audit?: PageAudit[];
 }
 

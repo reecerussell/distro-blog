@@ -315,12 +315,15 @@ func PageFromDataModel(d *datamodel.Page) *Page {
 
 // DTO returns a *dto.Page for the page.
 func (p *Page) DTO() *dto.Page {
-	return &dto.Page{
+	d := &dto.Page{
 		ID:          p.id,
 		Title:       p.title,
 		Description: p.description,
 		Content:     p.content,
 		IsBlog:      p.isBlog,
 		IsActive:    p.isActive,
+		ImageID: p.imageID,
 	}
+
+	return d
 }

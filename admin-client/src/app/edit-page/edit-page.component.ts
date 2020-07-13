@@ -111,7 +111,12 @@ export class EditPageComponent implements OnInit {
         }
 
         const res = await this.api.Pages.Update(this.model, imageBlog);
-        this.error = res.ok ? null : res.error;
+        if (!res.ok) {
+            this.error = res.error;
+        } else {
+            this.error = null;
+            await this.fetchPage(this.model.id);
+        }
 
         this.loading = false;
     }

@@ -142,16 +142,24 @@ class PageService {
     }
 
     async Create(data: CreatePage): Promise<ApiResponse> {
-        const res = await fetch(this.baseUrl, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: getAuthHeader(),
-            },
-            body: JSON.stringify(data),
-        });
+        try {
+            const res = await fetch(this.baseUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: getAuthHeader(),
+                },
+                body: JSON.stringify(data),
+            });
 
-        return await parseResponse(res);
+            return await parseResponse(res);
+        } catch (err) {
+            return new Promise(() => ({
+                ok: false,
+                data: null,
+                error: err,
+            }));
+        }
     }
 
     async Get(id: string, ...expand): Promise<ApiResponse> {
@@ -173,15 +181,31 @@ class PageService {
         return await parseResponse(res);
     }
 
-    async Update(data: UpdatePage): Promise<ApiResponse> {
-        const res = await fetch(this.baseUrl, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: getAuthHeader(),
-            },
-            body: JSON.stringify(data),
-        });
+    async Update(data: UpdatePage, image: Blob = null): Promise<ApiResponse> {
+        let res: Response;
+
+        if (image === null) {
+            res = await fetch(this.baseUrl, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: getAuthHeader(),
+                },
+                body: JSON.stringify(data),
+            });
+        } else {
+            const formData = new FormData();
+            Object.keys(data).map((k) => formData.set(k, data[k]));
+            formData.set("image", image, "uploaded-image");
+
+            res = await fetch(this.baseUrl, {
+                method: "PUT",
+                headers: {
+                    Authorization: getAuthHeader(),
+                },
+                body: formData,
+            });
+        }
 
         return await parseResponse(res);
     }

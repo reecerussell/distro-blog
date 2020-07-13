@@ -62,7 +62,7 @@ func (u *mediaUsecase) Upload(ctx context.Context, data []byte) result.Result {
 	it := value.(*model.ImageType)
 	img := model.NewImage(it)
 
-	err = u.stg.Set(img.GetID(), data)
+	err = u.stg.SetImage(img.GetID(), mt, data)
 	if err != nil {
 		return result.Failure(err)
 	}

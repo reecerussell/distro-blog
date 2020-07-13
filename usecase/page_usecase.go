@@ -120,6 +120,7 @@ func (u *pageUsecase) Update(ctx context.Context, d *dto.UpdatePage, imageData [
 
 	if imageData != nil {
 		logging.Debugf("Updating page image...\n")
+		logging.Debugf("Image size: %d\n", len(imageData))
 		success, status, value, err := u.media.Upload(ctx, imageData).Deconstruct()
 		if !success {
 			logging.Errorf("Failed to update page image: %v\n", err)

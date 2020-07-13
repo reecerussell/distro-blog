@@ -47,6 +47,24 @@ func (s *Service) Set(key string, data []byte) error {
 	return nil
 }
 
+// SetImage uploads an image to S3 with the given data and content type.
+func (s *Service) SetImage(key, contentType string, data []byte) error {
+	uploader := s3manager.NewUploader(s.sess)
+	buf := bytes.NewBuffer(data)
+
+	_, err := uploader.Upload(&s3manager.UploadInput{
+		Bucket: aws.String(s.bucketName),
+		Key: aws.String(key),
+		ContentType: aws.String(contentType),
+		Body: buf,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to upload to bucket '%s' with key '%s': %v", s.bucketName, key, err)
+	}
+
+	return nil
+}
+
 // basicWriter is a very basic implementation of io.WriterAt, to give
 // the ability to download objects from S3 to a buffer/[]byte, instead
 // of a file.

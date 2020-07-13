@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ViewChild, ElementRef } from "@angular/core";
 import { Page } from "../models/page";
 import { ApiService } from "../api.service";
 import { ActivatedRoute } from "@angular/router";
@@ -11,6 +11,8 @@ import * as ClassicEditor from "@ckeditor/ckeditor5-build-classic";
     styleUrls: ["./edit-page.component.scss"],
 })
 export class EditPageComponent implements OnInit {
+    @ViewChild("imageUpload") imageUpload: ElementRef;
+
     model: Page;
     contentEditor = ClassicEditor;
     error: string = null;
@@ -99,7 +101,16 @@ export class EditPageComponent implements OnInit {
 
         this.loading = true;
 
-        const res = await this.api.Pages.Update(this.model);
+        let imageBlog: Blob = null;
+        const fileUpload = this.imageUpload.nativeElement;
+        if (fileUpload.files && fileUpload.files.length > 0) {
+            const buffer = await fileUpload.files[0].arrayBuffer();
+            imageBlog = new Blob([
+                new Uint8Array(buffer, 0, buffer.byteLength),
+            ]);
+        }
+
+        const res = await this.api.Pages.Update(this.model, imageBlog);
         this.error = res.ok ? null : res.error;
 
         this.loading = false;

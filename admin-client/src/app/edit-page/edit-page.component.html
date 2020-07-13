@@ -98,6 +98,24 @@
                             ></ckeditor>
                         </div>
                         <div class="form-group">
+                            <label for="file">Image</label>
+                            <ng-template [ngIf]="model.imageId">
+                                <img
+                                    src="https://kw6lirghub.execute-api.eu-west-2.amazonaws.com/dev/media/{{
+                                        model.imageId
+                                    }}"
+                                    class="img-fluid"
+                                />
+                            </ng-template>
+                            <input
+                                type="file"
+                                name="file"
+                                id="file"
+                                class="form-control"
+                                #imageUpload
+                            />
+                        </div>
+                        <div class="form-group">
                             <button
                                 type="submit"
                                 class="btn btn-success float-right"

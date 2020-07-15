@@ -9,6 +9,7 @@ type Page struct {
 	IsBlog bool `json:"isBlog"`
 	IsActive bool `json:"isActive"`
 	ImageID *string `json:"imageId"`
+	URL string `json:"url"`
 
 	Audit []*PageAudit `json:"audit,omitempty"`
 }

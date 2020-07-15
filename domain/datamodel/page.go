@@ -12,4 +12,5 @@ type Page struct {
 	Content sql.NullString
 	IsBlog bool
 	IsActive bool
+	URL string
 }

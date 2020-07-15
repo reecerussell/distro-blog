@@ -56,6 +56,7 @@ func pageReader(s database.ScannerFunc) (interface{}, error) {
 		&dm.IsBlog,
 		&dm.IsActive,
 		&dm.ImageID,
+		&dm.URL,
 	)
 	if err != nil {
 		return nil, err

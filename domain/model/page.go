@@ -46,6 +46,7 @@ type Page struct {
 	content *string
 	isBlog bool
 	isActive bool
+	url string
 }
 
 // NewPage creates a new page domain object with the given date.
@@ -264,6 +265,7 @@ func (p *Page) DataModel() *datamodel.Page {
 		Description: p.description,
 		IsBlog:      p.isBlog,
 		IsActive:    p.isActive,
+		URL: p.url,
 	}
 
 	if p.content == nil {
@@ -300,6 +302,7 @@ func PageFromDataModel(d *datamodel.Page) *Page {
 		description: d.Description,
 		isActive: d.IsActive,
 		isBlog: d.IsBlog,
+		url: d.URL,
 	}
 
 	if d.Content.Valid {
@@ -323,6 +326,7 @@ func (p *Page) DTO() *dto.Page {
 		IsBlog:      p.isBlog,
 		IsActive:    p.isActive,
 		ImageID: p.imageID,
+		URL: p.url,
 	}
 
 	return d

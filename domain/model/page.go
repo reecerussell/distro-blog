@@ -58,7 +58,7 @@ func NewPage(ctx context.Context, d *dto.CreatePage) (*Page, error) {
 		isBlog: false,
 	}
 
-	err := p.updateContent(d.Title, d.Description, d.Content)
+	err := p.updateContent(d.Title, d.Description, d.Content, d.URL)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +77,7 @@ func NewBlogPage(ctx context.Context, d *dto.CreatePage) (*Page, error) {
 		isBlog: true,
 	}
 
-	err := p.updateContent(d.Title, d.Description, d.Content)
+	err := p.updateContent(d.Title, d.Description, d.Content, d.URL)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +99,7 @@ func (p *Page) GetImageID() *string {
 
 // Update updates the page's data, including; title, description and content.
 func (p *Page) Update(ctx context.Context, d *dto.UpdatePage) error {
-	err := p.updateContent(d.Title, d.Description, d.Content)
+	err := p.updateContent(d.Title, d.Description, d.Content, d.URL)
 	if err != nil {
 		return err
 	}
@@ -111,7 +111,7 @@ func (p *Page) Update(ctx context.Context, d *dto.UpdatePage) error {
 
 // updateContent moves the core update logic to a separate functions to avoid
 // code duplication.
-func (p *Page) updateContent(title, description string, content *string) error {
+func (p *Page) updateContent(title, description string, content *string, url string) error {
 	err := p.UpdateTitle(title)
 	if err != nil {
 		return err
@@ -123,6 +123,11 @@ func (p *Page) updateContent(title, description string, content *string) error {
 	}
 
 	err = p.UpdateContent(content)
+	if err != nil {
+		return err
+	}
+
+	err = p.UpdateURL(url)
 	if err != nil {
 		return err
 	}
@@ -188,6 +193,69 @@ func (p *Page) UpdateContent(content *string) error {
 	}
 
 	p.content = content
+
+	return nil
+}
+
+// A whitelist of characters that are allowed in page urls.
+var urlSafeCharMap = map[string]bool {
+	"a": true,
+	"b": true,
+	"c": true,
+	"d": true,
+	"e": true,
+	"f": true,
+	"g": true,
+	"h": true,
+	"i": true,
+	"j": true,
+	"k": true,
+	"l": true,
+	"m": true,
+	"n": true,
+	"o": true,
+	"p": true,
+	"q": true,
+	"r": true,
+	"s": true,
+	"t": true,
+	"u": true,
+	"v": true,
+	"w": true,
+	"x": true,
+	"y": true,
+	"z": true,
+	"1": true,
+	"2": true,
+	"3": true,
+	"4": true,
+	"5": true,
+	"6": true,
+	"7": true,
+	"8": true,
+	"9": true,
+	"0": true,
+	"-": true,
+}
+
+// UpdateURL updates the page's url. The url can only contain
+// whitelisted characters and cannot be greater than 255 chars long.
+func (p *Page) UpdateURL(url string) error {
+	if len(url) > 255 {
+		return fmt.Errorf("page url cannot be greater than 255 characters long")
+	}
+
+	if url != "" {
+		chars := strings.Split(url, "")
+		for _, c := range chars {
+			_, ok := urlSafeCharMap[c]
+			if !ok {
+				return fmt.Errorf("the character '%s' is anot allow in a page url", c)
+			}
+		}
+	}
+
+	p.url = url
 
 	return nil
 }

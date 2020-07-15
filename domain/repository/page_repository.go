@@ -17,4 +17,5 @@ type PageRepository interface {
 	Update(ctx context.Context, p *model.Page) result.Result
 	Delete(ctx context.Context, id string) result.Result
 	GetAudit(ctx context.Context, id string) result.Result
+	CountByURL(ctx context.Context, p *model.Page) result.Result
 }

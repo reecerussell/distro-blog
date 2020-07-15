@@ -215,3 +215,15 @@ func pageAuditReader(s database.ScannerFunc) (interface{}, error) {
 
 	return &dm, nil
 }
+
+func (r *pageRepository) CountByURL(ctx context.Context, p *model.Page) result.Result {
+	const query string = "CALL `count_pages_by_url`(?, ?);"
+
+	dm := p.DataModel()
+	c, err := r.db.Count(ctx, query, dm.URL, dm.ID)
+	if err != nil {
+		return result.Failure(err)
+	}
+
+	return result.Ok().WithValue(c)
+}

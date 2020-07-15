@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"github.com/reecerussell/distro-blog/domain/service"
 	"net/http"
 	"strings"
 
@@ -26,12 +27,14 @@ type PageUsecase interface {
 
 type pageUsecase struct {
 	repo repository.PageRepository
+	svc *service.PageService
 	media MediaUsecase
 }
 
 func NewPageUsecase(repo repository.PageRepository, media MediaUsecase) PageUsecase {
 	return &pageUsecase{
 		repo: repo,
+		svc: service.NewPageService(repo),
 		media: media,
 	}
 }
@@ -42,18 +45,22 @@ func (u *pageUsecase) CreatePage(ctx context.Context, d *dto.CreatePage) result.
 		return result.Failure(err).WithStatusCode(http.StatusBadRequest)
 	}
 
-	success, status, _, err := u.repo.Create(ctx, p).Deconstruct()
-	if !success {
-		return result.Failure(err).WithStatusCode(status)
-	}
-
-	return result.Ok().WithValue(p.GetID())
+	return u.createPage(ctx, p)
 }
 
 func (u *pageUsecase) CreateBlog(ctx context.Context, d *dto.CreatePage) result.Result {
 	p, err := model.NewBlogPage(ctx, d)
 	if err != nil {
 		return result.Failure(err).WithStatusCode(http.StatusBadRequest)
+	}
+
+	return u.createPage(ctx, p)
+}
+
+func (u *pageUsecase) createPage(ctx context.Context, p *model.Page) result.Result {
+	res := u.svc.EnsureURLIsUnique(ctx, p)
+	if !res.IsOk() {
+		return res
 	}
 
 	success, status, _, err := u.repo.Create(ctx, p).Deconstruct()
@@ -116,6 +123,11 @@ func (u *pageUsecase) Update(ctx context.Context, d *dto.UpdatePage, imageData [
 	if err != nil {
 		logging.Errorf("Failed to update page model: %v\n",err)
 		return result.Failure(err).WithStatusCode(http.StatusBadRequest)
+	}
+
+	res := u.svc.EnsureURLIsUnique(ctx, p)
+	if !res.IsOk() {
+		return res
 	}
 
 	if imageData != nil {

@@ -106,7 +106,7 @@ func listItemReader(s database.ScannerFunc) (interface{}, error) {
 }
 
 func (r *pageRepository) Create(ctx context.Context, p *model.Page) result.Result {
-	const query string = "CALL `create_page`(?,?,?,?,?);"
+	const query string = "CALL `create_page`(?,?,?,?,?,?);"
 	dm := p.DataModel()
 	args := []interface{}{
 		dm.ID,
@@ -114,13 +114,14 @@ func (r *pageRepository) Create(ctx context.Context, p *model.Page) result.Resul
 		dm.Description,
 		dm.Content,
 		dm.IsBlog,
+		dm.URL,
 	}
 
 	return r.executePage(ctx, p, query, args)
 }
 
 func (r *pageRepository) Update(ctx context.Context, p *model.Page) result.Result {
-	const query string = "CALL `update_page`(?,?,?,?,?,?);"
+	const query string = "CALL `update_page`(?,?,?,?,?,?,?);"
 	dm := p.DataModel()
 	args := []interface{}{
 		dm.ID,
@@ -129,6 +130,7 @@ func (r *pageRepository) Update(ctx context.Context, p *model.Page) result.Resul
 		dm.Content,
 		dm.IsActive,
 		dm.ImageID,
+		dm.URL,
 	}
 
 	return r.executePage(ctx, p, query, args)

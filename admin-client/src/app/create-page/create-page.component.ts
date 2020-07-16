@@ -5,6 +5,8 @@ import { Router } from "@angular/router";
 import { Title } from "@angular/platform-browser";
 import * as ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
+const allowedUrlChars = "abcdefghijklmnopqrstuvwxyz1234567890-";
+
 @Component({
     selector: "app-create-page",
     templateUrl: "./create-page.component.html",
@@ -15,9 +17,12 @@ export class CreatePageComponent implements OnInit {
     error: string = null;
     loading: boolean = false;
     contentEditor = ClassicEditor;
+    isBlog: boolean = false;
+    isUrlDirty: boolean = false;
 
     titleError: string = null;
     descriptionError: string = null;
+    urlError: string = null;
 
     constructor(
         private api: ApiService,
@@ -34,6 +39,39 @@ export class CreatePageComponent implements OnInit {
             content: "",
             url: "",
         };
+    }
+
+    onTitleChange(): any {
+        this.validateTitle();
+
+        if (!this.isUrlDirty) {
+            setTimeout(() => {
+                const chars = allowedUrlChars.split("");
+                let url = this.model.title.toLowerCase().replace(" ", "-");
+                let urlChars = url.split("");
+
+                let count = urlChars.length;
+                let i = 0;
+
+                while (i < count) {
+                    if (urlChars[i] === " ") {
+                        urlChars[i] = "-";
+                    } else if (chars.indexOf(urlChars[i]) == -1) {
+                        urlChars.splice(i, 1);
+                        count--;
+                    }
+
+                    i++;
+                }
+
+                this.model.url = urlChars.join("");
+            }, 200);
+        }
+    }
+
+    onUrlChange(): any {
+        this.validateUrl();
+        this.isUrlDirty = true;
     }
 
     validateTitle(): any {
@@ -67,6 +105,40 @@ export class CreatePageComponent implements OnInit {
         return true;
     }
 
+    validateUrl(): any {
+        const url = this.model.url;
+        if (url.length < 1) {
+            this.urlError = "Please enter a url.";
+            return false;
+        } else if (url.length > 255) {
+            this.urlError = "URL cannot be longer than 255 characters.";
+            return false;
+        } else {
+            const chars = allowedUrlChars.split("");
+            const urlChars = url.toLowerCase().split("");
+            for (let i = 0; i < urlChars.length; i++) {
+                const char = urlChars[i];
+                let valid = false;
+
+                for (let j = 0; j < chars.length; j++) {
+                    if (char === chars[j]) {
+                        valid = true;
+                        break;
+                    }
+                }
+
+                if (!valid) {
+                    this.urlError = `The character '${char}' is not allowed in URLs.`;
+                    return false;
+                }
+            }
+
+            this.urlError = null;
+        }
+
+        return true;
+    }
+
     validate() {
         let valid = true;
 
@@ -75,6 +147,10 @@ export class CreatePageComponent implements OnInit {
         }
 
         if (!this.validateDescription()) {
+            valid = false;
+        }
+
+        if (!this.validateUrl()) {
             valid = false;
         }
 

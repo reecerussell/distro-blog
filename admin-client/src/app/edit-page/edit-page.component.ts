@@ -94,7 +94,7 @@ export class EditPageComponent implements OnInit {
             return false;
         } else {
             const chars = allowedUrlChars.split("");
-            const urlChars = url.split("");
+            const urlChars = url.toLowerCase().split("");
             for (let i = 0; i < urlChars.length; i++) {
                 const char = urlChars[i];
                 let valid = false;
@@ -126,6 +126,10 @@ export class EditPageComponent implements OnInit {
         }
 
         if (!this.validateDescription()) {
+            valid = false;
+        }
+
+        if (!this.validateUrl()) {
             valid = false;
         }
 

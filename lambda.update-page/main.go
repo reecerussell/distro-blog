@@ -105,6 +105,7 @@ func readFormData(req events.APIGatewayProxyRequest, d *dto.UpdatePage) ([]byte,
 	d.ID = r.FormValue("id")
 	d.Title = r.FormValue("title")
 	d.Description = r.FormValue("description")
+	d.URL = r.FormValue("url")
 
 	content := r.FormValue("content")
 	if content != "" {

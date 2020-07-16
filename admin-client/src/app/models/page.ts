@@ -2,6 +2,7 @@ interface CreatePage {
     title: string;
     description: string;
     content: string;
+    url: string;
 }
 
 interface UpdatePage {
@@ -9,6 +10,7 @@ interface UpdatePage {
     title: string;
     description: string;
     content: string;
+    url: string;
 }
 
 interface Page {
@@ -19,6 +21,7 @@ interface Page {
     isBlog: boolean;
     isActive: boolean;
     imageId?: string;
+    url: string;
     audit?: PageAudit[];
 }
 

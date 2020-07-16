@@ -5,6 +5,8 @@ import { ActivatedRoute } from "@angular/router";
 import { Title } from "@angular/platform-browser";
 import * as ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
+const allowedUrlChars = "abcdefghijklmnopqrstuvwxyz1234567890-";
+
 @Component({
     selector: "app-edit-page",
     templateUrl: "./edit-page.component.html",
@@ -17,9 +19,11 @@ export class EditPageComponent implements OnInit {
     contentEditor = ClassicEditor;
     error: string = null;
     loading: boolean = false;
+    fileInputLabel: string = "Choose file";
 
     titleError: string = null;
     descriptionError: string = null;
+    urlError: string = null;
 
     constructor(
         private api: ApiService,
@@ -67,14 +71,48 @@ export class EditPageComponent implements OnInit {
     validateDescription(): any {
         const description = this.model.description;
         if (description.length < 1) {
-            this.descriptionError = "Please enter a description..";
+            this.descriptionError = "Please enter a description.";
             return false;
         } else if (description.length > 255) {
             this.descriptionError =
-                "Description cannot be longer than 255 characters";
+                "Description cannot be longer than 255 characters.";
             return false;
         } else {
             this.descriptionError = null;
+        }
+
+        return true;
+    }
+
+    validateUrl(): any {
+        const url = this.model.url;
+        if (url.length < 1) {
+            this.urlError = "Please enter a url.";
+            return false;
+        } else if (url.length > 255) {
+            this.urlError = "URL cannot be longer than 255 characters.";
+            return false;
+        } else {
+            const chars = allowedUrlChars.split("");
+            const urlChars = url.split("");
+            for (let i = 0; i < urlChars.length; i++) {
+                const char = urlChars[i];
+                let valid = false;
+
+                for (let j = 0; j < chars.length; j++) {
+                    if (char === chars[j]) {
+                        valid = true;
+                        break;
+                    }
+                }
+
+                if (!valid) {
+                    this.urlError = `The character '${char}' is not allowed in URLs.`;
+                    return false;
+                }
+            }
+
+            this.urlError = null;
         }
 
         return true;
@@ -92,6 +130,15 @@ export class EditPageComponent implements OnInit {
         }
 
         return valid;
+    }
+
+    onFileChange() {
+        const upload = this.imageUpload.nativeElement;
+        if (upload.files.length > 0) {
+            this.fileInputLabel = upload.files[0].name;
+        } else {
+            this.fileInputLabel = "Choose image";
+        }
     }
 
     async onSubmit() {

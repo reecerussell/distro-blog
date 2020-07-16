@@ -32,6 +32,7 @@ export class CreatePageComponent implements OnInit {
             title: "",
             description: "",
             content: "",
+            url: "",
         };
     }
 

@@ -4,6 +4,17 @@
     </h1>
     <ul>
         <li>
+            <a (click)="onSubmit()" class="text-success">
+                <i class="la la-save"></i>
+                <ng-template [ngIf]="loading" [ngIfElse]="saveButton">
+                    Saving...
+                </ng-template>
+                <ng-template #saveButton>
+                    Save
+                </ng-template>
+            </a>
+        </li>
+        <li>
             <a routerLink="/pages/{{ model?.id }}/info">
                 <i class="la la-info"></i>
                 Info
@@ -67,6 +78,39 @@
                                         </div>
                                     </ng-template>
                                 </div>
+                                <div class="form-group">
+                                    <label for="url">URL</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span
+                                                class="input-group-text"
+                                                id="url-prefix"
+                                                >{{
+                                                    model.isBlog
+                                                        ? "/blog/"
+                                                        : "/"
+                                                }}</span
+                                            >
+                                        </div>
+                                        <input
+                                            type="text"
+                                            name="url"
+                                            id="url"
+                                            class="form-control"
+                                            [class.is-invalid]="urlError"
+                                            [(ngModel)]="model.url"
+                                            (keyup)="validateUrl()"
+                                            placeholder="Enter a url..."
+                                            aria-describedby="url-prefix"
+                                            required
+                                        />
+                                        <ng-template [ngIf]="urlError">
+                                            <div class="invalid-feedback">
+                                                {{ urlError }}
+                                            </div>
+                                        </ng-template>
+                                    </div>
+                                </div>
                             </div>
                             <div class="col-xl-6">
                                 <div class="form-group">
@@ -97,47 +141,46 @@
                                 name="content"
                             ></ckeditor>
                         </div>
-                        <div class="form-group">
-                            <label for="file">Image</label>
-                            <ng-template [ngIf]="model.imageId">
-                                <img
-                                    src="https://kw6lirghub.execute-api.eu-west-2.amazonaws.com/dev/media/{{
-                                        model.imageId
-                                    }}"
-                                    class="img-fluid"
-                                />
-                            </ng-template>
-                            <input
-                                type="file"
-                                name="file"
-                                id="file"
-                                class="form-control"
-                                #imageUpload
-                            />
-                        </div>
-                        <div class="form-group">
-                            <button
-                                type="submit"
-                                class="btn btn-success float-right"
-                            >
-                                <ng-template
-                                    [ngIf]="loading"
-                                    [ngIfElse]="saveButton"
-                                >
-                                    <span
-                                        class="spinner-border spinner-border-sm"
-                                        role="status"
-                                        aria-hidden="true"
-                                    ></span>
-                                    <span class="sr-only">Loading...</span>
-                                </ng-template>
-                                <ng-template #saveButton>
-                                    Save
-                                </ng-template>
-                            </button>
-                        </div>
                     </form>
                 </ng-template>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Image</h5>
+            </div>
+            <div class="card-body">
+                <ng-template [ngIf]="model.imageId">
+                    <img
+                        src="https://kw6lirghub.execute-api.eu-west-2.amazonaws.com/dev/media/{{
+                            model.imageId
+                        }}"
+                        class="img-fluid mb-3"
+                    />
+                </ng-template>
+
+                <div class="form-group">
+                    <div class="custom-file">
+                        <input
+                            type="file"
+                            name="file"
+                            id="file"
+                            class="custom-file-input"
+                            aria-describedby="imageHelp"
+                            (change)="onFileChange()"
+                            #imageUpload
+                        />
+                        <label class="custom-file-label" for="file">{{
+                            fileInputLabel
+                        }}</label>
+                    </div>
+                    <small id="imageHelp" class="form-text text-muted">
+                        Leave blank, and don't select an image, to keep the
+                        existing image.
+                    </small>
+                </div>
             </div>
         </div>
     </div>

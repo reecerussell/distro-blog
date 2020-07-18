@@ -43,9 +43,9 @@ func (u *settingUsecase) List(ctx context.Context) result.Result {
 }
 
 func (u *settingUsecase) Get(ctx context.Context, key string) result.Result {
-	success, _, value, err := u.repo.Get(ctx, key).Deconstruct()
+	success, status, value, err := u.repo.Get(ctx, d.Key).Deconstruct()
 	if !success {
-		return result.Failure(err)
+		return result.Failure(err).WithStatusCode(status)
 	}
 
 	s := value.(*model.Setting)
@@ -53,9 +53,9 @@ func (u *settingUsecase) Get(ctx context.Context, key string) result.Result {
 }
 
 func (u *settingUsecase) Update(ctx context.Context, d *dto.Setting) result.Result {
-	success, _, value, err := u.repo.Get(ctx, d.Key).Deconstruct()
+	success, status, value, err := u.repo.Get(ctx, d.Key).Deconstruct()
 	if !success {
-		return result.Failure(err)
+		return result.Failure(err).WithStatusCode(status)
 	}
 
 	s := value.(*model.Setting)

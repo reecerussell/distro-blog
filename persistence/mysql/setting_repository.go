@@ -60,7 +60,7 @@ func settingReaderFunc(s database.ScannerFunc) (interface{}, error) {
 		&dm.Key,
 		&dm.Value,
 	)
-	return dm, err
+	return &dm, err
 }
 
 func (r *settingRepository) Update(ctx context.Context, d *model.Setting) result.Result {

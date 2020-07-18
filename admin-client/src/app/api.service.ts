@@ -211,6 +211,43 @@ class PageService {
     }
 }
 
+class BlogService {
+    constructor(private baseUrl: string) {
+        this.baseUrl = baseUrl + "blogs";
+    }
+
+    async List(): Promise<ApiResponse> {
+        const res = await fetch(this.baseUrl, {
+            method: "GET",
+            headers: {
+                Authorization: getAuthHeader(),
+            },
+        });
+        return await parseResponse(res);
+    }
+
+    async Create(data: CreatePage): Promise<ApiResponse> {
+        try {
+            const res = await fetch(this.baseUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: getAuthHeader(),
+                },
+                body: JSON.stringify(data),
+            });
+
+            return await parseResponse(res);
+        } catch (err) {
+            return new Promise(() => ({
+                ok: false,
+                data: null,
+                error: err,
+            }));
+        }
+    }
+}
+
 const parseResponse = async (res: Response): Promise<ApiResponse> => {
     if (res.status === 200) {
         const { data } = await res.json();
@@ -238,10 +275,12 @@ export class ApiService {
     constructor() {
         this.Users = new UserService(this.baseUrl);
         this.Pages = new PageService(this.baseUrl);
+        this.Blogs = new BlogService(this.baseUrl);
     }
 
     public Users: UserService;
     public Pages: PageService;
+    public Blogs: BlogService;
 
     async Login(email: string, password: string): Promise<ApiResponse> {
         const res = await fetch(this.baseUrl + "token", {

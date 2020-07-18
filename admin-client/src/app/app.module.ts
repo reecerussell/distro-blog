@@ -19,6 +19,7 @@ import { PageListComponent } from "./page-list/page-list.component";
 import { CreatePageComponent } from "./create-page/create-page.component";
 import { EditPageComponent } from './edit-page/edit-page.component';
 import { PageInfoComponent } from './page-info/page-info.component';
+import { BlogListComponent } from './blog-list/blog-list.component';
 
 @NgModule({
     declarations: [
@@ -36,6 +37,7 @@ import { PageInfoComponent } from './page-info/page-info.component';
         CreatePageComponent,
         EditPageComponent,
         PageInfoComponent,
+        BlogListComponent,
     ],
     imports: [
         BrowserModule,

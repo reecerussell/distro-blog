@@ -1,0 +1,33 @@
+<div class="taskbar mb-4">
+    <h1>
+        Blogs
+    </h1>
+    <ul>
+        <li>
+            <a routerLink="/blogs/create">
+                <i class="la la-folder-plus"></i>
+                Create
+            </a>
+        </li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-3" *ngFor="let blog of getBlogs()">
+        <div class="card">
+            <div class="card-header">
+                <h4>{{ blog.title }}</h4>
+            </div>
+            <div class="card-body">
+                {{ blog.description }}
+            </div>
+            <div class="card-footer">
+                <a
+                    class="btn btn-primary btn-sm btn-block"
+                    routerLink="/pages/{{ blog.id }}"
+                    >View</a
+                >
+            </div>
+        </div>
+    </div>
+</div>

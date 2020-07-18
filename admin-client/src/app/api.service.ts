@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { CreateUser, UpdateUser } from "./models/user";
 import { CreatePage, UpdatePage } from "./models/page";
 import Setting from "./models/setting";
+import Constants from "./common/constants";
 
 interface ApiResponse {
     ok: boolean;
@@ -308,7 +309,7 @@ const parseResponse = async (res: Response): Promise<ApiResponse> => {
     providedIn: "root",
 })
 export class ApiService {
-    baseUrl = "https://kw6lirghub.execute-api.eu-west-2.amazonaws.com/dev/";
+    baseUrl = Constants.APIBase;
 
     constructor() {
         this.Users = new UserService(this.baseUrl);

@@ -42,6 +42,14 @@ scopes:
         - "pages:write"
     "/POST/pages/*/deactivate":
         - "pages:write"
+    "/GET/settings":
+        - "settings:read"
+        - "settings:write"
+    "/GET/settings/*":
+        - "settings:read"
+        - "settings:write"
+    "/PUT/settings":
+        - "settings:write"
 
 scope_policies:
     "users:read":
@@ -69,3 +77,10 @@ scope_policies:
         - "/DELETE/pages/*"
         - "/POST/pages/*/activate"
         - "/POST/pages/*/deactivate"
+    "settings:read":
+        - "/GET/settings"
+        - "/GET/settings/*"
+    "settings:write":
+        - "/GET/settings"
+        - "/GET/settings/*"
+        - "/PUT/settings"

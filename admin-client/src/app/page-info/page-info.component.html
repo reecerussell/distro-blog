@@ -18,6 +18,14 @@
 
 <div class="row">
     <div class="col-lg-8">
+        <div class="card mb-3">
+            <div class="card-body">
+                <p class="url">
+                    <b>URL: </b> {{ model?.isBlog ? "/blog/" : "/"
+                    }}{{ model?.url }}
+                </p>
+            </div>
+        </div>
         <div class="card">
             <div class="card-header">
                 <h5>Audit Trail</h5>

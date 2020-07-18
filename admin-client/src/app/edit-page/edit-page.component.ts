@@ -86,10 +86,7 @@ export class EditPageComponent implements OnInit {
 
     validateUrl(): any {
         const url = this.model.url;
-        if (url.length < 1) {
-            this.urlError = "Please enter a url.";
-            return false;
-        } else if (url.length > 255) {
+        if (url.length > 255) {
             this.urlError = "URL cannot be longer than 255 characters.";
             return false;
         } else {

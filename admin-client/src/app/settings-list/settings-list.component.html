@@ -1,0 +1,75 @@
+<div class="taskbar mb-4">
+    <h1>
+        Settings
+    </h1>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="btn-toolbar mb-3 float-none float-md-right">
+            <div class="btn-group mr-2">
+                <input
+                    type="search"
+                    class="form-control form-control-sm border-secondary text-secondary"
+                    [(ngModel)]="searchTerm"
+                    placeholder="Search..."
+                />
+                <button
+                    type="button"
+                    class="btn btn-sm btn-secondary"
+                    (click)="loadSettings()"
+                >
+                    <i class="la la-sync"></i>
+                </button>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-striped table-sm">
+                <thead>
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <ng-template [ngIf]="loading" [ngIfElse]="tbody">
+                        <tr>
+                            <td colspan="3">
+                                <span
+                                    class="spinner-border spinner-border-sm"
+                                    role="status"
+                                    aria-hidden="true"
+                                ></span>
+                                <span class="sr-only">Loading...</span>
+                            </td>
+                        </tr>
+                    </ng-template>
+                    <ng-template #tbody>
+                        <ng-template
+                            [ngIf]="getSettings().length < 1"
+                            [ngIfElse]="settings"
+                        >
+                            <tr>
+                                <td colspan="3">
+                                    <b>No records match!</b>
+                                </td>
+                            </tr>
+                        </ng-template>
+                        <ng-template #settings>
+                            <tr *ngFor="let setting of getSettings()">
+                                <td>{{ setting.key }}</td>
+                                <td>{{ setting.value }}</td>
+                                <td>
+                                    <a routerLink="/settings/{{ setting.key }}"
+                                        >View</a
+                                    >
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </ng-template>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

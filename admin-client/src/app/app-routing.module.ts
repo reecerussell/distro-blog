@@ -11,6 +11,7 @@ import { EditPageComponent } from "./edit-page/edit-page.component";
 import { PageInfoComponent } from "./page-info/page-info.component";
 import { BlogListComponent } from "./blog-list/blog-list.component";
 import { CreateBlogComponent } from "./create-blog/create-blog.component";
+import { SettingsListComponent } from "./settings-list/settings-list.component";
 
 const routes: Routes = [
     {
@@ -64,6 +65,10 @@ const routes: Routes = [
     {
         path: "blogs/:id/info",
         component: PageInfoComponent,
+    },
+    {
+        path: "settings",
+        component: SettingsListComponent,
     },
 ];
 

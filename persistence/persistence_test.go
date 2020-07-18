@@ -89,3 +89,24 @@ func TestNewImageTypeRepository(t *testing.T) {
 		_ = NewImageTypeRepository("")
 	})
 }
+
+func TestNewSettingRepository(t *testing.T) {
+	defer func() {
+		if r := recover(); r != nil {
+			t.Errorf("expected no panic, but got: %v", r)
+		}
+	}()
+
+	db := database.NewMySQL("")
+	_ = NewSettingRepository(db)
+
+	t.Run("Unsupported Database Type", func(t *testing.T) {
+		defer func() {
+			if r := recover(); r == nil {
+				t.Errorf("expected a panic")
+			}
+		}()
+
+		_ = NewSettingRepository("")
+	})
+}

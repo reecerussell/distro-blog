@@ -45,3 +45,13 @@ func NewImageTypeRepository(db interface{}) repository.ImageTypeRepository {
 		panic("unsupported database type")
 	}
 }
+
+// NewSettingRepository returns and instance of SettingRepository for the given database type.
+func NewSettingRepository(db interface{}) repository.SettingRepository {
+	switch db.(type) {
+	case *database.MySQL:
+		return mysql.NewSettingRepository(db.(*database.MySQL))
+	default:
+		panic("unsupported database type")
+	}
+}

@@ -1,0 +1,61 @@
+<div class="taskbar">
+    <h1>
+        {{ model?.key || "Setting" }}
+    </h1>
+    <ul>
+        <li>
+            <a (click)="onSubmit()" class="text-success">
+                <i class="la la-save"></i>
+                {{ loading ? "Saving..." : "Save" }}
+            </a>
+        </li>
+        <li>
+            <a routerLink="/settings">
+                <i class="la la-gear"></i>
+                Settings
+            </a>
+        </li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-md-8 col-lg-6 col-xl-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Setting</h5>
+            </div>
+            <div class="card-body">
+                <ng-template [ngIf]="error">
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                </ng-template>
+                <ng-template [ngIf]="model">
+                    <div class="form-group">
+                        <label for="value">Value</label>
+                        <input
+                            type="text"
+                            name="value"
+                            id="value"
+                            class="form-control"
+                            [class.is-invalid]="valueError"
+                            [(ngModel)]="model.value"
+                            (keyup)="validateValue()"
+                            required
+                        />
+                        <ng-template [ngIf]="valueError">
+                            <div class="invalid-feedback">
+                                {{ valueError }}
+                            </div>
+                        </ng-template>
+                        <ng-template [ngIf]="getHelpText()">
+                            <small class="text-muted form-text">{{
+                                getHelpText()
+                            }}</small>
+                        </ng-template>
+                    </div>
+                </ng-template>
+            </div>
+        </div>
+    </div>
+</div>

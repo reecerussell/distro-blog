@@ -264,6 +264,16 @@ class SettingsService {
         return await parseResponse(res);
     }
 
+    async Get(key: string): Promise<ApiResponse> {
+        const res = await fetch(this.baseUrl + `/${key}`, {
+            method: "GET",
+            headers: {
+                Authorization: getAuthHeader(),
+            },
+        });
+        return await parseResponse(res);
+    }
+
     async Update(data: Setting): Promise<ApiResponse> {
         const res = await fetch(this.baseUrl, {
             method: "PUT",

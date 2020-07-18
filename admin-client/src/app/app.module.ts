@@ -22,6 +22,7 @@ import { PageInfoComponent } from './page-info/page-info.component';
 import { BlogListComponent } from './blog-list/blog-list.component';
 import { CreateBlogComponent } from './create-blog/create-blog.component';
 import { SettingsListComponent } from './settings-list/settings-list.component';
+import { EditSettingComponent } from './edit-setting/edit-setting.component';
 
 @NgModule({
     declarations: [
@@ -42,6 +43,7 @@ import { SettingsListComponent } from './settings-list/settings-list.component';
         BlogListComponent,
         CreateBlogComponent,
         SettingsListComponent,
+        EditSettingComponent,
     ],
     imports: [
         BrowserModule,

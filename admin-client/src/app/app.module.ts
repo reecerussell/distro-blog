@@ -20,6 +20,7 @@ import { CreatePageComponent } from "./create-page/create-page.component";
 import { EditPageComponent } from './edit-page/edit-page.component';
 import { PageInfoComponent } from './page-info/page-info.component';
 import { BlogListComponent } from './blog-list/blog-list.component';
+import { CreateBlogComponent } from './create-blog/create-blog.component';
 
 @NgModule({
     declarations: [
@@ -38,6 +39,7 @@ import { BlogListComponent } from './blog-list/blog-list.component';
         EditPageComponent,
         PageInfoComponent,
         BlogListComponent,
+        CreateBlogComponent,
     ],
     imports: [
         BrowserModule,

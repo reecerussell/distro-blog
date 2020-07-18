@@ -62,6 +62,7 @@ scope_policies:
     "pages:write":
         - "/GET/pages"
         - "/GET/blogs"
+        - "/POST/blogs"
         - "/GET/pages/*"
         - "/POST/pages"
         - "/PUT/pages"

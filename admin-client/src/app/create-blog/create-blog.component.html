@@ -1,0 +1,116 @@
+<div class="taskbar">
+    <h1>
+        Create
+    </h1>
+    <ul>
+        <li>
+            <a (click)="onSubmit()" class="text-success">
+                <i class="la la-save"></i>
+                {{ loading ? "Creating..." : "Create" }}
+            </a>
+        </li>
+        <li>
+            <a routerLink="/blogs">
+                <i class="la la-folder"></i>
+                Blogs
+            </a>
+        </li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-xl-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Blog</h5>
+            </div>
+            <div class="card-body">
+                <ng-template [ngIf]="error">
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                </ng-template>
+                <div class="row">
+                    <div class="col-xl-6">
+                        <div class="form-group">
+                            <label for="title">Title</label>
+                            <input
+                                type="text"
+                                name="title"
+                                id="title"
+                                class="form-control"
+                                [class.is-invalid]="titleError"
+                                [(ngModel)]="model.title"
+                                (keyup)="onTitleChange()"
+                                placeholder="Enter a title..."
+                                required
+                            />
+                            <ng-template [ngIf]="titleError">
+                                <div class="invalid-feedback">
+                                    {{ titleError }}
+                                </div>
+                            </ng-template>
+                        </div>
+                        <div class="form-group">
+                            <label for="url">URL</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span
+                                        class="input-group-text"
+                                        id="url-prefix"
+                                        >/blog/</span
+                                    >
+                                </div>
+                                <input
+                                    type="text"
+                                    name="url"
+                                    id="url"
+                                    class="form-control"
+                                    [class.is-invalid]="urlError"
+                                    [(ngModel)]="model.url"
+                                    (keyup)="onUrlChange()"
+                                    placeholder="Enter a url..."
+                                    aria-describedby="url-prefix"
+                                    required
+                                />
+                                <ng-template [ngIf]="urlError">
+                                    <div class="invalid-feedback">
+                                        {{ urlError }}
+                                    </div>
+                                </ng-template>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-6">
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <textarea
+                                name="description"
+                                id="description"
+                                class="form-control"
+                                [class.is-invalid]="descriptionError"
+                                [(ngModel)]="model.description"
+                                (keyup)="validateDescription()"
+                                placeholder="Enter a description..."
+                                required
+                            ></textarea>
+                            <ng-template [ngIf]="descriptionError">
+                                <div class="invalid-feedback">
+                                    {{ descriptionError }}
+                                </div>
+                            </ng-template>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="content">Content</label>
+                    <ckeditor
+                        [editor]="contentEditor"
+                        [(ngModel)]="model.content"
+                        name="content"
+                    ></ckeditor>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

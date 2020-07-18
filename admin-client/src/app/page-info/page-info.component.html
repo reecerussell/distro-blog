@@ -4,7 +4,11 @@
     </h1>
     <ul>
         <li>
-            <a routerLink="/pages/{{ model?.id }}">
+            <a
+                routerLink="/{{ model?.isBlog ? 'blogs' : 'pages' }}/{{
+                    model?.id
+                }}"
+            >
                 <i class="la la-folder"></i>
                 Content
             </a>

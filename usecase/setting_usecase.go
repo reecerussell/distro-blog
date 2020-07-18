@@ -43,7 +43,7 @@ func (u *settingUsecase) List(ctx context.Context) result.Result {
 }
 
 func (u *settingUsecase) Get(ctx context.Context, key string) result.Result {
-	success, status, value, err := u.repo.Get(ctx, d.Key).Deconstruct()
+	success, status, value, err := u.repo.Get(ctx, key).Deconstruct()
 	if !success {
 		return result.Failure(err).WithStatusCode(status)
 	}

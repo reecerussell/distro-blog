@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import { CreateUser, UpdateUser } from "./models/user";
 import { CreatePage, UpdatePage } from "./models/page";
+import Setting from "./models/setting";
 
 interface ApiResponse {
     ok: boolean;
@@ -248,6 +249,33 @@ class BlogService {
     }
 }
 
+class SettingsService {
+    constructor(private baseUrl: string) {
+        this.baseUrl = baseUrl + "settings";
+    }
+
+    async List(): Promise<ApiResponse> {
+        const res = await fetch(this.baseUrl, {
+            method: "GET",
+            headers: {
+                Authorization: getAuthHeader(),
+            },
+        });
+        return await parseResponse(res);
+    }
+
+    async Update(data: Setting): Promise<ApiResponse> {
+        const res = await fetch(this.baseUrl, {
+            method: "PUT",
+            headers: {
+                Authorization: getAuthHeader(),
+            },
+            body: JSON.stringify(data),
+        });
+        return await parseResponse(res);
+    }
+}
+
 const parseResponse = async (res: Response): Promise<ApiResponse> => {
     if (res.status === 200) {
         const { data } = await res.json();
@@ -276,11 +304,13 @@ export class ApiService {
         this.Users = new UserService(this.baseUrl);
         this.Pages = new PageService(this.baseUrl);
         this.Blogs = new BlogService(this.baseUrl);
+        this.Settings = new SettingsService(this.baseUrl);
     }
 
     public Users: UserService;
     public Pages: PageService;
     public Blogs: BlogService;
+    public Settings: SettingsService;
 
     async Login(email: string, password: string): Promise<ApiResponse> {
         const res = await fetch(this.baseUrl + "token", {

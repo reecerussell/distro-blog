@@ -107,6 +107,25 @@ func readFormData(req events.APIGatewayProxyRequest, d *dto.UpdatePage) ([]byte,
 	d.Description = r.FormValue("description")
 	d.URL = r.FormValue("url")
 
+	var seo dto.SEO
+	if v := r.FormValue("seoTitle"); v != "" {
+		seo.Title = &v
+	}
+
+	if v := r.FormValue("seoDescription"); v != "" {
+		seo.Description = &v
+	}
+
+	if v := r.FormValue("seoIndex"); strings.ToLower(v) == "true" {
+		seo.Index = true
+	}
+
+	if v := r.FormValue("seoFollow"); strings.ToLower(v) == "true" {
+		seo.Follow = true
+	}
+
+	d.SEO = &seo
+
 	content := r.FormValue("content")
 	if content != "" {
 		d.Content = &content

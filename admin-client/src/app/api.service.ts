@@ -197,7 +197,19 @@ class PageService {
             });
         } else {
             const formData = new FormData();
-            Object.keys(data).map((k) => formData.set(k, data[k]));
+            Object.keys(data).map((k) => {
+                if (k === "seo") {
+                    const { title, description, index, follow } = data[k];
+                    formData.set("seoTitle", title);
+                    formData.set("seoDescription", description);
+                    formData.set("seoIndex", index.toString());
+                    formData.set("seoFollow", follow.toString());
+
+                    return;
+                }
+
+                formData.set(k, data[k]);
+            });
             formData.set("image", image, "uploaded-image");
 
             res = await fetch(this.baseUrl, {

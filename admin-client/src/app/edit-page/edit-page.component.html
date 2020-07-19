@@ -28,24 +28,25 @@
     </ul>
 </div>
 
-<div class="row">
-    <div class="col-xl-8 mb-3 mb-xl-0">
-        <div class="card mb-3">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    {{ model ? (model.isBlog ? "Blog" : "Page") : null }}
-                </h5>
-            </div>
-            <div class="card-body">
-                <ng-template [ngIf]="!model" [ngIfElse]="form">
-                    <span
-                        class="spinner-border spinner-border-sm"
-                        role="status"
-                        aria-hidden="true"
-                    ></span>
-                    <span class="sr-only">Loading...</span>
-                </ng-template>
-                <ng-template #form>
+<ng-template [ngIf]="!model" [ngIfElse]="form">
+    <span
+        class="spinner-border spinner-border-sm"
+        role="status"
+        aria-hidden="true"
+    ></span>
+    <span class="sr-only">Loading...</span>
+</ng-template>
+
+<ng-template #form>
+    <div class="row">
+        <div class="col-xl-8 mb-3 mb-xl-0">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        {{ model ? (model.isBlog ? "Blog" : "Page") : null }}
+                    </h5>
+                </div>
+                <div class="card-body">
                     <ng-template [ngIf]="error">
                         <div class="alert alert-danger" role="alert">
                             {{ error }}
@@ -92,7 +93,6 @@
                                         [class.is-invalid]="urlError"
                                         [(ngModel)]="model.url"
                                         (keyup)="validateUrl()"
-                                        placeholder="Enter a url..."
                                         aria-describedby="url-prefix"
                                         required
                                     />
@@ -133,119 +133,120 @@
                             name="content"
                         ></ckeditor>
                     </div>
-                </ng-template>
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-header">
-                <h5>SEO</h5>
-            </div>
-            <div class="card-body">
-                <div class="form-group">
-                    <label for="seoTitle">Title</label>
-                    <input
-                        type="text"
-                        id="seoTitle"
-                        name="seoTitle"
-                        class="form-control"
-                        [(ngModel)]="model.seo.title"
-                        [class.is-valid]="seoTitleError"
-                        (keyup)="validateSeoTitle()"
-                        required
-                    />
-                    <ng-template [ngIf]="seoTitleError">
-                        <div class="invalid-feedback">
-                            {{ seoTitleError }}
-                        </div>
-                    </ng-template>
-                    <small class="form-text text-muted">
-                        If left blank, the page title will be used.
-                    </small>
-                </div>
-                <div class="form-group">
-                    <label for="seoDescription">Description</label>
-                    <textarea
-                        id="seoDescription"
-                        name="seoDescription"
-                        class="form-control"
-                        (keyup)="validateSeoDescription()"
-                        [(ngModel)]="model.seo.description"
-                        [class.is-valid]="seoDescriptionError"
-                        required
-                    ></textarea>
-                    <ng-template [ngIf]="seoDescriptionError">
-                        <div class="invalid-feedback">
-                            {{ seoDescriptionError }}
-                        </div>
-                    </ng-template>
-                    <small class="form-text text-muted">
-                        This field will be used for the page's meta description
-                        tag. If left blank, the page title will be used.
-                    </small>
-                </div>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <input
-                                type="checkbox"
-                                name="seoIndex"
-                                id="seoIndex"
-                                [(ngModel)]="model.seo.index"
-                            />
-                            <label for="seoIndex">Index</label>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <input
-                                type="checkbox"
-                                name="seoFollow"
-                                id="seoFollow"
-                                [(ngModel)]="model.seo.follow"
-                            />
-                            <label for="seoFollow">Follow</label>
-                        </div>
-                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="col-xl-4">
-        <div class="card">
-            <div class="card-header">
-                <h5>Image</h5>
-            </div>
-            <div class="card-body">
-                <ng-template [ngIf]="model?.imageId">
-                    <img
-                        src="https://kw6lirghub.execute-api.eu-west-2.amazonaws.com/dev/media/{{
-                            model.imageId
-                        }}"
-                        class="img-fluid mb-3"
-                    />
-                </ng-template>
-
-                <div class="form-group">
-                    <div class="custom-file">
+            <div class="card">
+                <div class="card-header">
+                    <h5>SEO</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="seoTitle">Title</label>
                         <input
-                            type="file"
-                            name="file"
-                            id="file"
-                            class="custom-file-input"
-                            aria-describedby="imageHelp"
-                            (change)="onFileChange()"
-                            #imageUpload
+                            type="text"
+                            id="seoTitle"
+                            name="seoTitle"
+                            class="form-control"
+                            [(ngModel)]="model.seo.title"
+                            [class.is-valid]="seoTitleError"
+                            (keyup)="validateSeoTitle()"
+                            required
                         />
-                        <label class="custom-file-label" for="file">{{
-                            fileInputLabel
-                        }}</label>
+                        <ng-template [ngIf]="seoTitleError">
+                            <div class="invalid-feedback">
+                                {{ seoTitleError }}
+                            </div>
+                        </ng-template>
+                        <small class="form-text text-muted">
+                            If left blank, the page title will be used.
+                        </small>
                     </div>
-                    <small id="imageHelp" class="form-text text-muted">
-                        Leave blank, and don't select an image, to keep the
-                        existing image.
-                    </small>
+                    <div class="form-group">
+                        <label for="seoDescription">Description</label>
+                        <textarea
+                            id="seoDescription"
+                            name="seoDescription"
+                            class="form-control"
+                            (keyup)="validateSeoDescription()"
+                            [(ngModel)]="model.seo.description"
+                            [class.is-valid]="seoDescriptionError"
+                            required
+                        ></textarea>
+                        <ng-template [ngIf]="seoDescriptionError">
+                            <div class="invalid-feedback">
+                                {{ seoDescriptionError }}
+                            </div>
+                        </ng-template>
+                        <small class="form-text text-muted">
+                            This field will be used for the page's meta
+                            description tag. If left blank, the page title will
+                            be used.
+                        </small>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input
+                                    type="checkbox"
+                                    name="seoIndex"
+                                    id="seoIndex"
+                                    [(ngModel)]="model.seo.index"
+                                />
+                                <label for="seoIndex">Index</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input
+                                    type="checkbox"
+                                    name="seoFollow"
+                                    id="seoFollow"
+                                    [(ngModel)]="model.seo.follow"
+                                />
+                                <label for="seoFollow">Follow</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Image</h5>
+                </div>
+                <div class="card-body">
+                    <ng-template [ngIf]="model?.imageId">
+                        <img
+                            src="https://api.reece-russell.co.uk/media/{{
+                                model.imageId
+                            }}"
+                            class="img-fluid mb-3"
+                        />
+                    </ng-template>
+
+                    <div class="form-group">
+                        <div class="custom-file">
+                            <input
+                                type="file"
+                                name="file"
+                                id="file"
+                                class="custom-file-input"
+                                aria-describedby="imageHelp"
+                                (change)="onFileChange()"
+                                #imageUpload
+                            />
+                            <label class="custom-file-label" for="file">{{
+                                fileInputLabel
+                            }}</label>
+                        </div>
+                        <small id="imageHelp" class="form-text text-muted">
+                            Leave blank, and don't select an image, to keep the
+                            existing image.
+                        </small>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</ng-template>

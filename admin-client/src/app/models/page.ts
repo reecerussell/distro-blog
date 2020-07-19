@@ -5,6 +5,7 @@ interface CreatePage {
     description: string;
     content: string;
     url: string;
+    seo: Seo;
 }
 
 interface UpdatePage {

@@ -20,7 +20,7 @@
 
 <div class="row">
     <div class="col-xl-8">
-        <div class="card">
+        <div class="card mb-3">
             <div class="card-header">
                 <h5 class="mb-0">Page</h5>
             </div>
@@ -90,7 +90,7 @@
                                 class="form-control"
                                 [class.is-invalid]="descriptionError"
                                 [(ngModel)]="model.description"
-                                (keyup)="validateDescription()"
+                                (keyup)="onDescriptionChange()"
                                 placeholder="Enter a description..."
                                 required
                             ></textarea>
@@ -109,6 +109,79 @@
                         [(ngModel)]="model.content"
                         name="content"
                     ></ckeditor>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <h5>SEO</h5>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="seoTitle">Title</label>
+                    <input
+                        type="text"
+                        id="seoTitle"
+                        name="seoTitle"
+                        class="form-control"
+                        [(ngModel)]="model.seo.title"
+                        [class.is-valid]="seoTitleError"
+                        (keyup)="onSeoTitleChange()"
+                        required
+                    />
+                    <ng-template [ngIf]="seoTitleError">
+                        <div class="invalid-feedback">
+                            {{ seoTitleError }}
+                        </div>
+                    </ng-template>
+                    <small class="form-text text-muted">
+                        If left blank, the page title will be used.
+                    </small>
+                </div>
+                <div class="form-group">
+                    <label for="seoDescription">Description</label>
+                    <textarea
+                        id="seoDescription"
+                        name="seoDescription"
+                        class="form-control"
+                        (keyup)="onSeoDescriptionChange()"
+                        [(ngModel)]="model.seo.description"
+                        [class.is-valid]="seoDescriptionError"
+                        required
+                    ></textarea>
+                    <ng-template [ngIf]="seoDescriptionError">
+                        <div class="invalid-feedback">
+                            {{ seoDescriptionError }}
+                        </div>
+                    </ng-template>
+                    <small class="form-text text-muted">
+                        This field will be used for the page's meta description
+                        tag. If left blank, the page title will be used.
+                    </small>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input
+                                type="checkbox"
+                                name="seoIndex"
+                                id="seoIndex"
+                                [(ngModel)]="model.seo.index"
+                            />
+                            <label for="seoIndex">Index</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input
+                                type="checkbox"
+                                name="seoFollow"
+                                id="seoFollow"
+                                [(ngModel)]="model.seo.follow"
+                            />
+                            <label for="seoFollow">Follow</label>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

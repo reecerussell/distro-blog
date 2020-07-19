@@ -19,10 +19,14 @@ export class CreateBlogComponent implements OnInit {
     contentEditor = ClassicEditor;
     isBlog: boolean = false;
     isUrlDirty: boolean = false;
+    isSeoTitleDirty: boolean = false;
+    isSeoDescriptionDirty: boolean = false;
 
     titleError: string = null;
     descriptionError: string = null;
     urlError: string = null;
+    seoTitleError: string = null;
+    seoDescriptionError: string = null;
 
     constructor(
         private api: ApiService,
@@ -38,6 +42,12 @@ export class CreateBlogComponent implements OnInit {
             description: "",
             content: "",
             url: "",
+            seo: {
+                title: "",
+                description: "",
+                index: false,
+                follow: false,
+            },
         };
     }
 
@@ -67,11 +77,35 @@ export class CreateBlogComponent implements OnInit {
                 this.model.url = urlChars.join("");
             }, 200);
         }
+
+        if (!this.isSeoTitleDirty) {
+            this.model.seo.title = this.model.title;
+        }
     }
 
     onUrlChange(): any {
         this.validateUrl();
         this.isUrlDirty = true;
+    }
+
+    onDescriptionChange(): any {
+        this.validateDescription();
+
+        if (!this.isSeoDescriptionDirty) {
+            this.model.seo.description = this.model.description;
+        }
+    }
+
+    onSeoTitleChange(): any {
+        this.validateSeoTitle();
+
+        this.isSeoTitleDirty = true;
+    }
+
+    onSeoDescriptionChange(): any {
+        this.validateSeoDescription();
+
+        this.isSeoDescriptionDirty = true;
     }
 
     validateTitle(): any {
@@ -136,11 +170,35 @@ export class CreateBlogComponent implements OnInit {
         return true;
     }
 
+    validateSeoTitle(): any {
+        const title = this.model.seo?.title;
+        if (title.length > 255) {
+            this.seoTitleError =
+                "Title cannot be greater than 255 characters long.";
+        } else {
+            this.seoTitleError = null;
+        }
+
+        return this.seoTitleError == null;
+    }
+
+    validateSeoDescription(): any {
+        const description = this.model.seo?.description;
+        if (description.length > 255) {
+            this.seoDescriptionError =
+                "Description cannot be greater than 255 characters long.";
+        } else {
+            this.seoDescriptionError = null;
+        }
+
+        return this.seoDescriptionError == null;
+    }
+
     validate() {
         let valid = true;
 
         if (!this.validateTitle()) {
-            valid = false;
+            return false;
         }
 
         if (!this.validateDescription()) {
@@ -148,6 +206,14 @@ export class CreateBlogComponent implements OnInit {
         }
 
         if (!this.validateUrl()) {
+            valid = false;
+        }
+
+        if (!this.validateSeoTitle()) {
+            valid = false;
+        }
+
+        if (!this.validateSeoDescription()) {
             valid = false;
         }
 

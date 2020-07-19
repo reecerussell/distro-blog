@@ -119,9 +119,7 @@ export class EditPageComponent implements OnInit {
 
     validateSeoTitle(): any {
         const title = this.model.seo?.title;
-        if (title.length < 1) {
-            this.seoTitleError = "Please enter a title.";
-        } else if (title.length > 255) {
+        if (title.length > 255) {
             this.seoTitleError =
                 "Title cannot be greater than 255 characters long.";
         } else {
@@ -133,9 +131,7 @@ export class EditPageComponent implements OnInit {
 
     validateSeoDescription(): any {
         const description = this.model.seo?.description;
-        if (description.length < 1) {
-            this.seoDescriptionError = "Please enter a description.";
-        } else if (description.length > 255) {
+        if (description.length > 255) {
             this.seoDescriptionError =
                 "Description cannot be greater than 255 characters long.";
         } else {

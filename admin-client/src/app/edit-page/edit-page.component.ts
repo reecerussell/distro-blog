@@ -24,6 +24,8 @@ export class EditPageComponent implements OnInit {
     titleError: string = null;
     descriptionError: string = null;
     urlError: string = null;
+    seoTitleError: string = null;
+    seoDescriptionError: string = null;
 
     constructor(
         private api: ApiService,
@@ -115,6 +117,34 @@ export class EditPageComponent implements OnInit {
         return true;
     }
 
+    validateSeoTitle(): any {
+        const title = this.model.seo?.title;
+        if (title.length < 1) {
+            this.seoTitleError = "Please enter a title.";
+        } else if (title.length > 255) {
+            this.seoTitleError =
+                "Title cannot be greater than 255 characters long.";
+        } else {
+            this.seoTitleError = null;
+        }
+
+        return this.seoTitleError == null;
+    }
+
+    validateSeoDescription(): any {
+        const description = this.model.seo?.description;
+        if (description.length < 1) {
+            this.seoDescriptionError = "Please enter a description.";
+        } else if (description.length > 255) {
+            this.seoDescriptionError =
+                "Description cannot be greater than 255 characters long.";
+        } else {
+            this.seoDescriptionError = null;
+        }
+
+        return this.seoDescriptionError == null;
+    }
+
     validate() {
         let valid = true;
 
@@ -127,6 +157,14 @@ export class EditPageComponent implements OnInit {
         }
 
         if (!this.validateUrl()) {
+            valid = false;
+        }
+
+        if (!this.validateSeoTitle()) {
+            valid = false;
+        }
+
+        if (!this.validateSeoDescription()) {
             valid = false;
         }
 

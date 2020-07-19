@@ -8,4 +8,5 @@ type UpdatePage struct {
 	Description string `json:"description"`
 	Content *string `json:"content"`
 	URL string `json:"url"`
+	SEO *SEO `json:"seo"`
 }

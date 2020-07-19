@@ -1,3 +1,5 @@
+import Seo from "./seo";
+
 interface CreatePage {
     title: string;
     description: string;
@@ -11,6 +13,7 @@ interface UpdatePage {
     description: string;
     content: string;
     url: string;
+    seo?: Seo;
 }
 
 interface Page {
@@ -23,6 +26,7 @@ interface Page {
     imageId?: string;
     url: string;
     audit?: PageAudit[];
+    seo?: Seo;
 }
 
 interface PageAudit {

@@ -21,6 +21,7 @@ import (
 func init() {
 	domainevents.RegisterEventHandler(&event.AddPageAudit{}, &handler.AddPageAudit{})
 	domainevents.RegisterEventHandler(&event.RemovePageImage{}, handler.NewRemovePageImageHandler())
+	domainevents.RegisterEventHandler(&event.UpdatePageSEO{}, &handler.UpdatePageSEO{})
 }
 
 const (
@@ -61,7 +62,7 @@ func NewPage(ctx context.Context, d *dto.CreatePage) (*Page, error) {
 		isBlog: false,
 	}
 
-	err := p.updateContent(d.Title, d.Description, d.Content, d.URL)
+	err := p.updateContent(d.Title, d.Description, d.Content, d.URL, d.SEO)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +81,7 @@ func NewBlogPage(ctx context.Context, d *dto.CreatePage) (*Page, error) {
 		isBlog: true,
 	}
 
-	err := p.updateContent(d.Title, d.Description, d.Content, d.URL)
+	err := p.updateContent(d.Title, d.Description, d.Content, d.URL, d.SEO)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +108,7 @@ func (p *Page) URL() string {
 
 // Update updates the page's data, including; title, description and content.
 func (p *Page) Update(ctx context.Context, d *dto.UpdatePage) error {
-	err := p.updateContent(d.Title, d.Description, d.Content, d.URL)
+	err := p.updateContent(d.Title, d.Description, d.Content, d.URL, d.SEO)
 	if err != nil {
 		return err
 	}
@@ -119,7 +120,7 @@ func (p *Page) Update(ctx context.Context, d *dto.UpdatePage) error {
 
 // updateContent moves the core update logic to a separate functions to avoid
 // code duplication.
-func (p *Page) updateContent(title, description string, content *string, url string) error {
+func (p *Page) updateContent(title, description string, content *string, url string, seo *dto.SEO) error {
 	err := p.UpdateTitle(title)
 	if err != nil {
 		return err
@@ -138,6 +139,30 @@ func (p *Page) updateContent(title, description string, content *string, url str
 	err = p.UpdateURL(url)
 	if err != nil {
 		return err
+	}
+
+	if seo != nil {
+		var sdm *datamodel.SEO
+		if p.seo == nil {
+			s, err := NewSEO(seo)
+			if err != nil {
+				return err
+			}
+
+			sdm = s.DataModel()
+		} else {
+			err = p.seo.Update(seo)
+			if err != nil {
+				return err
+			}
+
+			sdm = p.seo.DataModel()
+		}
+
+		p.RaiseEvent(&event.UpdatePageSEO{
+			PageID: p.id,
+			SEO: sdm,
+		})
 	}
 
 	return nil
@@ -309,6 +334,10 @@ func (p *Page) UpdateImage(ctx context.Context, i *Image) {
 	}
 
 	p.addAudit(ctx, AuditPageImageUpdated)
+}
+
+func (p *Page) UpdateSEO(d *dto.SEO) error {
+	return p.seo.Update(d)
 }
 
 // addAudit raises an audit domain event for the page.

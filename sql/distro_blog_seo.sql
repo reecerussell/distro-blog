@@ -26,24 +26,19 @@ SET @@SESSION.SQL_LOG_BIN= 0;
 SET @@GLOBAL.GTID_PURGED=/*!80000 '+'*/ '';
 
 --
--- Table structure for table `user_audit`
+-- Table structure for table `seo`
 --
 
-DROP TABLE IF EXISTS `user_audit`;
+DROP TABLE IF EXISTS `seo`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `user_audit` (
+CREATE TABLE `seo` (
   `id` varchar(128) NOT NULL,
-  `user_id` varchar(128) NOT NULL,
-  `performed_by_id` varchar(128) NOT NULL,
-  `date` datetime NOT NULL,
-  `message` varchar(255) NOT NULL,
-  `state` text,
-  PRIMARY KEY (`id`),
-  KEY `fk_user_audit_user_idx` (`user_id`),
-  KEY `fk_user_audit_performer_idx` (`performed_by_id`),
-  CONSTRAINT `fk_user_audit_performer` FOREIGN KEY (`performed_by_id`) REFERENCES `users` (`id`),
-  CONSTRAINT `fk_user_audit_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+  `title` varchar(255) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `index` tinyint(1) NOT NULL DEFAULT '1',
+  `follow` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 SET @@SESSION.SQL_LOG_BIN = @MYSQLDUMP_TEMP_LOG_BIN;
@@ -57,4 +52,4 @@ SET @@SESSION.SQL_LOG_BIN = @MYSQLDUMP_TEMP_LOG_BIN;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-07-09 22:53:20
+-- Dump completed on 2020-07-19 20:33:02

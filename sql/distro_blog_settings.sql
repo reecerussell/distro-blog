@@ -26,19 +26,16 @@ SET @@SESSION.SQL_LOG_BIN= 0;
 SET @@GLOBAL.GTID_PURGED=/*!80000 '+'*/ '';
 
 --
--- Table structure for table `user_scopes`
+-- Table structure for table `settings`
 --
 
-DROP TABLE IF EXISTS `user_scopes`;
+DROP TABLE IF EXISTS `settings`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `user_scopes` (
-  `user_id` varchar(128) NOT NULL,
-  `scope_id` varchar(128) NOT NULL,
-  PRIMARY KEY (`user_id`,`scope_id`),
-  KEY `fk_user_scope_scope_idx` (`scope_id`),
-  CONSTRAINT `fk_user_scope_scope` FOREIGN KEY (`scope_id`) REFERENCES `scopes` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `fk_user_scope_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+CREATE TABLE `settings` (
+  `key` varchar(45) NOT NULL,
+  `value` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 SET @@SESSION.SQL_LOG_BIN = @MYSQLDUMP_TEMP_LOG_BIN;
@@ -52,4 +49,4 @@ SET @@SESSION.SQL_LOG_BIN = @MYSQLDUMP_TEMP_LOG_BIN;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-07-09 22:53:18
+-- Dump completed on 2020-07-19 20:33:00

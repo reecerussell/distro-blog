@@ -39,7 +39,15 @@ CREATE TABLE `pages` (
   `content` text,
   `is_blog` bit(1) NOT NULL DEFAULT b'0',
   `is_active` bit(1) NOT NULL DEFAULT b'0',
-  PRIMARY KEY (`id`,`is_blog`,`is_active`)
+  `image_id` varchar(128) DEFAULT NULL,
+  `url` varchar(255) NOT NULL,
+  `seo_id` varchar(128) DEFAULT NULL,
+  PRIMARY KEY (`id`,`is_blog`,`is_active`),
+  UNIQUE KEY `url_UNIQUE` (`url`),
+  KEY `fk_page_image_idx` (`image_id`),
+  KEY `fk_page_Seo_idx` (`seo_id`),
+  CONSTRAINT `fk_page_image` FOREIGN KEY (`image_id`) REFERENCES `images` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_page_seo` FOREIGN KEY (`seo_id`) REFERENCES `seo` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 SET @@SESSION.SQL_LOG_BIN = @MYSQLDUMP_TEMP_LOG_BIN;
@@ -53,4 +61,4 @@ SET @@SESSION.SQL_LOG_BIN = @MYSQLDUMP_TEMP_LOG_BIN;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-07-06 15:10:58
+-- Dump completed on 2020-07-19 20:33:05

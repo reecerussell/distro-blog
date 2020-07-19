@@ -26,6 +26,19 @@ SET @@SESSION.SQL_LOG_BIN= 0;
 SET @@GLOBAL.GTID_PURGED=/*!80000 '+'*/ '';
 
 --
+-- Temporary view structure for view `view_setting_list`
+--
+
+DROP TABLE IF EXISTS `view_setting_list`;
+/*!50001 DROP VIEW IF EXISTS `view_setting_list`*/;
+SET @saved_cs_client     = @@character_set_client;
+/*!50503 SET character_set_client = utf8mb4 */;
+/*!50001 CREATE VIEW `view_setting_list` AS SELECT 
+ 1 AS `key`,
+ 1 AS `value`*/;
+SET character_set_client = @saved_cs_client;
+
+--
 -- Temporary view structure for view `view_blog_list`
 --
 
@@ -66,6 +79,24 @@ SET @saved_cs_client     = @@character_set_client;
  1 AS `Title`,
  1 AS `Description`*/;
 SET character_set_client = @saved_cs_client;
+
+--
+-- Final view structure for view `view_setting_list`
+--
+
+/*!50001 DROP VIEW IF EXISTS `view_setting_list`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`distro-user`@`%` SQL SECURITY DEFINER */
+/*!50001 VIEW `view_setting_list` AS select `settings`.`key` AS `key`,`settings`.`value` AS `value` from `settings` order by `settings`.`key` */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
 
 --
 -- Final view structure for view `view_blog_list`
@@ -173,6 +204,25 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `count_pages_by_url` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`distro-user`@`%` PROCEDURE `count_pages_by_url`(IN pageUrl VARCHAR(255), IN excludePageId VARCHAR(128))
+BEGIN
+	SELECT COUNT(*) FROM `pages` WHERE `url` = pageUrl AND `id` != excludePageId;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `count_users_by_email` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -181,11 +231,31 @@ DELIMITER ;
 /*!50003 SET character_set_results = utf8mb4 */ ;
 /*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
+/*!50003 SET sql_mode              = 'NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`root`@`%` PROCEDURE `count_users_by_email`(IN normalizedEmail VARCHAR(255), IN excludeId VARCHAR(128))
+CREATE DEFINER=`distro-user`@`%` PROCEDURE `count_users_by_email`(IN normalizedEmail VARCHAR(255), IN excludeId VARCHAR(128))
 BEGIN
 	SELECT COUNT(*) FROM `users` WHERE `normalized_email` = normalizedEmail AND `id` != excludeId;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `create_image` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`distro-user`@`%` PROCEDURE `create_image`(IN imageId VARCHAR(128), IN typeId VARCHAR(128))
+BEGIN
+	INSERT INTO `images` (`id`, `type_id`, `alternative_text`) 
+		VALUES (imageId, typeId, NULL);
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -203,10 +273,10 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`distro-user`@`%` PROCEDURE `create_page`(IN pageId VARCHAR(128), IN pageTitle VARCHAR(255), IN pageDescription VARCHAR(255), IN pageContent TEXT,
-	IN isPageBlog BIT)
+	IN isPageBlog BIT, IN pageUrl VARCHAR(255))
 BEGIN
-	INSERT INTO `pages` (`id`,`title`,`description`,`content`,`is_blog`,`is_active`) 
-		VALUES (pageId, pageTitle, pageDescription, pageContent, isPageBlog, FALSE);
+	INSERT INTO `pages` (`id`,`title`,`description`,`content`,`is_blog`,`is_active`, `url`) 
+		VALUES (pageId, pageTitle, pageDescription, pageContent, isPageBlog, FALSE, pageUrl);
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -233,6 +303,25 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `delete_image` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`distro-user`@`%` PROCEDURE `delete_image`(IN imageId VARCHAR(128))
+BEGIN
+	DELETE FROM images WHERE id = imageId;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `delete_user` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -246,6 +335,75 @@ DELIMITER ;;
 CREATE DEFINER=`root`@`%` PROCEDURE `delete_user`(IN userId VARCHAR(128))
 BEGIN
 	DELETE FROM `users` WHERE `id` = userId;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `get_image` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`distro-user`@`%` PROCEDURE `get_image`(IN imageId VARCHAR(128))
+BEGIN
+	SELECT
+		id as `Id`,
+        type_id as `TypeId`,
+        alternative_text `AltText`
+	FROM images
+    WHERE id = imageId;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `get_image_type` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`distro-user`@`%` PROCEDURE `get_image_type`(IN imageId VARCHAR(128))
+BEGIN
+	SELECT t.`name`
+    FROM images AS i
+		INNER JOIN image_types AS t ON t.id = i.type_id
+	WHERE i.id = imageId;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `get_image_type_by_name` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`distro-user`@`%` PROCEDURE `get_image_type_by_name`(IN normalizedName VARCHAR(255))
+BEGIN
+	SELECT
+		id AS `Id`,
+		`name` AS `Name`
+	FROM `image_types`
+    WHERE `name` = normalizedName;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -270,7 +428,9 @@ BEGIN
         `description` as `Description`,
         content as `Content`,
         is_blog = b'1' as `IsBlog`,
-        is_active = b'1' as `IsActive`
+        is_active = b'1' as `IsActive`,
+        image_id as `ImageId`,
+        url as `Url`
 	FROM `pages`
     WHERE id = pageId;
 END ;;
@@ -303,6 +463,51 @@ FROM
 WHERE
     a.page_id = pageId
 Order by a.date desc;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `get_page_seo` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`distro-user`@`%` PROCEDURE `get_page_seo`(IN pageId VARCHAR(255))
+BEGIN
+	SELECT
+		s.title as `Title`,
+		s.`description` as `Description`,
+		s.`index` = 1 as `Index`,
+		s.`follow` = 1 as `Follow`
+	FROM pages AS p
+		INNER JOIN seo AS s ON s.id = p.seo_id
+	WHERE p.id = pageId;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `get_setting` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`distro-user`@`%` PROCEDURE `get_setting`(IN settingKey VARCHAR(45))
+BEGIN
+	SELECT `key`, `value` FROM `settings` WHERE `key` = settingKey;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -408,13 +613,69 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE DEFINER=`distro-user`@`%` PROCEDURE `update_page`(IN pageId VARCHAR(128), IN pageTitle VARCHAR(255), IN pageDescription VARCHAR(255), IN pageContent TEXT, IN isPageActive BIT)
+CREATE DEFINER=`distro-user`@`%` PROCEDURE `update_page`(IN pageId VARCHAR(128), IN pageTitle VARCHAR(255), IN pageDescription VARCHAR(255), 
+IN pageContent TEXT, IN isPageActive BIT, IN imageId VARCHAR(128), IN pageUrl VARCHAR(255))
 BEGIN
 	UPDATE `pages` SET `title` = pageTitle, 
 		`description` = pageDescription, 
         `content` = pageContent,
-        `is_active` = isPageActive
+        `is_active` = isPageActive,
+        `image_id` = imageId,
+        `url` = pageUrl
 	WHERE `id` = pageId;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `update_page_seo` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`distro-user`@`%` PROCEDURE `update_page_seo`(IN pageId VARCHAR(128), IN seoTitle VARCHAR(255), IN seoDescription VARCHAR(128),
+	IN seoIndex TINYINT(1), IN seoFollow TINYINT(1))
+BEGIN
+	DECLARE seoId VARCHAR(128);
+    SELECT seo_id INTO seoId FROM pages WHERE id = pageId;
+    
+    IF seoId IS NULL THEN
+		SET seoId = UUID();
+    
+		INSERT INTO `seo` (`id`, `title`, `description`, `index`, `follow`)
+			VALUES (seoId, seoTitle, seoDescription, seoIndex, seoFollow);
+			
+		UPDATE `pages` SET `seo_id` = seoId WHERE `id` = pageId;
+	ELSE
+		UPDATE `seo` SET `title` = seoTitle, `description` = seoDescription, 
+			`index` = seoIndex, `follow` = seoFollow
+		WHERE id = seoId;
+	END IF;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `update_setting` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`distro-user`@`%` PROCEDURE `update_setting`(IN settingKey VARCHAR(45), IN settingValue VARCHAR(255))
+BEGIN
+	UPDATE `settings` SET `value` = settingValue WHERE `key` = settingKey;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -458,4 +719,4 @@ SET @@SESSION.SQL_LOG_BIN = @MYSQLDUMP_TEMP_LOG_BIN;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-07-06 15:10:58
+-- Dump completed on 2020-07-19 20:33:07

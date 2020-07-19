@@ -12,4 +12,5 @@ type Page struct {
 	URL string `json:"url"`
 
 	Audit []*PageAudit `json:"audit,omitempty"`
+	SEO *SEO `json:"seo,omitempty"`
 }

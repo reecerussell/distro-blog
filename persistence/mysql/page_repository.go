@@ -2,7 +2,6 @@ package mysql
 
 import (
 	"context"
-	"database/sql"
 	"net/http"
 
 	"github.com/reecerussell/distro-blog/domain/datamodel"
@@ -33,16 +32,18 @@ func NewPageRepository(db *database.MySQL) repository.PageRepository {
 func (r *pageRepository) Get(ctx context.Context, id string) result.Result {
 	const query string = "CALL `get_page`(?);"
 	dm, err := r.db.Read(ctx, query, pageReader, id)
-	if err != nil && err != sql.ErrNoRows {
+	if err != nil {
 		logging.Error(err)
 		return result.Failure(errMsgPageDbError)
 	}
 
-	if err == sql.ErrNoRows || dm == nil {
-		return result.Failure(errMsgPageNotFound).WithStatusCode(http.StatusNotFound)
+	page := dm.(*datamodel.Page)
+	page.Seo, err = r.getPageSeo(ctx, id)
+	if err != nil {
+		logging.Errorf("Error getting page SEO: %v", err)
 	}
 
-	p := model.PageFromDataModel(dm.(*datamodel.Page))
+	p := model.PageFromDataModel(page)
 	return result.Ok().WithValue(p)
 }
 
@@ -63,6 +64,31 @@ func pageReader(s database.ScannerFunc) (interface{}, error) {
 	}
 
 	return &dm, nil
+}
+
+func (r *pageRepository) getPageSeo(ctx context.Context, pageId string) (*datamodel.SEO, error) {
+	const query string = "CALL `get_page_seo`(?);"
+	dm, err := r.db.Read(ctx, query, seoReader, pageId)
+	if err != nil {
+		return nil, err
+	}
+
+	if dm == nil {
+		return nil, nil
+	}
+
+	return dm.(*datamodel.SEO), nil
+}
+
+func seoReader(s database.ScannerFunc) (interface{}, error) {
+	var dm datamodel.SEO
+	err := s(
+		&dm.Title,
+		&dm.Description,
+		&dm.Index,
+		&dm.Follow,
+	)
+	return &dm, err
 }
 
 func (r *pageRepository) ListPages(ctx context.Context) result.Result {

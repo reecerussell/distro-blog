@@ -13,4 +13,6 @@ type Page struct {
 	IsBlog bool
 	IsActive bool
 	URL string
+
+	Seo *SEO
 }

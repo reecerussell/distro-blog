@@ -59,6 +59,9 @@ type PageData struct {
 type SEOData struct {
 	Title string `json:"title"`
 	Description string `json:"description"`
+	SiteName string `json:"siteName"`
+	Index string `json:"index"`
+	Follow string `json:"follow"`
 }
 
 func pageReader(s database.ScannerFunc) (interface{}, error) {
@@ -74,6 +77,9 @@ func pageReader(s database.ScannerFunc) (interface{}, error) {
 		&imageID,
 		&data.SEO.Title,
 		&data.SEO.Description,
+		&data.SEO.SiteName,
+		&data.SEO.Index,
+		&data.SEO.Follow,
 	)
 	if err != nil {
 		return nil, err

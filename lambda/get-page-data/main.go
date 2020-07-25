@@ -33,8 +33,13 @@ func main() {
 }
 
 func getPageData(ctx context.Context, url string) result.Result {
+	url = strings.ToLower(url)
+	if strings.HasPrefix(url, "blog-") {
+		url = "blog/" + url[5:]
+	}
+
 	const query string = "CALL `get_page_data_by_url`(?);"
-	data, err := db.Read(ctx, query, pageReader, strings.ToLower(url))
+	data, err := db.Read(ctx, query, pageReader, url)
 	if err != nil {
 		return result.Failure(err)
 	}
@@ -60,8 +65,8 @@ type SEOData struct {
 	Title string `json:"title"`
 	Description string `json:"description"`
 	SiteName string `json:"siteName"`
-	Index string `json:"index"`
-	Follow string `json:"follow"`
+	Index bool `json:"index"`
+	Follow bool `json:"follow"`
 }
 
 func pageReader(s database.ScannerFunc) (interface{}, error) {

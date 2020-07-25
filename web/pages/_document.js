@@ -11,9 +11,6 @@ class CustomDocument extends Document {
 						name="viewport"
 						content="width=device-width, initial-scale=1, shrink-to-fit=no"
 					/>
-					<meta name="description" content="" />
-					<meta name="author" content="" />
-
 					<link
 						href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic"
 						rel="stylesheet"

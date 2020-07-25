@@ -21,7 +21,7 @@ const Layout = ({
 
 	return (
 		<>
-			<Seo {...data.seo} />
+			<Seo imageId={data.imageId} isBlog={data.isBlog} {...data.seo} />
 			<Navigation toggle={toggleNavigation} isOpen={isNavigationOpen} />
 			<Header
 				title={data.title}

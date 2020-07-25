@@ -13,6 +13,10 @@ app.prepare().then(() => {
 		app.render(req, res, "/index", req.query)
 	);
 
+	server.get("/blog/:path", (req, res) =>
+		app.render(req, res, "/index", req.query)
+	);
+
 	server.all("*", (req, res) => {
 		return handle(req, res);
 	});

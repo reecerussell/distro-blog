@@ -28,14 +28,18 @@ const Index = ({ status, data }) => {
 
 const getServerSideProps = async ({ req }) => {
 	const { pathname } = parseUrl(req.url, true);
-	const res = await fetch(
-		"https://api.reece-russell.co.uk/ui/page/" + pathname.substring(1),
-		{
-			headers: {
-				"x-api-key": "xYC4t7bmkO2I3fdOIlRzAWkbpIBVSMnakIWF1vl1",
-			},
-		}
-	);
+	let url = pathname.substr(1);
+	if (url.substr(0, 5) === "blog/") {
+		url = "blog-" + url.substr(5);
+	}
+
+	console.log(pathname);
+
+	const res = await fetch("https://api.reece-russell.co.uk/ui/page/" + url, {
+		headers: {
+			"x-api-key": "xYC4t7bmkO2I3fdOIlRzAWkbpIBVSMnakIWF1vl1",
+		},
+	});
 	let resData = null;
 
 	try {

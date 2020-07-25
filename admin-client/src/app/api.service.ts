@@ -223,6 +223,26 @@ class PageService {
 
         return await parseResponse(res);
     }
+
+    async Activate(id: string): Promise<ApiResponse> {
+        const res = await fetch(Constants.APIBase + `pages/${id}/activate`, {
+            method: "POST",
+            headers: {
+                Authorization: getAuthHeader(),
+            },
+        });
+        return await parseResponse(res);
+    }
+
+    async Deactivate(id: string): Promise<ApiResponse> {
+        const res = await fetch(Constants.APIBase + `pages/${id}/deactivate`, {
+            method: "POST",
+            headers: {
+                Authorization: getAuthHeader(),
+            },
+        });
+        return await parseResponse(res);
+    }
 }
 
 class BlogService {
@@ -321,9 +341,11 @@ const parseResponse = async (res: Response): Promise<ApiResponse> => {
     providedIn: "root",
 })
 export class ApiService {
-    baseUrl = Constants.APIBase;
+    baseUrl: string;
 
     constructor() {
+        this.baseUrl = Constants.APIBase;
+
         this.Users = new UserService(this.baseUrl);
         this.Pages = new PageService(this.baseUrl);
         this.Blogs = new BlogService(this.baseUrl);

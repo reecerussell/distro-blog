@@ -211,7 +211,7 @@
             </div>
         </div>
         <div class="col-xl-4">
-            <div class="card">
+            <div class="card mb-3">
                 <div class="card-header">
                     <h5>Image</h5>
                 </div>
@@ -245,6 +245,43 @@
                             existing image.
                         </small>
                     </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h5>Status</h5>
+                </div>
+                <div class="card-body">
+                    <p>
+                        By default pages and blogs are hidden, they can be
+                        activated to make them visible in the UI.
+                    </p>
+                    <p>
+                        <button
+                            type="button"
+                            class="btn"
+                            [class.btn-success]="!model?.isActive"
+                            [class.btn-danger]="model?.isActive"
+                            (click)="toggleVisibility()"
+                        >
+                            <ng-template
+                                [ngIf]="loading"
+                                [ngIfElse]="activateButton"
+                            >
+                                <span
+                                    class="spinner-border spinner-border-sm"
+                                    role="status"
+                                    aria-hidden="true"
+                                ></span>
+                                <span class="sr-only">Loading...</span>
+                            </ng-template>
+                            <ng-template #activateButton>
+                                {{
+                                    model?.isActive ? "Deactivate" : "Activate"
+                                }}
+                            </ng-template>
+                        </button>
+                    </p>
                 </div>
             </div>
         </div>

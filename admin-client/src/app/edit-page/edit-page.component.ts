@@ -202,4 +202,25 @@ export class EditPageComponent implements OnInit {
 
         this.loading = false;
     }
+
+    async toggleVisibility() {
+        if (this.loading || !this.model) {
+            return;
+        }
+
+        this.loading = true;
+
+        let toggle = this.model.isActive
+            ? this.api.Pages.Deactivate
+            : this.api.Pages.Activate;
+        const res = await toggle(this.model.id);
+        if (res.ok) {
+            this.model.isActive = !this.model.isActive;
+            this.error = null;
+        } else {
+            this.error = res.error;
+        }
+
+        this.loading = false;
+    }
 }

@@ -1,8 +1,14 @@
-import { Navigation, Header, Footer } from "./index";
+import { Navigation, Header, Footer, Seo } from "./index";
 import { Container, Row, Col } from "reactstrap";
 import PropTypes from "prop-types";
 
-const Layout = ({ children, isBlog, toggleNavigation, isNavigationOpen }) => {
+const Layout = ({
+	children,
+	isBlog,
+	toggleNavigation,
+	isNavigationOpen,
+	data,
+}) => {
 	const content = (
 		<Container>
 			<Row>
@@ -15,8 +21,13 @@ const Layout = ({ children, isBlog, toggleNavigation, isNavigationOpen }) => {
 
 	return (
 		<>
+			<Seo {...data.seo} />
 			<Navigation toggle={toggleNavigation} isOpen={isNavigationOpen} />
-			<Header />
+			<Header
+				title={data.title}
+				description={data.description}
+				imageId={data.imageId}
+			/>
 			{isBlog ? <article>{content}</article> : content}
 			<hr />
 			<Footer />

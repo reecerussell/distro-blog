@@ -1,20 +1,23 @@
 {
-  "name": "web",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start"
-  },
-  "dependencies": {
-    "@fortawesome/fontawesome-free": "^5.14.0",
-    "bootstrap": "^4.5.0",
-    "next": "9.4.4",
-    "prop-types": "^15.7.2",
-    "react": "16.13.1",
-    "react-dom": "16.13.1",
-    "reactstrap": "^8.5.1",
-    "sass": "^1.26.10"
-  }
+	"name": "web",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"dev": "next",
+		"node": "node server.js",
+		"build": "next build",
+		"start": "next start"
+	},
+	"dependencies": {
+		"@fortawesome/fontawesome-free": "^5.14.0",
+		"bootstrap": "^4.5.0",
+		"express": "^4.17.1",
+		"isomorphic-unfetch": "^3.0.0",
+		"next": "9.4.4",
+		"prop-types": "^15.7.2",
+		"react": "16.13.1",
+		"react-dom": "16.13.1",
+		"reactstrap": "^8.5.1",
+		"sass": "^1.26.10"
+	}
 }

@@ -18,4 +18,5 @@ type PageRepository interface {
 	Delete(ctx context.Context, id string) result.Result
 	GetAudit(ctx context.Context, id string) result.Result
 	CountByURL(ctx context.Context, p *model.Page) result.Result
+	GetDropdownOptions(ctx context.Context) result.Result
 }

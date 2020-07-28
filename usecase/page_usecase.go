@@ -23,6 +23,7 @@ type PageUsecase interface {
 	Activate(ctx context.Context, id string) result.Result
 	Deactivate(ctx context.Context, id string) result.Result
 	Delete(ctx context.Context, id string) result.Result
+	GetDropdownOptions(ctx context.Context) result.Result
 }
 
 type pageUsecase struct {
@@ -230,4 +231,8 @@ func (u *pageUsecase) Delete(ctx context.Context, id string) result.Result {
 	}
 	
 	return result.Ok()
+}
+
+func (u *pageUsecase) GetDropdownOptions(ctx context.Context) result.Result {
+	return u.repo.GetDropdownOptions(ctx)
 }

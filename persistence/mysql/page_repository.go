@@ -253,3 +253,36 @@ func (r *pageRepository) CountByURL(ctx context.Context, p *model.Page) result.R
 
 	return result.Ok().WithValue(c)
 }
+
+// GetDropdownOptions returns a list of *dto.PageDropdownItem for each item in the database.
+func (r *pageRepository) GetDropdownOptions(ctx context.Context) result.Result {
+	const query string = "SELECT * FROM `view_page_dropdown_options`;"
+	items, err := r.db.Multiple(ctx, query, pageOptionReader)
+	if err != nil {
+		logging.Error(err)
+		return result.Failure(errMsgPageDbError)
+	}
+
+	opts := make([]*dto.PageDropdownItem, len(items))
+
+	for i, item := range items {
+		opts[i] = item.(*dto.PageDropdownItem)
+	}
+
+	return result.Ok().WithValue(opts)
+}
+
+func pageOptionReader(s database.ScannerFunc) (interface{}, error) {
+	var dto dto.PageDropdownItem
+	err := s(
+		&dto.ID,
+		&dto.Title,
+		&dto.IsBlog,
+		&dto.IsActive,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto, nil
+}

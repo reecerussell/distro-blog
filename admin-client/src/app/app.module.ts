@@ -23,6 +23,7 @@ import { BlogListComponent } from './blog-list/blog-list.component';
 import { CreateBlogComponent } from './create-blog/create-blog.component';
 import { SettingsListComponent } from './settings-list/settings-list.component';
 import { EditSettingComponent } from './edit-setting/edit-setting.component';
+import { LinkModalComponent } from './link-modal/link-modal.component';
 
 @NgModule({
     declarations: [
@@ -44,6 +45,7 @@ import { EditSettingComponent } from './edit-setting/edit-setting.component';
         CreateBlogComponent,
         SettingsListComponent,
         EditSettingComponent,
+        LinkModalComponent,
     ],
     imports: [
         BrowserModule,

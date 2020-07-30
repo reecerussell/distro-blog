@@ -243,6 +243,16 @@ class PageService {
         });
         return await parseResponse(res);
     }
+
+    async DropdownOptions(): Promise<ApiResponse> {
+        const res = await fetch(Constants.APIBase + `pages/dropdown`, {
+            method: "GET",
+            headers: {
+                Authorization: getAuthHeader(),
+            },
+        });
+        return await parseResponse(res);
+    }
 }
 
 class BlogService {

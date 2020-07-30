@@ -1,0 +1,128 @@
+<ng-template [ngIf]="isOpen">
+    <div class="modal display" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title">Link</h5>
+                    <button
+                        type="button"
+                        class="close"
+                        (click)="toggle()"
+                        aria-label="Close"
+                    >
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="text">Text</label>
+                        <input
+                            type="text"
+                            name="text"
+                            id="text"
+                            class="form-control"
+                            placeholder="Enter link text..."
+                            (focus)="closePageDropdown()"
+                            [(ngModel)]="link.text"
+                        />
+                        <small class="text-muted form-text">
+                            This is the text that will be shown as the link.
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label for="url">URL</label>
+                        <input
+                            type="text"
+                            name="url"
+                            id="url"
+                            class="form-control"
+                            placeholder="Enter a URL..."
+                            (focus)="closePageDropdown()"
+                            [disabled]="selectedPageId !== null"
+                            [(ngModel)]="link.url"
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="pageId">Page</label>
+                        <input
+                            type="text"
+                            name="pageId"
+                            id="pageId"
+                            class="form-control"
+                            (focus)="openPageDropdown()"
+                        />
+                        <ng-template [ngIf]="isPageDropdownOpen">
+                            <ul class="list-group">
+                                <ng-template [ngIf]="isPageOptionsLoading">
+                                    <li class="list-group-item">
+                                        <div
+                                            class="spinner-border"
+                                            role="status"
+                                        >
+                                            <span class="sr-only"
+                                                >Loading...</span
+                                            >
+                                        </div>
+                                    </li>
+                                </ng-template>
+                                <ng-template [ngIf]="pageOptions">
+                                    <li
+                                        class="list-group-item"
+                                        [class.disabled]="!option.isActive"
+                                        [class.active]="
+                                            selectedPageId === option.id
+                                        "
+                                        (click)="
+                                            selectPage(option.id, option.title)
+                                        "
+                                        *ngFor="let option of pageOptions"
+                                    >
+                                        <i
+                                            class="la"
+                                            [class.la-folder]="!option.isBlog"
+                                            [class.la-stream]="option.isBlog"
+                                            [class.text-info]="
+                                                option.isActive &&
+                                                !option.isBlog
+                                            "
+                                            [class.text-success]="
+                                                option.isActive && option.isBlog
+                                            "
+                                        ></i>
+                                        {{ option.title }}
+                                    </li>
+                                </ng-template>
+                            </ul>
+                        </ng-template>
+                    </div>
+                    <div class="form-group">
+                        <label for="target">Target</label>
+                        <select
+                            type="text"
+                            name="target"
+                            id="target"
+                            class="form-control"
+                            (focus)="closePageDropdown()"
+                            [(ngModel)]="link.selected"
+                        >
+                            <option value="_self" selected>Same Tab</option>
+                            <option value="_blank">New Tab</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        (click)="toggle()"
+                    >
+                        Close
+                    </button>
+                    <button type="button" class="btn btn-success">
+                        Save
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>

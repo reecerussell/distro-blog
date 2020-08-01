@@ -110,3 +110,24 @@ func TestNewSettingRepository(t *testing.T) {
 		_ = NewSettingRepository("")
 	})
 }
+
+func TestNewNavigationRepository(t *testing.T) {
+	defer func() {
+		if r := recover(); r != nil {
+			t.Errorf("expected no panic, but got: %v", r)
+		}
+	}()
+
+	db := database.NewMySQL("")
+	_ = NewNavigationRepository(db)
+
+	t.Run("Unsupported Database Type", func(t *testing.T) {
+		defer func() {
+			if r := recover(); r == nil {
+				t.Errorf("expected a panic")
+			}
+		}()
+
+		_ = NewNavigationRepository("")
+	})
+}

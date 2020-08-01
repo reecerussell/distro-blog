@@ -55,3 +55,13 @@ func NewSettingRepository(db interface{}) repository.SettingRepository {
 		panic("unsupported database type")
 	}
 }
+
+// NewNavigationRepository returns and instance of NavigationRepository for the given database type.
+func NewNavigationRepository(db interface{}) repository.NavigationRepository {
+	switch db.(type) {
+	case *database.MySQL:
+		return mysql.NewNavigationRepository(db.(*database.MySQL))
+	default:
+		panic("unsupported database type")
+	}
+}

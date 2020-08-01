@@ -13,4 +13,5 @@ type NavigationRepository interface {
 	CreateItem(ctx context.Context, ni *model.NavigationItem) result.Result
 	UpdateItem(ctx context.Context, ni *model.NavigationItem) result.Result
 	DeleteItem(ctx context.Context, id string) result.Result
+	UpdateBrand(ctx context.Context, brandItemId string) result.Result
 }

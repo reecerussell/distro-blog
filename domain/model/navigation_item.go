@@ -34,6 +34,14 @@ func NewNavigationItem(d *dto.NavigationItem) (*NavigationItem, error) {
 	return ni, nil
 }
 
+func (ni *NavigationItem) ID() string {
+	return ni.id
+}
+
+func (ni *NavigationItem) IsBrand() bool {
+	return ni.isBrand
+}
+
 func (ni *NavigationItem) Update(d *dto.NavigationItem) error {
 	err := ni.UpdateText(d.Text)
 	if err != nil {

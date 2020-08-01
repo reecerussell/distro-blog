@@ -133,3 +133,14 @@ func (r *navigationRepository) DeleteItem(ctx context.Context, id string) result
 
 	return result.Ok()
 }
+
+func (r *navigationRepository) UpdateBrand(ctx context.Context, brandItemId string) result.Result {
+	const query string = "UPDATE `navigation` SET `is_brand` = FALSE WHERE `id` != ?"
+	_, err := r.db.Execute(ctx, query, brandItemId)
+	if err != nil {
+		logging.Error(err)
+		return result.Failure(errMsgNavigationServerError)
+	}
+
+	return result.Ok()
+}

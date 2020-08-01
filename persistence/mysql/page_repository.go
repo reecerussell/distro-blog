@@ -277,6 +277,7 @@ func pageOptionReader(s database.ScannerFunc) (interface{}, error) {
 	err := s(
 		&dto.ID,
 		&dto.Title,
+		&dto.URL,
 		&dto.IsBlog,
 		&dto.IsActive,
 	)

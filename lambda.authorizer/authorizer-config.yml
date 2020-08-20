@@ -50,6 +50,12 @@ scopes:
         - "settings:write"
     "/PUT/settings":
         - "settings:write"
+    "/GET/navigation":
+        - "navigation:read"
+        - "navigation:write"
+    "/GET/navigation/*":
+        - "navigation:read"
+        - "navigation:write"
 
 scope_policies:
     "users:read":
@@ -84,3 +90,9 @@ scope_policies:
         - "/GET/settings"
         - "/GET/settings/*"
         - "/PUT/settings"
+    "navigation:read":
+        - "/GET/navigation"
+        - "/GET/navigation/*"
+    "navigation:write":
+        - "/GET/navigation"
+        - "/GET/navigation/*"
